@@ -1,0 +1,55 @@
+# ============================================
+# Forge - Claude Code Configuration Framework
+# .gitignore - 隔离个人数据，保留可分享内容
+# ============================================
+
+# --- 敏感配置（本机专用，不分享） ---
+settings.json
+settings.local.json
+config.json
+.mcp.json
+hidden_projects.json
+
+# --- 缓存和运行时数据（自动生成，不分享） ---
+cache/
+debug/
+file-history/
+shell-snapshots/
+stats-cache.json
+statsig/
+telemetry/
+todos/
+ide/
+plans/
+downloads/
+session-env/
+
+# --- 个人学习数据（本机积累，不分享） ---
+homunculus/
+sessions/
+
+# --- 会话日志和项目数据 ---
+projects/
+*.jsonl
+
+# --- 备份文件 ---
+*-backup.md
+CLAUDE-v2.md
+
+# --- Skills（体积大，通过安装脚本拉取） ---
+skills/
+
+# --- Plugins（第三方插件） ---
+plugins/
+
+# --- 嵌套的 .claude 目录（Trellis 生成的项目级副本） ---
+.claude/
+
+# --- Cursor 适配（可选，已通过 .cursor/ 分享） ---
+
+# --- 系统文件 ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "fetch": {
+      "args": ["mcp-server-fetch"],
+      "command": "uvx"
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "deepwiki": {
+      "command": "npx",
+      "args": ["-y", "@cognitionnow/deepwiki-mcp"]
+    }
+  }
+}
