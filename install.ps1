@@ -55,21 +55,27 @@ foreach ($f in $files) {
 $dirs = @("agents", "commands", "contexts", "rules", "stacks", "hooks", "scripts")
 foreach ($d in $dirs) {
     $src = Join-Path $ScriptDir $d
+    $dst = Join-Path $ClaudeHome $d
     if (Test-Path $src) {
-        Copy-Item -Recurse $src (Join-Path $ClaudeHome $d) -Force
+        if (Test-Path $dst) { Remove-Item -Recurse -Force $dst }
+        Copy-Item -Recurse $src $dst -Force
     }
 }
 
 # Trellis
 $trellisSrc = Join-Path $ScriptDir ".trellis"
+$trellisDst = Join-Path $ClaudeHome ".trellis"
 if (Test-Path $trellisSrc) {
-    Copy-Item -Recurse $trellisSrc (Join-Path $ClaudeHome ".trellis") -Force
+    if (Test-Path $trellisDst) { Remove-Item -Recurse -Force $trellisDst }
+    Copy-Item -Recurse $trellisSrc $trellisDst -Force
 }
 
 # Cursor
 $cursorSrc = Join-Path $ScriptDir ".cursor"
+$cursorDst = Join-Path $ClaudeHome ".cursor"
 if (Test-Path $cursorSrc) {
-    Copy-Item -Recurse $cursorSrc (Join-Path $ClaudeHome ".cursor") -Force
+    if (Test-Path $cursorDst) { Remove-Item -Recurse -Force $cursorDst }
+    Copy-Item -Recurse $cursorSrc $cursorDst -Force
 }
 
 Write-Host "  Files installed" -ForegroundColor Green

@@ -60,16 +60,19 @@ copy_files() {
 
   for d in agents commands contexts rules stacks hooks scripts; do
     if [ -d "$SCRIPT_DIR/$d" ]; then
-      cp -r "$SCRIPT_DIR/$d" "$CLAUDE_HOME/"
+      rm -rf "$CLAUDE_HOME/$d"
+      cp -r "$SCRIPT_DIR/$d" "$CLAUDE_HOME/$d"
     fi
   done
 
   if [ -d "$SCRIPT_DIR/.trellis" ]; then
-    cp -r "$SCRIPT_DIR/.trellis" "$CLAUDE_HOME/"
+    rm -rf "$CLAUDE_HOME/.trellis"
+    cp -r "$SCRIPT_DIR/.trellis" "$CLAUDE_HOME/.trellis"
   fi
 
   if [ -d "$SCRIPT_DIR/.cursor" ]; then
-    cp -r "$SCRIPT_DIR/.cursor" "$CLAUDE_HOME/"
+    rm -rf "$CLAUDE_HOME/.cursor"
+    cp -r "$SCRIPT_DIR/.cursor" "$CLAUDE_HOME/.cursor"
   fi
 
   echo -e "${GREEN}  Files installed${NC}"
