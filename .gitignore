@@ -8,6 +8,7 @@ settings.json
 settings.local.json
 config.json
 .mcp.json
+hooks/hooks.json
 hidden_projects.json
 
 # --- 缓存和运行时数据（自动生成，不分享） ---
@@ -35,6 +36,7 @@ projects/
 # --- 备份文件 ---
 *-backup.md
 CLAUDE-v2.md
+GUIDE.md
 
 # --- Skills（体积大，通过安装脚本拉取） ---
 skills/

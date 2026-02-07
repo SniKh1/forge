@@ -5,10 +5,9 @@
 
 $ErrorActionPreference = "Stop"
 
-$RepoUrl = "https://github.com/SniKh1/forge.git"
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ClaudeHome = "$env:USERPROFILE\.claude"
 $BackupDir = "$env:USERPROFILE\.claude-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-$TempDir = "$env:TEMP\forge-install-$(Get-Random)"
 
 Write-Host ""
 Write-Host "  =======================================" -ForegroundColor Cyan
@@ -18,21 +17,17 @@ Write-Host "  =======================================" -ForegroundColor Cyan
 Write-Host ""
 
 # --- Step 1: Check dependencies ---
-Write-Host "[1/6] Checking dependencies..." -ForegroundColor Yellow
+Write-Host "[1/5] Checking dependencies..." -ForegroundColor Yellow
 
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     Write-Host "  Error: git is not installed" -ForegroundColor Red
     exit 1
 }
 
-if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-    Write-Host "  Warning: node is not installed. Hooks will not work." -ForegroundColor Yellow
-}
-
-Write-Host "  Dependencies OK" -ForegroundColor Green
+Write-Host "  OK" -ForegroundColor Green
 
 # --- Step 2: Backup existing config ---
-Write-Host "[2/6] Checking existing configuration..." -ForegroundColor Yellow
+Write-Host "[2/5] Checking existing configuration..." -ForegroundColor Yellow
 
 if (Test-Path $ClaudeHome) {
     Write-Host "  Found existing ~/.claude/"
@@ -46,17 +41,12 @@ if (Test-Path $ClaudeHome) {
     Write-Host "  Created ~/.claude/"
 }
 
-# --- Step 3: Clone repo ---
-Write-Host "[3/6] Cloning Forge..." -ForegroundColor Yellow
-git clone --depth 1 $RepoUrl $TempDir
-Write-Host "  Clone complete" -ForegroundColor Green
-
-# --- Step 4: Copy files ---
-Write-Host "[4/6] Installing configuration files..." -ForegroundColor Yellow
+# --- Step 3: Copy files ---
+Write-Host "[3/5] Installing configuration files..." -ForegroundColor Yellow
 
 $files = @("CLAUDE.md", "CAPABILITIES.md", "USAGE-GUIDE.md", "AGENTS.md", "GUIDE.md")
 foreach ($f in $files) {
-    $src = Join-Path $TempDir $f
+    $src = Join-Path $ScriptDir $f
     if (Test-Path $src) {
         Copy-Item $src (Join-Path $ClaudeHome $f) -Force
     }
@@ -64,28 +54,28 @@ foreach ($f in $files) {
 
 $dirs = @("agents", "commands", "contexts", "rules", "stacks", "hooks", "scripts")
 foreach ($d in $dirs) {
-    $src = Join-Path $TempDir $d
+    $src = Join-Path $ScriptDir $d
     if (Test-Path $src) {
         Copy-Item -Recurse $src (Join-Path $ClaudeHome $d) -Force
     }
 }
 
 # Trellis
-$trellisSrc = Join-Path $TempDir ".trellis"
+$trellisSrc = Join-Path $ScriptDir ".trellis"
 if (Test-Path $trellisSrc) {
     Copy-Item -Recurse $trellisSrc (Join-Path $ClaudeHome ".trellis") -Force
 }
 
 # Cursor
-$cursorSrc = Join-Path $TempDir ".cursor"
+$cursorSrc = Join-Path $ScriptDir ".cursor"
 if (Test-Path $cursorSrc) {
     Copy-Item -Recurse $cursorSrc (Join-Path $ClaudeHome ".cursor") -Force
 }
 
 Write-Host "  Files installed" -ForegroundColor Green
 
-# --- Step 5: Apply templates ---
-Write-Host "[5/6] Applying templates..." -ForegroundColor Yellow
+# --- Step 4: Apply templates ---
+Write-Host "[4/5] Applying templates..." -ForegroundColor Yellow
 
 $settingsTemplate = Join-Path $ClaudeHome "settings.json.template"
 if (Test-Path $settingsTemplate) {
@@ -107,8 +97,8 @@ if (Test-Path $hooksTemplate) {
 
 Write-Host "  Templates applied" -ForegroundColor Green
 
-# --- Step 6: Optional Skills ---
-Write-Host "[6/6] Optional components..." -ForegroundColor Yellow
+# --- Step 5: Optional Skills ---
+Write-Host "[5/5] Optional components..." -ForegroundColor Yellow
 
 $installSkills = Read-Host "  Install Skills from everything-claude-code? (y/n)"
 if ($installSkills -eq "y") {
@@ -121,9 +111,6 @@ if ($installSkills -eq "y") {
 } else {
     Write-Host "  Skipped Skills installation"
 }
-
-# --- Cleanup ---
-Remove-Item -Recurse -Force $TempDir -ErrorAction SilentlyContinue
 
 Write-Host ""
 Write-Host "  Installation complete!" -ForegroundColor Green

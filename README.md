@@ -44,6 +44,32 @@ bash /tmp/forge/install.sh
 
 The installer will: backup existing config → copy files → apply templates → optionally install Skills.
 
+### Prerequisites
+
+- [Git](https://git-scm.com/)
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI installed and authenticated
+
+### After Installation
+
+Once installed, just use Claude Code as usual. Forge is loaded automatically from `~/.claude/`.
+
+```bash
+# Start Claude Code in any project
+claude
+
+# Use slash commands
+/plan          # Create an implementation plan
+/tdd           # Test-driven development workflow
+/code-review   # Review your code
+/build-fix     # Fix build errors
+```
+
+Claude Code will automatically:
+- Route tasks to the appropriate Agent based on context
+- Apply coding style, security, and testing rules
+- Invoke matching Skills when relevant keywords are detected
+- Track reusable patterns via the auto-learning system
+
 ---
 
 ## Architecture

@@ -44,6 +44,32 @@ bash /tmp/forge/install.sh
 
 安装脚本会自动：备份现有配置 → 复制文件 → 替换模板变量 → 可选安装 Skills。
 
+### 前置条件
+
+- [Git](https://git-scm.com/)
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI 已安装并完成认证
+
+### 安装后使用
+
+安装完成后，正常使用 Claude Code 即可。Forge 会从 `~/.claude/` 自动加载。
+
+```bash
+# 在任意项目目录启动 Claude Code
+claude
+
+# 使用斜杠命令
+/plan          # 需求分析 + 实施计划
+/tdd           # 测试驱动开发
+/code-review   # 代码审查
+/build-fix     # 构建错误修复
+```
+
+Claude Code 会自动：
+- 根据上下文将任务路由到合适的 Agent
+- 应用代码风格、安全、测试等规则
+- 检测到相关关键词时调用匹配的 Skill
+- 通过自动学习系统记录可复用模式
+
 ---
 
 ## 架构
