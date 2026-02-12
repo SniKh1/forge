@@ -11,6 +11,16 @@
           }
         ],
         "description": "Load previous context and detect package manager on new session"
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"{{CLAUDE_HOME}}/hooks/session-start.py\""
+          }
+        ],
+        "description": "Trellis: Load developer identity, active tasks, and git context"
       }
     ],
     "SessionEnd": [
@@ -77,6 +87,16 @@
           }
         ],
         "description": "Suggest manual compaction at logical intervals"
+      },
+      {
+        "matcher": "tool == \"Task\" && tool_input.subagent_type matches \"^(implement|check|debug|research|dispatch|plan)$\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"{{CLAUDE_HOME}}/hooks/inject-subagent-context.py\""
+          }
+        ],
+        "description": "Trellis: Inject task context into Pipeline Agents"
       }
     ],
     "PostToolUse": [
@@ -99,6 +119,16 @@
           }
         ],
         "description": "Warn about console.log statements"
+      },
+      {
+        "matcher": "tool == \"Task\" && tool_input.subagent_type == \"check\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"{{CLAUDE_HOME}}/hooks/ralph-loop.py\""
+          }
+        ],
+        "description": "Trellis: Ralph Loop quality control for Check Agent (max 5 iterations)"
       }
     ],
     "Stop": [

@@ -36,7 +36,6 @@ projects/
 # --- 备份文件 ---
 *-backup.md
 CLAUDE-v2.md
-GUIDE.md
 
 # --- Skills（体积大，通过安装脚本拉取） ---
 skills/
@@ -55,3 +54,4 @@ Thumbs.db
 *.swp
 *.swo
 *~
+nul
