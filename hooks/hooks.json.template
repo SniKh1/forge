@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"{{CLAUDE_HOME}}/hooks/session-start.py\""
+            "command": "{{PYTHON_CMD}} \"{{CLAUDE_HOME}}/hooks/session-start.py\""
           }
         ],
         "description": "Trellis: Load developer identity, active tasks, and git context"
@@ -93,7 +93,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"{{CLAUDE_HOME}}/hooks/inject-subagent-context.py\""
+            "command": "{{PYTHON_CMD}} \"{{CLAUDE_HOME}}/hooks/inject-subagent-context.py\""
           }
         ],
         "description": "Trellis: Inject task context into Pipeline Agents"
@@ -125,7 +125,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"{{CLAUDE_HOME}}/hooks/ralph-loop.py\""
+            "command": "{{PYTHON_CMD}} \"{{CLAUDE_HOME}}/hooks/ralph-loop.py\""
           }
         ],
         "description": "Trellis: Ralph Loop quality control for Check Agent (max 5 iterations)"

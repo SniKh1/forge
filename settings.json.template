@@ -1,7 +1,37 @@
 {
   "env": {},
   "permissions": {
-    "allow": [],
+    "allow": [
+      "Bash(git *)",
+      "Bash(npm *)",
+      "Bash(pnpm *)",
+      "Bash(yarn *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(tsc *)",
+      "Bash(eslint *)",
+      "Bash(prettier *)",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "WebSearch",
+      "TodoWrite",
+      "Task",
+      "mcp__memory__*",
+      "mcp__sequential-thinking__*",
+      "mcp__deepwiki__*",
+      "mcp__context7__*",
+      "mcp__fetch__*",
+      "mcp__ace-tool__*"
+    ],
     "deny": []
+  },
+  "preferences": {
+    "language": "zh-CN",
+    "emoji": false,
+    "attribution": false
   }
 }

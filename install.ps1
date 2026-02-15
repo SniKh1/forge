@@ -25,18 +25,21 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 }
 
 $hasPython = $false
+$PythonCmd = "python3"
 if (Get-Command python3 -ErrorAction SilentlyContinue) {
     $hasPython = $true
+    $PythonCmd = "python3"
 }
 elseif (Get-Command python -ErrorAction SilentlyContinue) {
     $hasPython = $true
+    $PythonCmd = "python"
 }
 if (-not $hasPython) {
-    Write-Host "  Warning: python3 not found. Trellis hooks (Pipeline Agents, Ralph Loop) will not work." -ForegroundColor Yellow
+    Write-Host "  Warning: python not found. Trellis hooks (Pipeline Agents, Ralph Loop) will not work." -ForegroundColor Yellow
     Write-Host "  Install Python 3.8+ to enable full Trellis pipeline support." -ForegroundColor Yellow
 }
 else {
-    Write-Host "  python3: OK" -ForegroundColor Green
+    Write-Host "  $PythonCmd: OK" -ForegroundColor Green
 }
 
 Write-Host "  git: OK" -ForegroundColor Green
@@ -150,6 +153,7 @@ if (Test-Path $hooksTemplate) {
     $content = Get-Content $hooksTemplate -Raw
     $escapedPath = $ClaudeHome -replace '\\', '\\'
     $content = $content -replace '\{\{CLAUDE_HOME\}\}', $escapedPath
+    $content = $content -replace '\{\{PYTHON_CMD\}\}', $PythonCmd
     Set-Content -Path (Join-Path $ClaudeHome "hooks\hooks.json") -Value $content
 }
 
@@ -216,10 +220,10 @@ else {
 }
 
 # --- Step 7: Optional Skills ---
-Write-Host "[7/7] Optional components..." -ForegroundColor Yellow
+Write-Host "[7/7] Installing Skills..." -ForegroundColor Yellow
 
-$installSkills = Read-Host "  Install Skills from everything-claude-code? (y/n)"
-if ($installSkills -eq "y") {
+$skipSkills = Read-Host "  Install Skills from everything-claude-code? (Y/n)"
+if ($skipSkills -ne "n") {
     Write-Host "  Cloning everything-claude-code..."
     $eccDir = "$env:TEMP\ecc-$(Get-Random)"
     try {

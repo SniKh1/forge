@@ -25,6 +25,8 @@ echo "  ╚═══════════════════════
 echo -e "${NC}"
 
 # --- Step 1: Check dependencies ---
+PYTHON_CMD="python3"
+
 check_deps() {
   echo -e "${YELLOW}[1/7] Checking dependencies...${NC}"
 
@@ -35,9 +37,13 @@ check_deps() {
   echo -e "${GREEN}  git: OK${NC}"
 
   if command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
     echo -e "${GREEN}  python3: OK${NC}"
+  elif command -v python &> /dev/null; then
+    PYTHON_CMD="python"
+    echo -e "${GREEN}  python: OK${NC}"
   else
-    echo -e "${YELLOW}  Warning: python3 not found. Trellis hooks (Pipeline Agents, Ralph Loop) will not work.${NC}"
+    echo -e "${YELLOW}  Warning: python not found. Trellis hooks (Pipeline Agents, Ralph Loop) will not work.${NC}"
     echo -e "${YELLOW}  Install Python 3.8+ to enable full Trellis pipeline support.${NC}"
   fi
 }
@@ -69,19 +75,19 @@ copy_files() {
 
   for d in agents commands contexts rules stacks hooks scripts; do
     if [ -d "$SCRIPT_DIR/$d" ]; then
-      rm -rf "$CLAUDE_HOME/$d"
-      cp -r "$SCRIPT_DIR/$d" "$CLAUDE_HOME/$d"
+      mkdir -p "$CLAUDE_HOME/$d"
+      cp -r "$SCRIPT_DIR/$d/." "$CLAUDE_HOME/$d/"
     fi
   done
 
   if [ -d "$SCRIPT_DIR/.trellis" ]; then
-    rm -rf "$CLAUDE_HOME/.trellis"
-    cp -r "$SCRIPT_DIR/.trellis" "$CLAUDE_HOME/.trellis"
+    mkdir -p "$CLAUDE_HOME/.trellis"
+    cp -r "$SCRIPT_DIR/.trellis/." "$CLAUDE_HOME/.trellis/"
   fi
 
   if [ -d "$SCRIPT_DIR/.cursor" ]; then
-    rm -rf "$CLAUDE_HOME/.cursor"
-    cp -r "$SCRIPT_DIR/.cursor" "$CLAUDE_HOME/.cursor"
+    mkdir -p "$CLAUDE_HOME/.cursor"
+    cp -r "$SCRIPT_DIR/.cursor/." "$CLAUDE_HOME/.cursor/"
   fi
 
   echo -e "${GREEN}  Core files installed${NC}"
@@ -133,10 +139,11 @@ apply_templates() {
     cp "$CLAUDE_HOME/mcp.json.template" "$CLAUDE_HOME/.mcp.json"
   fi
 
-  # hooks.json - replace {{CLAUDE_HOME}}
+  # hooks.json - replace {{CLAUDE_HOME}} and {{PYTHON_CMD}}
   if [ -f "$CLAUDE_HOME/hooks/hooks.json.template" ]; then
     ESCAPED_HOME=$(echo "$CLAUDE_HOME" | sed 's/\//\\\//g')
-    sed "s/{{CLAUDE_HOME}}/$ESCAPED_HOME/g" \
+    sed -e "s/{{CLAUDE_HOME}}/$ESCAPED_HOME/g" \
+        -e "s/{{PYTHON_CMD}}/$PYTHON_CMD/g" \
       "$CLAUDE_HOME/hooks/hooks.json.template" > "$CLAUDE_HOME/hooks/hooks.json"
   fi
 
@@ -213,10 +220,10 @@ verify_trellis() {
 
 # --- Step 7: Optional Skills ---
 install_skills() {
-  echo -e "${YELLOW}[7/7] Optional components...${NC}"
+  echo -e "${YELLOW}[7/7] Installing Skills...${NC}"
 
-  read -p "  Install Skills from everything-claude-code? (y/n): " install_sk
-  if [ "$install_sk" = "y" ]; then
+  read -p "  Install Skills from everything-claude-code? (Y/n): " install_sk
+  if [ "$install_sk" != "n" ]; then
     echo "  Cloning everything-claude-code..."
     local ecc_dir="/tmp/ecc-$$"
     if git clone --depth 1 https://github.com/affaan-m/everything-claude-code "$ecc_dir" 2>&1; then
