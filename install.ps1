@@ -39,7 +39,7 @@ if (-not $hasPython) {
     Write-Host "  Install Python 3.8+ to enable full Trellis pipeline support." -ForegroundColor Yellow
 }
 else {
-    Write-Host "  $PythonCmd: OK" -ForegroundColor Green
+    Write-Host "  ${PythonCmd}: OK" -ForegroundColor Green
 }
 
 Write-Host "  git: OK" -ForegroundColor Green
