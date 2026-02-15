@@ -1,153 +1,134 @@
 # ============================================
 # Forge - Claude Code Configuration Framework
-# install.ps1 - Windows 安装脚本
+# install.ps1 - Windows
 # ============================================
 
 $ErrorActionPreference = "Stop"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ClaudeHome = "$env:USERPROFILE\.claude"
-$BackupDir = "$env:USERPROFILE\.claude-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
 
 Write-Host ""
 Write-Host "  =======================================" -ForegroundColor Cyan
 Write-Host "       Forge - Claude Code Framework     " -ForegroundColor Cyan
-Write-Host "          Installation Script            " -ForegroundColor Cyan
 Write-Host "  =======================================" -ForegroundColor Cyan
 Write-Host ""
 
+# --- Helper ---
+function Copy-DirMerge($src, $dest) {
+    if (-not (Test-Path $dest)) {
+        New-Item -ItemType Directory -Path $dest -Force | Out-Null
+    }
+    robocopy $src $dest /E /IS /IT /NFL /NDL /NJH /NJS /NC /NS /NP | Out-Null
+    if ($LASTEXITCODE -ge 8) {
+        Write-Host "    Warning: copy error for $src" -ForegroundColor Yellow
+    }
+}
+
 # --- Step 1: Check dependencies ---
-Write-Host "[1/7] Checking dependencies..." -ForegroundColor Yellow
+Write-Host "[1/5] Checking dependencies..." -ForegroundColor Yellow
 
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     Write-Host "  Error: git is not installed" -ForegroundColor Red
     exit 1
 }
-
-$hasPython = $false
-$PythonCmd = "python3"
-if (Get-Command python3 -ErrorAction SilentlyContinue) {
-    $hasPython = $true
-    $PythonCmd = "python3"
-}
-elseif (Get-Command python -ErrorAction SilentlyContinue) {
-    $hasPython = $true
-    $PythonCmd = "python"
-}
-if (-not $hasPython) {
-    Write-Host "  Warning: python not found. Trellis hooks (Pipeline Agents, Ralph Loop) will not work." -ForegroundColor Yellow
-    Write-Host "  Install Python 3.8+ to enable full Trellis pipeline support." -ForegroundColor Yellow
-}
-else {
-    Write-Host "  ${PythonCmd}: OK" -ForegroundColor Green
-}
-
 Write-Host "  git: OK" -ForegroundColor Green
 
-# --- Step 2: Backup existing config ---
-Write-Host "[2/7] Checking existing configuration..." -ForegroundColor Yellow
-
-if (Test-Path $ClaudeHome) {
-    Write-Host "  Found existing ~/.claude/"
-    $doBackup = Read-Host "  Backup existing config? (y/n)"
-    if ($doBackup -eq "y") {
-        Copy-Item -Recurse $ClaudeHome $BackupDir
-        Write-Host "  Backed up to $BackupDir" -ForegroundColor Green
-    }
+$PythonCmd = "python3"
+if (Get-Command python3 -ErrorAction SilentlyContinue) {
+    $PythonCmd = "python3"
+    Write-Host "  ${PythonCmd}: OK" -ForegroundColor Green
+}
+elseif (Get-Command python -ErrorAction SilentlyContinue) {
+    $PythonCmd = "python"
+    Write-Host "  ${PythonCmd}: OK" -ForegroundColor Green
 }
 else {
+    Write-Host "  Warning: python not found, Trellis hooks will not work" -ForegroundColor Yellow
+}
+
+# --- Step 2: Install files ---
+Write-Host "[2/5] Installing files..." -ForegroundColor Yellow
+
+if (-not (Test-Path $ClaudeHome)) {
     New-Item -ItemType Directory -Path $ClaudeHome | Out-Null
-    Write-Host "  Created ~/.claude/"
 }
 
-# --- Step 3: Copy core files ---
-Write-Host "[3/7] Installing configuration files..." -ForegroundColor Yellow
-
-# Helper: robocopy wrapper that mirrors src into dest without nesting
-function Copy-DirMerge($src, $dest) {
-    # robocopy /E = recurse including empty dirs, /IS /IT = overwrite same/tweaked
-    # robocopy exit codes 0-7 are success, 8+ are errors
-    robocopy $src $dest /E /IS /IT /NFL /NDL /NJH /NJS /NC /NS /NP | Out-Null
-    if ($LASTEXITCODE -ge 8) {
-        Write-Host "  Warning: robocopy error copying $src" -ForegroundColor Yellow
-    }
-}
-
-$files = @("CLAUDE.md", "CAPABILITIES.md", "USAGE-GUIDE.md", "AGENTS.md", "GUIDE.md")
-foreach ($f in $files) {
+# Markdown docs
+$docCount = 0
+foreach ($f in @("CLAUDE.md", "CAPABILITIES.md", "USAGE-GUIDE.md", "AGENTS.md", "GUIDE.md")) {
     $src = Join-Path $ScriptDir $f
     if (Test-Path $src) {
         Copy-Item $src (Join-Path $ClaudeHome $f) -Force
+        $docCount++
     }
 }
+Write-Host "  Docs: $docCount files" -ForegroundColor Gray
 
-$dirs = @("agents", "commands", "contexts", "rules", "stacks", "hooks", "scripts")
-foreach ($d in $dirs) {
+# Directories
+$dirList = @("agents", "commands", "contexts", "rules", "stacks", "hooks", "scripts", "skills")
+$dirCount = 0
+foreach ($d in $dirList) {
     $src = Join-Path $ScriptDir $d
     if (Test-Path $src) {
         Copy-DirMerge $src (Join-Path $ClaudeHome $d)
+        $dirCount++
     }
 }
 
-# Trellis
-$trellisSrc = Join-Path $ScriptDir ".trellis"
-if (Test-Path $trellisSrc) {
-    Copy-DirMerge $trellisSrc (Join-Path $ClaudeHome ".trellis")
-}
-
-# Cursor
-$cursorSrc = Join-Path $ScriptDir ".cursor"
-if (Test-Path $cursorSrc) {
-    Copy-DirMerge $cursorSrc (Join-Path $ClaudeHome ".cursor")
-}
-
-Write-Host "  Core files installed" -ForegroundColor Green
-
-# --- Step 4: Create required directories ---
-Write-Host "[4/7] Creating directory structure..." -ForegroundColor Yellow
-
-$requiredDirs = @(
-    "$ClaudeHome\homunculus\instincts\personal",
-    "$ClaudeHome\homunculus\instincts\inherited",
-    "$ClaudeHome\sessions",
-    "$ClaudeHome\commands\trellis"
-)
-
-foreach ($dir in $requiredDirs) {
-    if (-not (Test-Path $dir)) {
-        New-Item -ItemType Directory -Path $dir -Force | Out-Null
-        Write-Host "  Created $($dir -replace [regex]::Escape($ClaudeHome), '~/.claude')" -ForegroundColor Gray
+# Trellis + Cursor
+foreach ($d in @(".trellis", ".cursor")) {
+    $src = Join-Path $ScriptDir $d
+    if (Test-Path $src) {
+        Copy-DirMerge $src (Join-Path $ClaudeHome $d)
+        $dirCount++
     }
 }
+Write-Host "  Directories: $dirCount synced" -ForegroundColor Gray
 
-$gitkeepDirs = @(
+# Ensure runtime directories exist
+foreach ($dir in @(
     "$ClaudeHome\homunculus\instincts\personal",
     "$ClaudeHome\homunculus\instincts\inherited",
     "$ClaudeHome\sessions"
-)
-
-foreach ($dir in $gitkeepDirs) {
+)) {
+    if (-not (Test-Path $dir)) {
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+    }
     $gitkeep = Join-Path $dir ".gitkeep"
     if (-not (Test-Path $gitkeep)) {
         New-Item -ItemType File -Path $gitkeep -Force | Out-Null
     }
 }
 
-Write-Host "  Directories created" -ForegroundColor Green
+Write-Host "  Files installed" -ForegroundColor Green
 
-# --- Step 5: Apply templates ---
-Write-Host "[5/7] Applying templates..." -ForegroundColor Yellow
+# --- Step 3: Apply templates ---
+Write-Host "[3/5] Applying templates..." -ForegroundColor Yellow
 
+# settings.json (only if not exists, preserve user customizations)
+$settingsDest = Join-Path $ClaudeHome "settings.json"
 $settingsTemplate = Join-Path $ClaudeHome "settings.json.template"
-if (Test-Path $settingsTemplate) {
-    Copy-Item $settingsTemplate (Join-Path $ClaudeHome "settings.json") -Force
+if ((Test-Path $settingsTemplate) -and (-not (Test-Path $settingsDest))) {
+    Copy-Item $settingsTemplate $settingsDest -Force
+    Write-Host "  settings.json: created" -ForegroundColor Gray
+}
+else {
+    Write-Host "  settings.json: exists, skipped" -ForegroundColor Gray
 }
 
+# .mcp.json (only if not exists)
+$mcpDest = Join-Path $ClaudeHome ".mcp.json"
 $mcpTemplate = Join-Path $ClaudeHome "mcp.json.template"
-if (Test-Path $mcpTemplate) {
-    Copy-Item $mcpTemplate (Join-Path $ClaudeHome ".mcp.json") -Force
+if ((Test-Path $mcpTemplate) -and (-not (Test-Path $mcpDest))) {
+    Copy-Item $mcpTemplate $mcpDest -Force
+    Write-Host "  .mcp.json: created" -ForegroundColor Gray
+}
+else {
+    Write-Host "  .mcp.json: exists, skipped" -ForegroundColor Gray
 }
 
+# hooks.json (always regenerate from template)
 $hooksTemplate = Join-Path $ClaudeHome "hooks\hooks.json.template"
 if (Test-Path $hooksTemplate) {
     $content = Get-Content $hooksTemplate -Raw
@@ -155,106 +136,86 @@ if (Test-Path $hooksTemplate) {
     $content = $content -replace '\{\{CLAUDE_HOME\}\}', $escapedPath
     $content = $content -replace '\{\{PYTHON_CMD\}\}', $PythonCmd
     Set-Content -Path (Join-Path $ClaudeHome "hooks\hooks.json") -Value $content
+    Write-Host "  hooks.json: generated" -ForegroundColor Gray
 }
 
 Write-Host "  Templates applied" -ForegroundColor Green
 
-# --- Step 6: Verify Trellis integration ---
-Write-Host "[6/7] Verifying Trellis integration..." -ForegroundColor Yellow
-
-$trellisChecks = @{
-    "Pipeline Agents"  = @(
-        "$ClaudeHome\agents\implement.md",
-        "$ClaudeHome\agents\check.md",
-        "$ClaudeHome\agents\debug.md",
-        "$ClaudeHome\agents\research.md",
-        "$ClaudeHome\agents\dispatch.md",
-        "$ClaudeHome\agents\plan.md"
-    )
-    "Trellis Commands" = @(
-        "$ClaudeHome\commands\trellis\start.md",
-        "$ClaudeHome\commands\trellis\parallel.md",
-        "$ClaudeHome\commands\trellis\finish-work.md",
-        "$ClaudeHome\commands\trellis\break-loop.md",
-        "$ClaudeHome\commands\trellis\record-session.md",
-        "$ClaudeHome\commands\trellis\before-backend-dev.md",
-        "$ClaudeHome\commands\trellis\before-frontend-dev.md",
-        "$ClaudeHome\commands\trellis\check-backend.md",
-        "$ClaudeHome\commands\trellis\check-frontend.md",
-        "$ClaudeHome\commands\trellis\check-cross-layer.md",
-        "$ClaudeHome\commands\trellis\create-command.md",
-        "$ClaudeHome\commands\trellis\integrate-skill.md",
-        "$ClaudeHome\commands\trellis\onboard.md",
-        "$ClaudeHome\commands\trellis\update-spec.md"
-    )
-    "Trellis Hooks"    = @(
-        "$ClaudeHome\hooks\inject-subagent-context.py",
-        "$ClaudeHome\hooks\ralph-loop.py",
-        "$ClaudeHome\hooks\session-start.py"
-    )
-}
+# --- Step 4: Verify installation ---
+Write-Host "[4/5] Verifying..." -ForegroundColor Yellow
 
 $allOk = $true
-foreach ($category in $trellisChecks.Keys) {
-    $files = $trellisChecks[$category]
-    $missing = @()
-    foreach ($f in $files) {
-        if (-not (Test-Path $f)) {
-            $missing += Split-Path -Leaf $f
-        }
+
+# Check categories
+$checks = [ordered]@{
+    "Pipeline Agents" = @{
+        path = "$ClaudeHome\agents"
+        files = @("implement.md", "check.md", "debug.md", "research.md", "dispatch.md", "plan.md")
     }
-    if ($missing.Count -eq 0) {
-        Write-Host "  $category ($($files.Count)/$($files.Count)): OK" -ForegroundColor Green
+    "Trellis Commands" = @{
+        path = "$ClaudeHome\commands\trellis"
+        files = @("start.md", "parallel.md", "finish-work.md", "break-loop.md",
+                  "record-session.md", "before-backend-dev.md", "before-frontend-dev.md",
+                  "check-backend.md", "check-frontend.md", "check-cross-layer.md",
+                  "create-command.md", "integrate-skill.md", "onboard.md", "update-spec.md")
+    }
+    "Trellis Hooks" = @{
+        path = "$ClaudeHome\hooks"
+        files = @("inject-subagent-context.py", "ralph-loop.py", "session-start.py")
+    }
+}
+
+foreach ($name in $checks.Keys) {
+    $info = $checks[$name]
+    $total = $info.files.Count
+    $missing = ($info.files | Where-Object { -not (Test-Path (Join-Path $info.path $_)) }).Count
+    $ok = $total - $missing
+    if ($missing -eq 0) {
+        Write-Host "  $name ($ok/$total): OK" -ForegroundColor Green
     }
     else {
-        Write-Host "  $category ($($files.Count - $missing.Count)/$($files.Count)): MISSING $($missing -join ', ')" -ForegroundColor Red
+        Write-Host "  $name ($ok/$total): $missing MISSING" -ForegroundColor Red
         $allOk = $false
     }
 }
 
-if ($allOk) {
-    Write-Host "  Trellis integration verified" -ForegroundColor Green
+# Skills count
+$skillsDir = Join-Path $ClaudeHome "skills"
+if (Test-Path $skillsDir) {
+    $skillCount = (Get-ChildItem -Directory $skillsDir).Count
+    Write-Host "  Skills: $skillCount installed" -ForegroundColor Green
 }
 else {
-    Write-Host "  Some Trellis components are missing!" -ForegroundColor Red
+    Write-Host "  Skills: MISSING" -ForegroundColor Red
+    $allOk = $false
 }
 
-# --- Step 7: Install Skills ---
-Write-Host "[7/7] Installing Skills..." -ForegroundColor Yellow
-
-$skillsSrc = Join-Path $ScriptDir "skills"
-if (Test-Path $skillsSrc) {
-    $skillsDest = Join-Path $ClaudeHome "skills"
-    if (-not (Test-Path $skillsDest)) {
-        New-Item -ItemType Directory -Path $skillsDest -Force | Out-Null
-    }
-    Copy-DirMerge $skillsSrc $skillsDest
-    $skillCount = (Get-ChildItem -Directory $skillsDest).Count
-    Write-Host "  Skills installed ($skillCount skills)" -ForegroundColor Green
-}
-else {
-    Write-Host "  Warning: skills/ directory not found in repo" -ForegroundColor Yellow
+# Interactive agents count
+$agentsDir = Join-Path $ClaudeHome "agents"
+if (Test-Path $agentsDir) {
+    $agentTotal = (Get-ChildItem -Filter "*.md" $agentsDir).Count
+    Write-Host "  Agents (total): $agentTotal" -ForegroundColor Green
 }
 
-# --- Summary ---
+# Commands count
+$cmdsDir = Join-Path $ClaudeHome "commands"
+if (Test-Path $cmdsDir) {
+    $cmdTotal = (Get-ChildItem -Filter "*.md" $cmdsDir -Recurse).Count
+    Write-Host "  Commands (total): $cmdTotal" -ForegroundColor Green
+}
+
+if (-not $allOk) {
+    Write-Host ""
+    Write-Host "  Some components are missing, check the output above" -ForegroundColor Red
+}
+
+# --- Step 5: Done ---
 Write-Host ""
-Write-Host "  =======================================" -ForegroundColor Green
-Write-Host "       Installation complete!            " -ForegroundColor Green
-Write-Host "  =======================================" -ForegroundColor Green
+Write-Host "[5/5] Done!" -ForegroundColor Green
 Write-Host ""
-Write-Host "  Config location: $ClaudeHome" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "  Installed components:" -ForegroundColor Cyan
-Write-Host "    Interactive Agents:  10" -ForegroundColor Gray
-Write-Host "    Pipeline Agents:      6" -ForegroundColor Gray
-Write-Host "    Commands (general):  20" -ForegroundColor Gray
-Write-Host "    Commands (trellis):  14" -ForegroundColor Gray
-Write-Host "    Rules:                8" -ForegroundColor Gray
-Write-Host "    Contexts:             3" -ForegroundColor Gray
-Write-Host "    Hooks (JS):           8" -ForegroundColor Gray
-Write-Host "    Hooks (Python):       3" -ForegroundColor Gray
+Write-Host "  Location: $ClaudeHome" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  Next steps:" -ForegroundColor Cyan
-Write-Host "    1. Run /trellis:onboard in Claude Code for first-time setup" -ForegroundColor Gray
+Write-Host "    1. Run /trellis:onboard in Claude Code" -ForegroundColor Gray
 Write-Host "    2. Run /trellis:start at the beginning of each session" -ForegroundColor Gray
 Write-Host ""
