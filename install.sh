@@ -224,18 +224,31 @@ install_skills() {
 
   read -p "  Install Skills from everything-claude-code? (Y/n): " install_sk
   if [ "$install_sk" != "n" ]; then
-    echo "  Cloning everything-claude-code..."
     local ecc_dir="/tmp/ecc-$$"
-    if git clone --depth 1 https://github.com/affaan-m/everything-claude-code "$ecc_dir" 2>&1; then
-      if [ -d "$ecc_dir/skills" ]; then
-        mkdir -p "$CLAUDE_HOME/skills"
-        cp -r "$ecc_dir/skills/"* "$CLAUDE_HOME/skills/"
-        echo -e "${GREEN}  Skills installed${NC}"
-      else
-        echo -e "${YELLOW}  Warning: Clone succeeded but skills/ directory not found${NC}"
+    local clone_ok=false
+    local urls=(
+      "https://ghproxy.net/https://github.com/affaan-m/everything-claude-code"
+      "https://mirror.ghproxy.com/https://github.com/affaan-m/everything-claude-code"
+      "https://github.com/affaan-m/everything-claude-code"
+    )
+
+    for url in "${urls[@]}"; do
+      echo -e "${GRAY}  Trying: $url${NC}"
+      if git clone --depth 1 "$url" "$ecc_dir" 2>/dev/null; then
+        if [ -d "$ecc_dir/skills" ]; then
+          clone_ok=true
+          break
+        fi
       fi
+      rm -rf "$ecc_dir" 2>/dev/null
+    done
+
+    if $clone_ok; then
+      mkdir -p "$CLAUDE_HOME/skills"
+      cp -r "$ecc_dir/skills/"* "$CLAUDE_HOME/skills/"
+      echo -e "${GREEN}  Skills installed${NC}"
     else
-      echo -e "${YELLOW}  Warning: Failed to clone repository (network issue?)${NC}"
+      echo -e "${YELLOW}  Warning: All clone attempts failed (network issue)${NC}"
       echo -e "${GRAY}  You can install skills later by running:${NC}"
       echo -e "${GRAY}    git clone --depth 1 https://github.com/affaan-m/everything-claude-code /tmp/ecc${NC}"
       echo -e "${GRAY}    cp -r /tmp/ecc/skills ~/.claude/skills${NC}"

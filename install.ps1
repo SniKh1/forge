@@ -224,32 +224,48 @@ Write-Host "[7/7] Installing Skills..." -ForegroundColor Yellow
 
 $skipSkills = Read-Host "  Install Skills from everything-claude-code? (Y/n)"
 if ($skipSkills -ne "n") {
-    Write-Host "  Cloning everything-claude-code..."
     $eccDir = "$env:TEMP\ecc-$(Get-Random)"
-    try {
-        git clone --depth 1 https://github.com/affaan-m/everything-claude-code $eccDir 2>&1
-        if (Test-Path "$eccDir\skills") {
-            $skillsDest = Join-Path $ClaudeHome "skills"
-            if (-not (Test-Path $skillsDest)) {
-                New-Item -ItemType Directory -Path $skillsDest -Force | Out-Null
+    $cloneUrls = @(
+        "https://ghproxy.net/https://github.com/affaan-m/everything-claude-code",
+        "https://mirror.ghproxy.com/https://github.com/affaan-m/everything-claude-code",
+        "https://github.com/affaan-m/everything-claude-code"
+    )
+    $cloneOk = $false
+    foreach ($url in $cloneUrls) {
+        Write-Host "  Trying: $url" -ForegroundColor Gray
+        try {
+            $ErrorActionPreference = "Continue"
+            git clone --depth 1 --timeout=30 $url $eccDir 2>&1 | Out-Null
+            $ErrorActionPreference = "Stop"
+            if (Test-Path "$eccDir\skills") {
+                $cloneOk = $true
+                break
             }
-            Copy-DirMerge "$eccDir\skills" $skillsDest
-            Write-Host "  Skills installed" -ForegroundColor Green
         }
-        else {
-            Write-Host "  Warning: Clone succeeded but skills/ directory not found" -ForegroundColor Yellow
-        }
-    }
-    catch {
-        Write-Host "  Warning: Failed to clone repository (network issue?)" -ForegroundColor Yellow
-        Write-Host "  You can install skills later by running:" -ForegroundColor Yellow
-        Write-Host "    git clone --depth 1 https://github.com/affaan-m/everything-claude-code /tmp/ecc" -ForegroundColor Gray
-        Write-Host "    Copy-Item -Recurse /tmp/ecc/skills $ClaudeHome/skills" -ForegroundColor Gray
-    }
-    finally {
+        catch {}
+        $ErrorActionPreference = "Stop"
         if (Test-Path $eccDir) {
             Remove-Item -Recurse -Force $eccDir -ErrorAction SilentlyContinue
         }
+    }
+
+    if ($cloneOk) {
+        $skillsDest = Join-Path $ClaudeHome "skills"
+        if (-not (Test-Path $skillsDest)) {
+            New-Item -ItemType Directory -Path $skillsDest -Force | Out-Null
+        }
+        Copy-DirMerge "$eccDir\skills" $skillsDest
+        Write-Host "  Skills installed" -ForegroundColor Green
+    }
+    else {
+        Write-Host "  Warning: All clone attempts failed (network issue)" -ForegroundColor Yellow
+        Write-Host "  You can install skills later by running:" -ForegroundColor Yellow
+        Write-Host "    git clone --depth 1 https://github.com/affaan-m/everything-claude-code %TEMP%\ecc" -ForegroundColor Gray
+        Write-Host "    robocopy %TEMP%\ecc\skills $ClaudeHome\skills /E" -ForegroundColor Gray
+    }
+
+    if (Test-Path $eccDir) {
+        Remove-Item -Recurse -Force $eccDir -ErrorAction SilentlyContinue
     }
 }
 else {
