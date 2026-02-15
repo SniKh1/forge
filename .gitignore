@@ -37,8 +37,8 @@ projects/
 *-backup.md
 CLAUDE-v2.md
 
-# --- Skills（体积大，通过安装脚本拉取） ---
-skills/
+# --- Skills（随仓库分发，不再依赖网络 clone） ---
+# skills/
 
 # --- Plugins（第三方插件） ---
 plugins/

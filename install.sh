@@ -218,44 +218,19 @@ verify_trellis() {
   fi
 }
 
-# --- Step 7: Optional Skills ---
+# --- Step 7: Install Skills ---
 install_skills() {
   echo -e "${YELLOW}[7/7] Installing Skills...${NC}"
 
-  read -p "  Install Skills from everything-claude-code? (Y/n): " install_sk
-  if [ "$install_sk" != "n" ]; then
-    local ecc_dir="/tmp/ecc-$$"
-    local clone_ok=false
-    local urls=(
-      "https://ghproxy.net/https://github.com/affaan-m/everything-claude-code"
-      "https://mirror.ghproxy.com/https://github.com/affaan-m/everything-claude-code"
-      "https://github.com/affaan-m/everything-claude-code"
-    )
-
-    for url in "${urls[@]}"; do
-      echo -e "${GRAY}  Trying: $url${NC}"
-      if git clone --depth 1 "$url" "$ecc_dir" 2>/dev/null; then
-        if [ -d "$ecc_dir/skills" ]; then
-          clone_ok=true
-          break
-        fi
-      fi
-      rm -rf "$ecc_dir" 2>/dev/null
-    done
-
-    if $clone_ok; then
-      mkdir -p "$CLAUDE_HOME/skills"
-      cp -r "$ecc_dir/skills/"* "$CLAUDE_HOME/skills/"
-      echo -e "${GREEN}  Skills installed${NC}"
-    else
-      echo -e "${YELLOW}  Warning: All clone attempts failed (network issue)${NC}"
-      echo -e "${GRAY}  You can install skills later by running:${NC}"
-      echo -e "${GRAY}    git clone --depth 1 https://github.com/affaan-m/everything-claude-code /tmp/ecc${NC}"
-      echo -e "${GRAY}    cp -r /tmp/ecc/skills ~/.claude/skills${NC}"
-    fi
-    rm -rf "$ecc_dir" 2>/dev/null
+  local skills_src="$SCRIPT_DIR/skills"
+  if [ -d "$skills_src" ]; then
+    mkdir -p "$CLAUDE_HOME/skills"
+    cp -r "$skills_src/." "$CLAUDE_HOME/skills/"
+    local skill_count
+    skill_count=$(find "$CLAUDE_HOME/skills" -maxdepth 1 -mindepth 1 -type d | wc -l)
+    echo -e "${GREEN}  Skills installed ($skill_count skills)${NC}"
   else
-    echo "  Skipped Skills installation"
+    echo -e "${YELLOW}  Warning: skills/ directory not found in repo${NC}"
   fi
 }
 
