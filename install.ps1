@@ -144,69 +144,20 @@ Write-Host "  Templates applied" -ForegroundColor Green
 # --- Step 4: Verify installation ---
 Write-Host "[4/5] Verifying..." -ForegroundColor Yellow
 
-$allOk = $true
-
-# Check categories
-$checks = [ordered]@{
-    "Pipeline Agents" = @{
-        path = "$ClaudeHome\agents"
-        files = @("implement.md", "check.md", "debug.md", "research.md", "dispatch.md", "plan.md")
+$verifyScript = Join-Path $ClaudeHome "scripts\verify.ps1"
+if (Test-Path $verifyScript) {
+    $env:CLAUDE_HOME = $ClaudeHome
+    & $verifyScript
+} else {
+    Write-Host "  verify.ps1 not found, running basic checks..." -ForegroundColor Yellow
+    # Fallback: basic file existence checks
+    foreach ($f in @("CLAUDE.md", "settings.json", ".mcp.json")) {
+        if (Test-Path (Join-Path $ClaudeHome $f)) {
+            Write-Host "  ${f}: OK" -ForegroundColor Green
+        } else {
+            Write-Host "  ${f}: MISSING" -ForegroundColor Red
+        }
     }
-    "Trellis Commands" = @{
-        path = "$ClaudeHome\commands\trellis"
-        files = @("start.md", "parallel.md", "finish-work.md", "break-loop.md",
-                  "record-session.md", "before-backend-dev.md", "before-frontend-dev.md",
-                  "check-backend.md", "check-frontend.md", "check-cross-layer.md",
-                  "create-command.md", "integrate-skill.md", "onboard.md", "update-spec.md")
-    }
-    "Trellis Hooks" = @{
-        path = "$ClaudeHome\hooks"
-        files = @("inject-subagent-context.py", "ralph-loop.py", "session-start.py")
-    }
-}
-
-foreach ($name in $checks.Keys) {
-    $info = $checks[$name]
-    $total = $info.files.Count
-    $missing = ($info.files | Where-Object { -not (Test-Path (Join-Path $info.path $_)) }).Count
-    $ok = $total - $missing
-    if ($missing -eq 0) {
-        Write-Host "  $name ($ok/$total): OK" -ForegroundColor Green
-    }
-    else {
-        Write-Host "  $name ($ok/$total): $missing MISSING" -ForegroundColor Red
-        $allOk = $false
-    }
-}
-
-# Skills count
-$skillsDir = Join-Path $ClaudeHome "skills"
-if (Test-Path $skillsDir) {
-    $skillCount = (Get-ChildItem -Directory $skillsDir).Count
-    Write-Host "  Skills: $skillCount installed" -ForegroundColor Green
-}
-else {
-    Write-Host "  Skills: MISSING" -ForegroundColor Red
-    $allOk = $false
-}
-
-# Interactive agents count
-$agentsDir = Join-Path $ClaudeHome "agents"
-if (Test-Path $agentsDir) {
-    $agentTotal = (Get-ChildItem -Filter "*.md" $agentsDir).Count
-    Write-Host "  Agents (total): $agentTotal" -ForegroundColor Green
-}
-
-# Commands count
-$cmdsDir = Join-Path $ClaudeHome "commands"
-if (Test-Path $cmdsDir) {
-    $cmdTotal = (Get-ChildItem -Filter "*.md" $cmdsDir -Recurse).Count
-    Write-Host "  Commands (total): $cmdTotal" -ForegroundColor Green
-}
-
-if (-not $allOk) {
-    Write-Host ""
-    Write-Host "  Some components are missing, check the output above" -ForegroundColor Red
 }
 
 # --- Step 5: Done ---

@@ -122,64 +122,20 @@ echo -e "${GREEN}  Templates applied${NC}"
 # --- Step 4: Verify installation ---
 echo -e "${YELLOW}[4/5] Verifying...${NC}"
 
-all_ok=true
-
-# Helper: check file list
-check_files() {
-  local label="$1"
-  local dir="$2"
-  shift 2
-  local files=("$@")
-  local total=${#files[@]}
-  local missing=0
-  for f in "${files[@]}"; do
-    [ ! -f "$dir/$f" ] && missing=$((missing + 1))
-  done
-  local ok=$((total - missing))
-  if [ $missing -eq 0 ]; then
-    echo -e "${GREEN}  $label ($ok/$total): OK${NC}"
-  else
-    echo -e "${RED}  $label ($ok/$total): $missing MISSING${NC}"
-    all_ok=false
-  fi
-}
-
-check_files "Pipeline Agents" "$CLAUDE_HOME/agents" \
-  implement.md check.md debug.md research.md dispatch.md plan.md
-
-check_files "Trellis Commands" "$CLAUDE_HOME/commands/trellis" \
-  start.md parallel.md finish-work.md break-loop.md \
-  record-session.md before-backend-dev.md before-frontend-dev.md \
-  check-backend.md check-frontend.md check-cross-layer.md \
-  create-command.md integrate-skill.md onboard.md update-spec.md
-
-check_files "Trellis Hooks" "$CLAUDE_HOME/hooks" \
-  inject-subagent-context.py ralph-loop.py session-start.py
-
-# Skills count
-if [ -d "$CLAUDE_HOME/skills" ]; then
-  skill_count=$(find "$CLAUDE_HOME/skills" -maxdepth 1 -mindepth 1 -type d | wc -l | tr -d ' ')
-  echo -e "${GREEN}  Skills: $skill_count installed${NC}"
+VERIFY_SCRIPT="$CLAUDE_HOME/scripts/verify.sh"
+if [ -f "$VERIFY_SCRIPT" ]; then
+  chmod +x "$VERIFY_SCRIPT"
+  CLAUDE_HOME="$CLAUDE_HOME" bash "$VERIFY_SCRIPT"
 else
-  echo -e "${RED}  Skills: MISSING${NC}"
-  all_ok=false
-fi
-
-# Agents total
-if [ -d "$CLAUDE_HOME/agents" ]; then
-  agent_total=$(find "$CLAUDE_HOME/agents" -maxdepth 1 -name "*.md" | wc -l | tr -d ' ')
-  echo -e "${GREEN}  Agents (total): $agent_total${NC}"
-fi
-
-# Commands total
-if [ -d "$CLAUDE_HOME/commands" ]; then
-  cmd_total=$(find "$CLAUDE_HOME/commands" -name "*.md" | wc -l | tr -d ' ')
-  echo -e "${GREEN}  Commands (total): $cmd_total${NC}"
-fi
-
-if ! $all_ok; then
-  echo ""
-  echo -e "${RED}  Some components are missing, check the output above${NC}"
+  echo -e "${YELLOW}  verify.sh not found, running basic checks...${NC}"
+  # Fallback: basic file existence checks
+  for f in CLAUDE.md settings.json .mcp.json; do
+    if [ -f "$CLAUDE_HOME/$f" ]; then
+      echo -e "${GREEN}  $f: OK${NC}"
+    else
+      echo -e "${RED}  $f: MISSING${NC}"
+    fi
+  done
 fi
 
 # --- Step 5: Done ---

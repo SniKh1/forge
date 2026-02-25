@@ -37,6 +37,9 @@ projects/
 *-backup.md
 CLAUDE-v2.md
 
+# --- 本地修改记录（不提交） ---
+CHANGELOG-LOCAL.md
+
 # --- Skills（随仓库分发，不再依赖网络 clone） ---
 # skills/
 
