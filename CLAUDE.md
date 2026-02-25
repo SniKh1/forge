@@ -1,7 +1,7 @@
 # Claude Code 开发规范
 
-**版本**：v3.0（Trellis 集成精简版）
-**更新日期**：2026-02-06
+**版本**：v3.1（Skills 精简优化版）
+**更新日期**：2026-02-25
 
 > 详细规范已拆分至 `rules/` 和 `.trellis/spec/guides/`，本文件仅保留路由表和核心原则。
 
@@ -24,9 +24,13 @@
 | 数据库/SQL | `databases` |
 | 登录/认证 | `better-auth` |
 | 部署/Docker | `devops` |
-| 调试/报错 | `debugging/systematic-debugging` |
-| 计划/方案 | `superpowers:brainstorm` |
+| 调试/报错 | `systematic-debugging` + `error-resolver` |
+| 计划/方案 | `brainstorming` + `planning` |
 | 文档编写 | `doc-coauthoring` |
+| AI/LLM/Agent | `ai-ml` + `agent-development` |
+| 安全/渗透 | `security-review` + `pentest-checklist` |
+| 测试/TDD | `tdd-workflow` + `playwright` |
+| MCP 开发 | `mcp-builder` + `mcp-management` |
 
 ### 0.2 Agent 匹配表
 
@@ -210,6 +214,11 @@ KISS / DRY / 不可变 / 保护调用链。详见 `rules/coding-style.md`
 ---
 
 ## 更新记录
+
+- **v3.1** (2026-02-25) - Skills 精简优化版
+  - 更新 Skill 匹配表，新增 AI/安全/测试/MCP 路由
+  - 更新 settings.json.template 权限配置（新增 python/vitest/playwright/docker 等）
+  - 新增 SKILLS-ANALYSIS.md 全量分析报告
 
 - **v3.0** (2026-02-06) - Trellis 集成精简版
   - 从 668 行精简至 ~180 行（减少 ~73%）
