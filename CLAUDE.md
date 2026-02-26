@@ -220,13 +220,13 @@ KISS / DRY / 不可变 / 保护调用链。详见 `rules/coding-style.md`
   - 主安装脚本不再复制 skills 目录，改为可选安装步骤
 
 - **v4.0** (2026-02-26) - Pure everything-claude-code 版
-  - 移除全部 Trellis 依赖（Pipeline Agents、Python Hooks、Trellis Commands）
+  - 移除全部外部流水线依赖（Pipeline Agents、Python Hooks）
   - 保留 everything-claude-code 全部能力（Skills、Agents、Commands、Hooks、持续学习）
   - Skill 强制触发规则内置于第四章，不依赖外部流水线
   - 项目结构更干净，零冗余
 
 - **v3.1** (2026-02-25) - Skills 精简优化版
-- **v3.0** (2026-02-06) - Trellis 集成精简版
+- **v3.0** (2026-02-06) - 流水线集成精简版
 - **v2.5** (2026-02-03) - 自动学习增强版
 - **v2.0** (2026-02-02) - 行为规范版
 - **v1.2** (2026-01-22) - Skill 强制版
