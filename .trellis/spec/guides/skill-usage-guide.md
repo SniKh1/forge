@@ -44,9 +44,13 @@
 | 数据库/SQL | `databases` |
 | 登录/认证 | `better-auth` |
 | 部署/Docker | `devops` |
-| 调试/报错 | `debugging/systematic-debugging` |
-| 计划/方案 | `superpowers:brainstorm` |
+| 调试/报错 | `systematic-debugging` + `error-resolver` |
+| 计划/方案 | `brainstorming` + `planning` |
 | 文档编写 | `doc-coauthoring` |
+| AI/LLM/Agent | `ai-ml` + `agent-development` |
+| 安全/渗透 | `security-review` + `pentest-checklist` |
+| 测试/TDD | `tdd-workflow` + `playwright` |
+| MCP 开发 | `mcp-builder` + `mcp-management` |
 
 ---
 
@@ -56,9 +60,9 @@
 
 | 场景 | 必须调用的 Skill |
 |------|------------------|
-| 遇到 bug/错误/测试失败 | `debugging/systematic-debugging` |
-| 开始新功能开发 | `superpowers:brainstorm` → `superpowers:write-plan` |
-| 需要写计划/方案 | `superpowers:brainstorm` |
+| 遇到 bug/错误/测试失败 | `systematic-debugging` + `error-resolver` |
+| 开始新功能开发 | `brainstorming` + `planning` |
+| 需要写计划/方案 | `brainstorming` + `planning` |
 | 完成任务后 | `code-review`（验证完成度） |
 | 调试卡住/尝试 3 次失败 | `problem-solving/when-stuck` |
 | 需要创建文档 | `doc-coauthoring` |
@@ -91,10 +95,10 @@
 ### 5.1 流水线模式下的 Skill 使用
 
 当通过 `/trellis:parallel` 启动流水线时：
-- **plan 阶段**: 自动调用 `superpowers:brainstorm` 细化需求
+- **plan 阶段**: 自动调用 `brainstorming` + `planning` 细化需求
 - **implement 阶段**: 根据 dev_type 自动调用对应 Skill
 - **check 阶段**: 自动调用 `code-review`
-- **debug 阶段**: 自动调用 `debugging/systematic-debugging`
+- **debug 阶段**: 自动调用 `systematic-debugging` + `error-resolver`
 
 ### 5.2 日常交互模式下的 Skill 使用
 

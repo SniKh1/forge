@@ -97,7 +97,10 @@ mcp__sequential-thinking__sequentialthinking  → 逐步推理
 | superpowers:brainstorm | 交互式需求细化 |
 | superpowers:write-plan | 创建实施计划 |
 | superpowers:execute-plan | 批量执行计划 |
-| debugging/systematic-debugging | 系统化调试 |
+| brainstorming | 头脑风暴与方案探索 |
+| planning | 结构化任务规划 |
+| systematic-debugging | 系统化调试 |
+| error-resolver | 错误诊断与修复 |
 | code-review | 代码审查与验证 |
 | problem-solving/when-stuck | 调试卡住时的突破策略 |
 
@@ -167,6 +170,22 @@ mcp__sequential-thinking__sequentialthinking  → 逐步推理
 | docx | Word 文档创建/编辑/分析 |
 | xlsx | Excel 电子表格处理 |
 | pptx | PowerPoint 演示文稿 |
+
+### 3.8 AI/Agent 类
+
+| Skill | 用途 |
+|-------|------|
+| ai-ml | AI/ML 开发模式与最佳实践 |
+| agent-development | Agent 架构设计与开发 |
+
+### 3.9 安全测试类
+
+| Skill | 用途 |
+|-------|------|
+| security-review | 安全代码审查 |
+| pentest-checklist | 渗透测试检查清单 |
+| tdd-workflow | 测试驱动开发工作流 |
+| playwright | E2E 测试（Playwright） |
 
 ---
 

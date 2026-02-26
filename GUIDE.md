@@ -63,6 +63,7 @@ Forge is a production-ready configuration framework for Claude Code that combine
 | 2026-02-02 | v2.0 | everything-claude-code integration (Skills, Agents, Commands, Rules) |
 | 2026-02-03 | v2.3-2.5 | Vibe Coding, Memory, Auto-learning |
 | 2026-02-06 | v3.0 | Trellis integration (Pipeline Agents, Hooks, Commands, Spec system) |
+| 2026-02-25 | v3.1 | Skills optimization, verify scripts, routing table update |
 
 ## Key Concepts
 
@@ -100,11 +101,11 @@ Forge is a production-ready configuration framework for Claude Code that combine
 ```
 
 The installer:
-1. Backs up existing `~/.claude/` (optional)
-2. Copies all configuration files
-3. Applies templates (settings.json, hooks.json)
-4. Creates required directories (homunculus, sessions)
-5. Optionally installs Skills from everything-claude-code
+1. Checks dependencies (git, python)
+2. Copies all configuration files and directories
+3. Applies templates (settings.json, .mcp.json, hooks.json)
+4. Runs installation verification (verify.sh/verify.ps1)
+5. Shows next steps
 
 ## Getting Started
 
