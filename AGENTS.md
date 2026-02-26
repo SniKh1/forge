@@ -1,18 +1,26 @@
-<!-- TRELLIS:START -->
-# Trellis Instructions
+# Forge Agent System
 
-These instructions are for AI assistants working in this project.
+Forge provides 10 interactive agents for daily development tasks.
 
-Use the `/trellis:start` command when starting a new session to:
-- Initialize your developer identity
-- Understand current project context
-- Read relevant guidelines
+## Available Agents
 
-Use `@/.trellis/` to learn:
-- Development workflow (`workflow.md`)
-- Project structure guidelines (`spec/`)
-- Developer workspace (`workspace/`)
+| Agent | Purpose | Auto-trigger |
+|-------|---------|-------------|
+| `planner` | Implementation planning | Complex feature requests |
+| `architect` | System design | Architectural decisions |
+| `tdd-guide` | Test-driven development | New features, bug fixes |
+| `code-reviewer` | Code review | After writing code |
+| `security-reviewer` | Security analysis | Before commits |
+| `build-error-resolver` | Fix build errors | When build fails |
+| `e2e-runner` | E2E testing | Critical user flows |
+| `refactor-cleaner` | Dead code cleanup | Code maintenance |
+| `doc-updater` | Documentation | After code changes |
+| `database-reviewer` | Database review | Database changes |
 
-Keep this managed block so 'trellis update' can refresh the instructions.
+## Usage
 
-<!-- TRELLIS:END -->
+Agents are invoked via `Task(subagent_type="agent-name", prompt="...")`.
+
+Agent definitions are located in `~/.claude/agents/`.
+
+See `rules/agents.md` for orchestration rules.

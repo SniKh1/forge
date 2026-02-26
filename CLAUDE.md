@@ -1,9 +1,9 @@
 # Claude Code 开发规范
 
-**版本**：v3.1（Skills 精简优化版）
-**更新日期**：2026-02-25
+**版本**：v4.1（Skills 可配置化版）
+**更新日期**：2026-02-26
 
-> 详细规范已拆分至 `rules/` 和 `.trellis/spec/guides/`，本文件仅保留路由表和核心原则。
+> 详细规范已拆分至 `rules/`，本文件仅保留路由表和核心原则。
 
 ---
 
@@ -62,7 +62,6 @@
 ## 一、核心原则
 
 > 详细规范见 `rules/coding-style.md`、`rules/security.md`、`rules/git-workflow.md`
-> 以及 `.trellis/spec/guides/security-quality-guide.md`、`development-workflow-guide.md`
 
 ### 1.1 调研优先（强制）
 
@@ -77,7 +76,7 @@
 
 ### 1.3 知识获取（强制）
 
-遇到不熟悉的知识，必须联网搜索，严禁猜测。工具选择见 `.trellis/spec/guides/mcp-tools-guide.md`
+遇到不熟悉的知识，必须联网搜索，严禁猜测。工具选择见第三章。
 
 ### 1.4 交互规范
 
@@ -110,8 +109,6 @@ KISS / DRY / 不可变 / 保护调用链。详见 `rules/coding-style.md`
 
 ## 三、工具选择速查
 
-> 完整决策树见 `.trellis/spec/guides/mcp-tools-guide.md` 和 `claude-code-capabilities.md`
-
 | 场景 | 推荐工具 |
 |------|----------|
 | 代码语义检索 | `ace-tool` 或 `Task(Explore)` |
@@ -127,35 +124,47 @@ KISS / DRY / 不可变 / 保护调用链。详见 `rules/coding-style.md`
 
 ## 四、Skill 系统（强制）
 
-> 完整规范见 `.trellis/spec/guides/skill-usage-guide.md`
-
 **铁律**：如果有 1% 的可能性某个 Skill 适用于当前任务，必须立即调用。
 
 **调用流程**：收到消息 → 检查 0.1 匹配表 → 调用 Skill → 按 Skill 执行
 
 **违规行为**：直接写代码未调用 Skill / 遇错未调用 debugging Skill / 完成未调用 code-review
 
+**强制触发规则**（无需用户指示）：
+
+| 场景 | 必须调用的 Skill |
+|------|------------------|
+| 遇到 bug/错误/测试失败 | `systematic-debugging` + `error-resolver` |
+| 开始新功能开发 | `brainstorming` + `planning` |
+| 完成任务后 | `code-review`（验证完成度） |
+| 调试卡住/尝试 3 次失败 | 切换策略，重新分析 |
+| 前端 UI 开发 | `frontend-design` + `aesthetic` |
+| 后端 API 开发 | `backend-development` |
+| 数据库操作 | `databases` |
+
 ---
 
-## 五、Agent 与 Command 系统
+## 五、Agent 系统
 
-> 完整规范见 `.trellis/spec/guides/agent-orchestration-guide.md` 和 `claude-code-capabilities.md`
 > Agent 定义文件见 `~/.claude/agents/`，调用规则见 `rules/agents.md`
 
 **调用方式**：`Task(subagent_type="planner", prompt="...")`
 
 **并行原则**：独立操作必须并行执行，禁止不必要的串行。
 
-**双层架构**：
-- Layer 1（Trellis 流水线）：implement, check, debug, research, dispatch, plan — 由 Hook 管理
-- Layer 2（日常交互）：planner, architect, tdd-guide, code-reviewer 等 — 由本文件管理
-- Layer 3（内置）：Explore, Plan, Bash, general-purpose
+**自动触发规则**（无需用户指示）：
+
+| 场景 | 自动调用 |
+|------|----------|
+| 复杂功能请求 | `planner` |
+| 代码刚写完/修改完 | `code-reviewer` |
+| Bug 修复或新功能 | `tdd-guide` |
+| 架构决策 | `architect` |
+| 构建失败 | `build-error-resolver` |
 
 ---
 
 ## 六、持续学习与记忆
-
-> 完整规范见 `.trellis/spec/guides/learning-memory-guide.md`
 
 **自动学习**：PreToolUse/PostToolUse 记录 → SessionEnd 分析 → 生成 instincts（置信度 0.3-0.9）
 
@@ -166,8 +175,6 @@ KISS / DRY / 不可变 / 保护调用链。详见 `rules/coding-style.md`
 ---
 
 ## 七、上下文模式与 Vibe Coding
-
-> 详见 `.trellis/spec/guides/development-workflow-guide.md`
 
 **上下文模式**：
 - `dev` 模式：先写代码后解释，偏好可用方案
@@ -191,16 +198,6 @@ KISS / DRY / 不可变 / 保护调用链。详见 `rules/coding-style.md`
 
 | 主题 | 文件位置 |
 |------|----------|
-| Skill 使用规范 | `.trellis/spec/guides/skill-usage-guide.md` |
-| Agent 编排规范 | `.trellis/spec/guides/agent-orchestration-guide.md` |
-| MCP 工具规范 | `.trellis/spec/guides/mcp-tools-guide.md` |
-| 完整能力索引 | `.trellis/spec/guides/claude-code-capabilities.md` |
-| 安全与质量 | `.trellis/spec/guides/security-quality-guide.md` |
-| 开发工作流 | `.trellis/spec/guides/development-workflow-guide.md` |
-| 学习与记忆 | `.trellis/spec/guides/learning-memory-guide.md` |
-| Trellis 运维 | `.trellis/spec/guides/trellis-operations-guide.md` |
-| 跨层思维 | `.trellis/spec/guides/cross-layer-thinking-guide.md` |
-| 代码复用思维 | `.trellis/spec/guides/code-reuse-thinking-guide.md` |
 | 安全规则 | `rules/security.md` |
 | 代码风格 | `rules/coding-style.md` |
 | 测试要求 | `rules/testing.md` |
@@ -209,28 +206,27 @@ KISS / DRY / 不可变 / 保护调用链。详见 `rules/coding-style.md`
 | 性能优化 | `rules/performance.md` |
 | Hooks 系统 | `rules/hooks.md` |
 | 常用模式 | `rules/patterns.md` |
-| everything-claude-code 指南 | `GUIDE.md` |
+| 使用指南 | `GUIDE.md` |
 
 ---
 
 ## 更新记录
 
+- **v4.1** (2026-02-26) - Skills 可配置化版
+  - Skills 从捆绑安装改为按模块动态下载（~79MB → 按需下载）
+  - 新增 `install-skills.sh` / `install-skills.ps1` 独立 Skill 安装脚本
+  - 14 个模块分类 + 8 个角色预设（fullstack/frontend-dev/backend-dev 等）
+  - 新增 `SKILLS-CATALOG.md` 完整 Skill 目录（102 个可下载 Skill）
+  - 主安装脚本不再复制 skills 目录，改为可选安装步骤
+
+- **v4.0** (2026-02-26) - Pure everything-claude-code 版
+  - 移除全部 Trellis 依赖（Pipeline Agents、Python Hooks、Trellis Commands）
+  - 保留 everything-claude-code 全部能力（Skills、Agents、Commands、Hooks、持续学习）
+  - Skill 强制触发规则内置于第四章，不依赖外部流水线
+  - 项目结构更干净，零冗余
+
 - **v3.1** (2026-02-25) - Skills 精简优化版
-  - 更新 Skill 匹配表，新增 AI/安全/测试/MCP 路由
-  - 更新 settings.json.template 权限配置（新增 python/vitest/playwright/docker 等）
-  - 新增 SKILLS-ANALYSIS.md 全量分析报告
-
 - **v3.0** (2026-02-06) - Trellis 集成精简版
-  - 从 668 行精简至 ~180 行（减少 ~73%）
-  - 详细规范拆分至 spec/guides/ 和 rules/
-  - 新增第九章详细规范索引
-  - 集成 Trellis 运维能力（Ralph Loop、Task 生命周期、Worktree、Developer 身份）
-  - 保留所有 everything-claude-code 能力（通过引用）
-
 - **v2.5** (2026-02-03) - 自动学习增强版
-- **v2.4** (2026-02-03) - 记忆持久化增强版
-- **v2.3** (2026-02-03) - Vibe Coding 增强版
-- **v2.2** (2026-02-03) - 核心原则强化版
-- **v2.1** (2026-02-02) - 能力补全版
 - **v2.0** (2026-02-02) - 行为规范版
 - **v1.2** (2026-01-22) - Skill 强制版

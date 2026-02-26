@@ -23,9 +23,7 @@ echo -e "${CYAN}  =======================================${NC}"
 echo ""
 
 # --- Step 1: Check dependencies ---
-PYTHON_CMD="python3"
-
-echo -e "${YELLOW}[1/5] Checking dependencies...${NC}"
+echo -e "${YELLOW}[1/6] Checking dependencies...${NC}"
 
 if ! command -v git &> /dev/null; then
   echo -e "${RED}  Error: git is not installed${NC}"
@@ -33,18 +31,14 @@ if ! command -v git &> /dev/null; then
 fi
 echo -e "${GREEN}  git: OK${NC}"
 
-if command -v python3 &> /dev/null; then
-  PYTHON_CMD="python3"
-  echo -e "${GREEN}  python3: OK${NC}"
-elif command -v python &> /dev/null; then
-  PYTHON_CMD="python"
-  echo -e "${GREEN}  python: OK${NC}"
+if ! command -v node &> /dev/null; then
+  echo -e "${YELLOW}  Warning: node not found, hooks will not work${NC}"
 else
-  echo -e "${YELLOW}  Warning: python not found, Trellis hooks will not work${NC}"
+  echo -e "${GREEN}  node: OK${NC}"
 fi
 
 # --- Step 2: Install files ---
-echo -e "${YELLOW}[2/5] Installing files...${NC}"
+echo -e "${YELLOW}[2/6] Installing files...${NC}"
 
 mkdir -p "$CLAUDE_HOME"
 
@@ -60,16 +54,7 @@ echo -e "${GRAY}  Docs: $doc_count files${NC}"
 
 # Directories
 dir_count=0
-for d in agents commands contexts rules stacks hooks scripts skills; do
-  if [ -d "$SCRIPT_DIR/$d" ]; then
-    mkdir -p "$CLAUDE_HOME/$d"
-    cp -r "$SCRIPT_DIR/$d/." "$CLAUDE_HOME/$d/"
-    dir_count=$((dir_count + 1))
-  fi
-done
-
-# Trellis + Cursor
-for d in .trellis .cursor; do
+for d in agents commands contexts rules stacks hooks scripts; do
   if [ -d "$SCRIPT_DIR/$d" ]; then
     mkdir -p "$CLAUDE_HOME/$d"
     cp -r "$SCRIPT_DIR/$d/." "$CLAUDE_HOME/$d/"
@@ -90,7 +75,7 @@ done
 echo -e "${GREEN}  Files installed${NC}"
 
 # --- Step 3: Apply templates ---
-echo -e "${YELLOW}[3/5] Applying templates...${NC}"
+echo -e "${YELLOW}[3/6] Applying templates...${NC}"
 
 # settings.json (only if not exists, preserve user customizations)
 if [ -f "$CLAUDE_HOME/settings.json.template" ] && [ ! -f "$CLAUDE_HOME/settings.json" ]; then
@@ -112,7 +97,6 @@ fi
 if [ -f "$CLAUDE_HOME/hooks/hooks.json.template" ]; then
   ESCAPED_HOME=$(echo "$CLAUDE_HOME" | sed 's/\//\\\//g')
   sed -e "s/{{CLAUDE_HOME}}/$ESCAPED_HOME/g" \
-      -e "s/{{PYTHON_CMD}}/$PYTHON_CMD/g" \
     "$CLAUDE_HOME/hooks/hooks.json.template" > "$CLAUDE_HOME/hooks/hooks.json"
   echo -e "${GRAY}  hooks.json: generated${NC}"
 fi
@@ -120,7 +104,7 @@ fi
 echo -e "${GREEN}  Templates applied${NC}"
 
 # --- Step 4: Verify installation ---
-echo -e "${YELLOW}[4/5] Verifying...${NC}"
+echo -e "${YELLOW}[4/6] Verifying...${NC}"
 
 VERIFY_SCRIPT="$CLAUDE_HOME/scripts/verify.sh"
 if [ -f "$VERIFY_SCRIPT" ]; then
@@ -128,7 +112,6 @@ if [ -f "$VERIFY_SCRIPT" ]; then
   CLAUDE_HOME="$CLAUDE_HOME" bash "$VERIFY_SCRIPT"
 else
   echo -e "${YELLOW}  verify.sh not found, running basic checks...${NC}"
-  # Fallback: basic file existence checks
   for f in CLAUDE.md settings.json .mcp.json; do
     if [ -f "$CLAUDE_HOME/$f" ]; then
       echo -e "${GREEN}  $f: OK${NC}"
@@ -138,13 +121,31 @@ else
   done
 fi
 
-# --- Step 5: Done ---
+# --- Step 5: Optional Skill modules ---
 echo ""
-echo -e "${GREEN}[5/5] Done!${NC}"
+echo -e "${YELLOW}[5/6] Skill modules...${NC}"
+
+SKILL_SCRIPT="$CLAUDE_HOME/scripts/install-skills.sh"
+if [ -f "$SKILL_SCRIPT" ]; then
+  read -rp "  Install skill modules now? [Y/n]: " install_skills
+  install_skills=${install_skills:-Y}
+  if [[ "$install_skills" =~ ^[Yy] ]]; then
+    chmod +x "$SKILL_SCRIPT"
+    bash "$SKILL_SCRIPT"
+  else
+    echo -e "${GRAY}  Skipped. Run later: bash ~/.claude/scripts/install-skills.sh${NC}"
+  fi
+else
+  echo -e "${YELLOW}  install-skills.sh not found, skipping${NC}"
+fi
+
+# --- Step 6: Done ---
+echo ""
+echo -e "${GREEN}[6/6] Done!${NC}"
 echo ""
 echo -e "${CYAN}  Location: $CLAUDE_HOME${NC}"
 echo ""
 echo -e "${CYAN}  Next steps:${NC}"
-echo -e "${GRAY}    1. Run /trellis:onboard in Claude Code${NC}"
-echo -e "${GRAY}    2. Run /trellis:start at the beginning of each session${NC}"
+echo -e "${GRAY}    1. Open Claude Code and start coding${NC}"
+echo -e "${GRAY}    2. Use /plan, /tdd, /code-review commands${NC}"
 echo ""

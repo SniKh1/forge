@@ -2,7 +2,7 @@
 
 **开箱即用的 Claude Code 完整配置框架**
 
-> [everything-claude-code](https://github.com/affaan-m/everything-claude-code) + [Trellis](https://github.com/mindfold-ai/Trellis)，整合即用。
+> [everything-claude-code](https://github.com/affaan-m/everything-claude-code) + [superpowers](https://github.com/obra/superpowers) + [Trellis](https://github.com/mindfold-ai/Trellis)，整合即用。
 
 <p align="center">
   <a href="README.md">English</a> | 简体中文
@@ -12,15 +12,16 @@
 
 ## Forge 是什么？
 
-Forge 将社区最佳实践和结构化流水线打包为一套可直接安装的 Claude Code 配置方案。
+Forge 将社区最佳实践和结构化流水线打包为一套可直接安装的 Claude Code 配置方案。Skills 按角色按需安装，不再下载 79MB 用不到的文件。
 
 | 特性 | 说明 |
 |------|------|
-| 50+ Skills | 前端、后端、调试、文档、DevOps、多媒体 |
+| 66 Skills | 按角色模块化安装 — 前端、后端、Java、Python、Go 等 |
 | 16 Agents | 三层架构（Pipeline + Interactive + Built-in） |
-| 34+ Commands | 常用工作流的斜杠命令快捷入口 |
+| 34 Commands | 常用工作流的斜杠命令快捷入口 |
 | 8 Rules | 安全、代码风格、测试、Git 规范 |
 | 3 Contexts | dev / review / research 模式切换 |
+| 8 角色预设 | fullstack、frontend-dev、backend-dev、java-dev、python-dev 等 |
 | Trellis 流水线 | Hook 驱动的多代理并行开发 |
 | 自动学习 | 从会话中提取可复用模式为 instincts |
 
@@ -42,125 +43,164 @@ git clone https://github.com/SniKh1/forge.git /tmp/forge
 bash /tmp/forge/install.sh
 ```
 
-安装脚本会自动：备份现有配置 → 复制文件 → 替换模板变量 → 可选安装 Skills。
+安装脚本会自动：备份现有配置 → 复制文件 → 替换模板变量 → 选择并安装 Skill 模块。
 
 ### 前置条件
 
 - [Git](https://git-scm.com/)
+- [Node.js](https://nodejs.org/)（Skill 安装器和 hooks 需要）
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI 已安装并完成认证
 
-### 安装后使用
+---
 
-安装完成后，正常使用 Claude Code 即可。Forge 会从 `~/.claude/` 自动加载。
+## Skill 模块
+
+Skills 按模块组织。选择一个角色预设，或自由组合模块。
+
+### 角色预设
+
+| 预设 | 包含模块 | Skills 数 |
+|------|----------|-----------|
+| fullstack | core + frontend + backend + docs + testing | 41 |
+| frontend-dev | core + frontend + testing + docs | 38 |
+| backend-dev | core + backend + testing + docs | 34 |
+| java-dev | core + backend + java + testing + docs | 40 |
+| python-dev | core + backend + python + ai-ml + docs | 39 |
+| security-eng | core + security + testing | 26 |
+| devops-eng | core + security + docs | 31 |
+| all | 全部模块 | 66 |
+
+### 模块列表
+
+| 模块 | Skills 数 | 包含 |
+|------|-----------|------|
+| core（必装） | 22 | superpowers、continuous-learning、tdd-workflow、coding-standards 等 |
+| frontend | 7 | frontend-design、frontend-patterns、theme-factory、canvas-design 等 |
+| backend | 3 | backend-patterns、postgres-patterns、clickhouse-io |
+| java | 6 | java-coding-standards、jpa-patterns、springboot-* |
+| python | 6 | python-patterns、django-*、python-testing |
+| golang | 2 | golang-patterns、golang-testing |
+| security | 2 | security-review、security-scan |
+| docs | 7 | doc-coauthoring、docx、pdf、pptx、xlsx 等 |
+| testing | 2 | webapp-testing、cpp-testing |
+| ai-ml | 1 | notebooklm |
+| mcp | 1 | mcp-builder |
+| extras | 7 | obsidian-skills、skill-creator、planning-with-files 等 |
+
+### 单独安装 Skills
 
 ```bash
-# 在任意项目目录启动 Claude Code
+# 交互模式
+bash ~/.claude/scripts/install-skills.sh
+
+# 命令行模式
+bash ~/.claude/scripts/install-skills.sh --preset fullstack
+bash ~/.claude/scripts/install-skills.sh --modules frontend,backend,docs
+bash ~/.claude/scripts/install-skills.sh --list
+```
+
+```powershell
+# PowerShell
+& ~/.claude/scripts/install-skills.ps1
+& ~/.claude/scripts/install-skills.ps1 --preset fullstack
+```
+
+---
+
+## 安装后使用
+
+安装完成后正常使用 Claude Code 即可，Forge 从 `~/.claude/` 自动加载。
+
+```bash
 claude
 
-# 使用斜杠命令
-/plan          # 需求分析 + 实施计划
+/plan          # 创建实施计划
 /tdd           # 测试驱动开发
 /code-review   # 代码审查
-/build-fix     # 构建错误修复
+/build-fix     # 修复构建错误
+/e2e           # 端到端测试
+/learn         # 提取可复用模式
+/evolve        # 演化 instincts
 ```
 
 Claude Code 会自动：
 - 根据上下文将任务路由到合适的 Agent
-- 应用代码风格、安全、测试等规则
-- 检测到相关关键词时调用匹配的 Skill
-- 通过自动学习系统记录可复用模式
+- 应用代码风格、安全、测试规则
+- 检测关键词并调用匹配的 Skill
+- 通过自动学习系统追踪可复用模式
 
 ---
 
-## 架构
+## 目录结构
 
 ```
 ~/.claude/
 ├── CLAUDE.md              # 核心路由表
-├── CAPABILITIES.md        # 完整能力索引
-├── USAGE-GUIDE.md         # 使用指南
-├── agents/                # 10 个 Agent 定义
-├── commands/trellis/      # 14 个 Trellis 命令
-├── contexts/              # 3 个上下文模式
+├── agents/                # 16 个 Agent 定义
+│   ├── (Pipeline)         # implement, check, debug, research, dispatch, plan
+│   └── (Interactive)      # planner, architect, tdd-guide, code-reviewer, ...
+├── commands/              # 20 个命令 + 14 个 Trellis 命令
+├── contexts/              # 3 种上下文模式（dev / review / research）
 ├── hooks/                 # Hook 脚本
-├── rules/                 # 8 条行为规范
-├── stacks/                # 技术栈规范
-├── scripts/               # 自动化脚本
-├── skills/                # 50+ Skills（可选安装）
+├── rules/                 # 8 条行为规则
+├── stacks/                # 技术栈规范（frontend, java, python）
+├── scripts/
+│   ├── install-skills.*   # Skill 模块安装器
+│   └── lib/               # skills-registry.json + modules.json
+├── skills/                # 已安装的 Skill 模块（动态）
+│   └── learned/           # 自动学习的模式（跨安装保留）
 └── .trellis/              # Trellis 流水线配置
-    └── spec/guides/       # 11 个详细指南
+    └── spec/guides/       # 详细指南
 ```
 
 ---
 
 ## Agents
 
-三层架构：
-
 | 层级 | Agents | 职责 |
 |------|--------|------|
-| Pipeline (Trellis) | implement, check, debug, research, dispatch, plan | Hook 驱动自动化 |
-| Interactive | planner, architect, tdd-guide, code-reviewer, security-reviewer, build-error-resolver, e2e-runner | 按需调用，覆盖开发全流程 |
-| Built-in | Explore, Plan, Bash, general-purpose | Claude Code 原生能力 |
-
-## Skills (50+)
-
-- **前端**: frontend-design, aesthetic, web-frameworks, ui-styling, theme-factory
-- **后端**: backend-development, databases, better-auth
-- **调试**: systematic-debugging, build-fix, break-loop
-- **文档**: doc-coauthoring, changelog-generator, pdf, docx, pptx, xlsx
-- **DevOps**: devops, repomix, mcp-builder
-- **多媒体**: ai-multimodal, media-processing, algorithmic-art, canvas-design
-- **工作流**: continuous-learning, sequential-thinking, strategic-compact, eval-harness
-
-## Commands
-
-```
-/plan          — 需求分析 + 实施计划
-/tdd           — 测试驱动开发
-/code-review   — 代码审查
-/build-fix     — 构建错误修复
-/e2e           — 端到端测试
-/learn         — 提取可复用模式
-/evolve        — 进化 instincts
-```
-
-完整列表见 `commands/` 目录。
+| Pipeline (Trellis) | implement, check, debug, research, dispatch, plan | Hook 驱动的自动化 |
+| Interactive | planner, architect, tdd-guide, code-reviewer, security-reviewer, build-error-resolver, e2e-runner, database-reviewer, doc-updater, refactor-cleaner | 按需调用，覆盖完整开发生命周期 |
+| Built-in | Explore, Plan, Bash, general-purpose | Claude Code 内置 |
 
 ---
 
 ## 自定义
 
-**添加技术栈规范** — 在 `stacks/` 下创建 `<stack>.md`，在 `CLAUDE.md` 中引用。
+**添加技术栈规范** — 在 `stacks/` 中创建 `<stack>.md`，在 `CLAUDE.md` 中引用。
 
-**添加规则** — 在 `rules/` 下创建 `.md` 文件，Claude Code 自动加载。
+**添加规则** — 在 `rules/` 中创建 `.md` 文件，Claude Code 自动加载。
 
-**添加命令** — 在 `commands/` 下创建 `.md` 文件，通过 `/command-name` 调用。
+**添加命令** — 在 `commands/` 中创建 `.md` 文件，通过 `/command-name` 调用。
 
-**添加 MCP 服务器** — 编辑本地 `.mcp.json`。模板仅包含通用服务器。
+**添加 MCP 服务器** — 编辑本地 `.mcp.json`，模板仅包含通用服务器。
 
 ---
 
-## FAQ
+## 常见问题
 
-**安装后会覆盖现有配置吗？**
-安装脚本会先询问是否备份，确认后原配置保存到 `~/.claude-backup-<timestamp>/`。
+**会覆盖我现有的配置吗？**
+安装脚本会先询问确认，现有配置会备份到 `~/.claude-backup-<timestamp>/`。
 
-**Skills 为什么不在仓库里？**
-Skills 目录包含 5000+ 文件，体积较大。安装脚本可选从 [everything-claude-code](https://github.com/affaan-m/everything-claude-code) 拉取。
+**Skills 从哪里下载？**
+按需从 [anthropics/skills](https://github.com/anthropics/skills)、[obra/superpowers](https://github.com/obra/superpowers) 和 [everything-claude-code](https://github.com/affaan-m/everything-claude-code) 下载，只安装你选择的模块。
 
 **如何更新？**
-重新运行安装脚本即可，会自动备份并覆盖。
+重新运行安装脚本即可，会自动备份并覆盖。再次运行 `install-skills.sh` 更新 Skills。
+
+**可以后续添加更多 Skills 吗？**
+可以。运行 `install-skills.sh --modules <module>` 添加模块，或运行 `install-skills.sh` 进入交互菜单。
 
 ---
 
 ## 致谢
 
-- **[everything-claude-code](https://github.com/affaan-m/everything-claude-code)** — Skills, Agents, Commands, Rules
-- **[Trellis](https://github.com/mindfold-ai/Trellis)** — 多代理流水线, spec/guides, Worktree 管理
+- **[everything-claude-code](https://github.com/affaan-m/everything-claude-code)** — Skills、Agents、Commands、Rules
+- **[superpowers](https://github.com/obra/superpowers)** — 核心工作流 Skills
+- **[Trellis](https://github.com/mindfold-ai/Trellis)** — 多代理流水线、spec/guides、Worktree 管理
 
 ---
 
-## License
+## 许可证
 
-MIT. See [LICENSE](LICENSE).
+MIT. 见 [LICENSE](LICENSE)。

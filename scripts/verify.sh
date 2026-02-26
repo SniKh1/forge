@@ -22,7 +22,6 @@ WARN=0
 pass() { echo -e "${GREEN}  [PASS] $1${NC}"; PASS=$((PASS + 1)); }
 fail() { echo -e "${RED}  [FAIL] $1${NC}"; FAIL=$((FAIL + 1)); }
 warn() { echo -e "${YELLOW}  [WARN] $1${NC}"; WARN=$((WARN + 1)); }
-info() { echo -e "${GRAY}         $1${NC}"; }
 
 echo ""
 echo -e "${CYAN}  =======================================${NC}"
@@ -52,7 +51,6 @@ fi
 echo ""
 echo -e "${CYAN}[2/6] Configuration content...${NC}"
 
-# CLAUDE.md version check
 if [ -f "$CLAUDE_HOME/CLAUDE.md" ]; then
   version=$(sed -n 's/.*版本.*v\([0-9.]*\).*/\1/p' "$CLAUDE_HOME/CLAUDE.md" 2>/dev/null | head -1)
   if [ -n "$version" ]; then
@@ -62,7 +60,6 @@ if [ -f "$CLAUDE_HOME/CLAUDE.md" ]; then
   fi
 fi
 
-# settings.json permission count
 if [ -f "$CLAUDE_HOME/settings.json" ]; then
   perm_count=$(grep -c '"Bash\|"Read\|"Write\|"Edit\|"Glob\|"Grep\|"Web\|"Todo\|"Task\|"Skill\|"mcp__' "$CLAUDE_HOME/settings.json" 2>/dev/null || echo 0)
   if [ "$perm_count" -ge 20 ]; then
@@ -72,7 +69,6 @@ if [ -f "$CLAUDE_HOME/settings.json" ]; then
   fi
 fi
 
-# .mcp.json server count
 if [ -f "$CLAUDE_HOME/.mcp.json" ]; then
   mcp_count=$(grep -c '"command"' "$CLAUDE_HOME/.mcp.json" 2>/dev/null || echo 0)
   if [ "$mcp_count" -ge 4 ]; then
@@ -82,9 +78,8 @@ if [ -f "$CLAUDE_HOME/.mcp.json" ]; then
   fi
 fi
 
-# hooks.json template variable check
 if [ -f "$CLAUDE_HOME/hooks/hooks.json" ]; then
-  if grep -q '{{CLAUDE_HOME}}\|{{PYTHON_CMD}}' "$CLAUDE_HOME/hooks/hooks.json" 2>/dev/null; then
+  if grep -q '{{CLAUDE_HOME}}' "$CLAUDE_HOME/hooks/hooks.json" 2>/dev/null; then
     fail "hooks.json contains unresolved template variables"
   else
     pass "hooks.json template variables resolved"
@@ -117,17 +112,10 @@ check_dir_files() {
   fi
 }
 
-check_dir_files "Pipeline Agents" "$CLAUDE_HOME/agents" \
-  implement.md check.md debug.md research.md dispatch.md plan.md
-
-check_dir_files "Trellis Commands" "$CLAUDE_HOME/commands/trellis" \
-  start.md parallel.md finish-work.md break-loop.md \
-  record-session.md before-backend-dev.md before-frontend-dev.md \
-  check-backend.md check-frontend.md check-cross-layer.md \
-  create-command.md integrate-skill.md onboard.md update-spec.md
-
-check_dir_files "Trellis Hooks" "$CLAUDE_HOME/hooks" \
-  inject-subagent-context.py ralph-loop.py session-start.py
+check_dir_files "Agents" "$CLAUDE_HOME/agents" \
+  planner.md architect.md tdd-guide.md code-reviewer.md \
+  security-reviewer.md build-error-resolver.md e2e-runner.md \
+  refactor-cleaner.md doc-updater.md database-reviewer.md
 
 check_dir_files "Rules" "$CLAUDE_HOME/rules" \
   agents.md coding-style.md git-workflow.md hooks.md \
@@ -140,15 +128,21 @@ check_dir_files "Stacks" "$CLAUDE_HOME/stacks" \
 echo ""
 echo -e "${CYAN}[4/6] Asset counts...${NC}"
 
-if [ -d "$CLAUDE_HOME/skills" ]; then
+if [ -f "$CLAUDE_HOME/installed-skills.json" ]; then
+  skill_count=$(node -e '
+    var d = JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));
+    console.log((d.skills||[]).length);
+  ' "$CLAUDE_HOME/installed-skills.json" 2>/dev/null || echo 0)
+  pass "Skills: $skill_count installed (via install-skills.sh)"
+elif [ -d "$CLAUDE_HOME/skills" ]; then
   skill_count=$(find "$CLAUDE_HOME/skills" -maxdepth 1 -mindepth 1 -type d | wc -l | tr -d ' ')
-  if [ "$skill_count" -ge 10 ]; then
-    pass "Skills: $skill_count installed"
+  if [ "$skill_count" -ge 1 ]; then
+    pass "Skills: $skill_count directories found"
   else
-    warn "Skills: only $skill_count (expected 10+)"
+    warn "Skills: none installed. Run: bash ~/.claude/scripts/install-skills.sh"
   fi
 else
-  fail "Skills directory not found"
+  warn "Skills: not installed yet. Run: bash ~/.claude/scripts/install-skills.sh"
 fi
 
 if [ -d "$CLAUDE_HOME/agents" ]; then
@@ -181,14 +175,6 @@ if command -v npx &> /dev/null; then
   pass "npx: available"
 else
   warn "npx not found (needed for MCP servers)"
-fi
-
-if command -v python3 &> /dev/null && python3 --version &> /dev/null; then
-  pass "python3: $(python3 --version 2>&1)"
-elif command -v python &> /dev/null && python --version &> /dev/null; then
-  pass "python: $(python --version 2>&1)"
-else
-  warn "python not found (needed for Trellis hooks)"
 fi
 
 # ---- 6. Summary ----

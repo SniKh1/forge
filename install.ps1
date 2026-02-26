@@ -26,7 +26,7 @@ function Copy-DirMerge($src, $dest) {
 }
 
 # --- Step 1: Check dependencies ---
-Write-Host "[1/5] Checking dependencies..." -ForegroundColor Yellow
+Write-Host "[1/6] Checking dependencies..." -ForegroundColor Yellow
 
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     Write-Host "  Error: git is not installed" -ForegroundColor Red
@@ -34,21 +34,14 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 }
 Write-Host "  git: OK" -ForegroundColor Green
 
-$PythonCmd = "python3"
-if (Get-Command python3 -ErrorAction SilentlyContinue) {
-    $PythonCmd = "python3"
-    Write-Host "  ${PythonCmd}: OK" -ForegroundColor Green
-}
-elseif (Get-Command python -ErrorAction SilentlyContinue) {
-    $PythonCmd = "python"
-    Write-Host "  ${PythonCmd}: OK" -ForegroundColor Green
-}
-else {
-    Write-Host "  Warning: python not found, Trellis hooks will not work" -ForegroundColor Yellow
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+    Write-Host "  Warning: node not found, hooks will not work" -ForegroundColor Yellow
+} else {
+    Write-Host "  node: OK" -ForegroundColor Green
 }
 
 # --- Step 2: Install files ---
-Write-Host "[2/5] Installing files..." -ForegroundColor Yellow
+Write-Host "[2/6] Installing files..." -ForegroundColor Yellow
 
 if (-not (Test-Path $ClaudeHome)) {
     New-Item -ItemType Directory -Path $ClaudeHome | Out-Null
@@ -66,18 +59,9 @@ foreach ($f in @("CLAUDE.md", "CAPABILITIES.md", "USAGE-GUIDE.md", "AGENTS.md", 
 Write-Host "  Docs: $docCount files" -ForegroundColor Gray
 
 # Directories
-$dirList = @("agents", "commands", "contexts", "rules", "stacks", "hooks", "scripts", "skills")
+$dirList = @("agents", "commands", "contexts", "rules", "stacks", "hooks", "scripts")
 $dirCount = 0
 foreach ($d in $dirList) {
-    $src = Join-Path $ScriptDir $d
-    if (Test-Path $src) {
-        Copy-DirMerge $src (Join-Path $ClaudeHome $d)
-        $dirCount++
-    }
-}
-
-# Trellis + Cursor
-foreach ($d in @(".trellis", ".cursor")) {
     $src = Join-Path $ScriptDir $d
     if (Test-Path $src) {
         Copy-DirMerge $src (Join-Path $ClaudeHome $d)
@@ -104,16 +88,15 @@ foreach ($dir in @(
 Write-Host "  Files installed" -ForegroundColor Green
 
 # --- Step 3: Apply templates ---
-Write-Host "[3/5] Applying templates..." -ForegroundColor Yellow
+Write-Host "[3/6] Applying templates..." -ForegroundColor Yellow
 
-# settings.json (only if not exists, preserve user customizations)
+# settings.json (only if not exists)
 $settingsDest = Join-Path $ClaudeHome "settings.json"
 $settingsTemplate = Join-Path $ClaudeHome "settings.json.template"
 if ((Test-Path $settingsTemplate) -and (-not (Test-Path $settingsDest))) {
     Copy-Item $settingsTemplate $settingsDest -Force
     Write-Host "  settings.json: created" -ForegroundColor Gray
-}
-else {
+} else {
     Write-Host "  settings.json: exists, skipped" -ForegroundColor Gray
 }
 
@@ -123,8 +106,7 @@ $mcpTemplate = Join-Path $ClaudeHome "mcp.json.template"
 if ((Test-Path $mcpTemplate) -and (-not (Test-Path $mcpDest))) {
     Copy-Item $mcpTemplate $mcpDest -Force
     Write-Host "  .mcp.json: created" -ForegroundColor Gray
-}
-else {
+} else {
     Write-Host "  .mcp.json: exists, skipped" -ForegroundColor Gray
 }
 
@@ -134,7 +116,6 @@ if (Test-Path $hooksTemplate) {
     $content = Get-Content $hooksTemplate -Raw
     $escapedPath = $ClaudeHome -replace '\\', '\\'
     $content = $content -replace '\{\{CLAUDE_HOME\}\}', $escapedPath
-    $content = $content -replace '\{\{PYTHON_CMD\}\}', $PythonCmd
     Set-Content -Path (Join-Path $ClaudeHome "hooks\hooks.json") -Value $content
     Write-Host "  hooks.json: generated" -ForegroundColor Gray
 }
@@ -142,7 +123,7 @@ if (Test-Path $hooksTemplate) {
 Write-Host "  Templates applied" -ForegroundColor Green
 
 # --- Step 4: Verify installation ---
-Write-Host "[4/5] Verifying..." -ForegroundColor Yellow
+Write-Host "[4/6] Verifying..." -ForegroundColor Yellow
 
 $verifyScript = Join-Path $ClaudeHome "scripts\verify.ps1"
 if (Test-Path $verifyScript) {
@@ -150,7 +131,6 @@ if (Test-Path $verifyScript) {
     & $verifyScript
 } else {
     Write-Host "  verify.ps1 not found, running basic checks..." -ForegroundColor Yellow
-    # Fallback: basic file existence checks
     foreach ($f in @("CLAUDE.md", "settings.json", ".mcp.json")) {
         if (Test-Path (Join-Path $ClaudeHome $f)) {
             Write-Host "  ${f}: OK" -ForegroundColor Green
@@ -160,13 +140,30 @@ if (Test-Path $verifyScript) {
     }
 }
 
-# --- Step 5: Done ---
+# --- Step 5: Optional Skill modules ---
 Write-Host ""
-Write-Host "[5/5] Done!" -ForegroundColor Green
+Write-Host "[5/6] Skill modules..." -ForegroundColor Yellow
+
+$SkillScript = Join-Path $ClaudeHome "scripts\install-skills.ps1"
+if (Test-Path $SkillScript) {
+    $installSkills = Read-Host "  Install skill modules now? [Y/n]"
+    if (-not $installSkills) { $installSkills = "Y" }
+    if ($installSkills -match '^[Yy]') {
+        & $SkillScript
+    } else {
+        Write-Host "  Skipped. Run later: powershell ~/.claude/scripts/install-skills.ps1" -ForegroundColor Gray
+    }
+} else {
+    Write-Host "  install-skills.ps1 not found, skipping" -ForegroundColor Yellow
+}
+
+# --- Step 6: Done ---
+Write-Host ""
+Write-Host "[6/6] Done!" -ForegroundColor Green
 Write-Host ""
 Write-Host "  Location: $ClaudeHome" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  Next steps:" -ForegroundColor Cyan
-Write-Host "    1. Run /trellis:onboard in Claude Code" -ForegroundColor Gray
-Write-Host "    2. Run /trellis:start at the beginning of each session" -ForegroundColor Gray
+Write-Host "    1. Open Claude Code and start coding" -ForegroundColor Gray
+Write-Host "    2. Use /plan, /tdd, /code-review commands" -ForegroundColor Gray
 Write-Host ""

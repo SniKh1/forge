@@ -1,84 +1,89 @@
 # Forge Integration Guide
 
-**Version**: v1.0
-**Date**: 2026-02-06
+**Version**: v2.0
+**Date**: 2026-02-26
 
-> This document records the integration of everything-claude-code + Trellis into the Forge framework.
+> This document records the architecture of Forge v2 — a pure everything-claude-code configuration framework.
 
 ---
 
 ## What is Forge?
 
-Forge is a production-ready configuration framework for Claude Code that combines:
+Forge is a production-ready configuration framework for Claude Code that packages:
 
 1. **everything-claude-code** — Community best practices: 50+ Skills, 10 Interactive Agents, 20 Commands, 8 Rules, 3 Contexts
-2. **Trellis Multi-Agent Pipeline** — Structured multi-agent workflow: 6 Pipeline Agents, Hook-driven quality control, Git Worktree parallel execution
+2. **Custom coding specifications** — CLAUDE.md routing table, rules/, stacks/, contexts/
+3. **Auto-learning system** — Homunculus instinct extraction, memory persistence, session state
 
 ## Architecture Overview
 
 ```
 ~/.claude/
-├── CLAUDE.md              ← Core routing table + principles
+├── CLAUDE.md              ← Core routing table + principles (v4.0)
 ├── CAPABILITIES.md        ← Full capability index
 ├── USAGE-GUIDE.md         ← User guide
-├── AGENTS.md              ← Trellis entry point
+├── AGENTS.md              ← Agent system overview
 ├── GUIDE.md               ← This file
 │
-├── agents/                ← Agent definitions (16 total)
-│   ├── [10 Interactive]   ← planner, architect, tdd-guide, etc.
-│   └── [6 Pipeline]      ← implement, check, debug, research, dispatch, plan
+├── agents/                ← Agent definitions (10 interactive)
+│   ├── planner.md
+│   ├── architect.md
+│   ├── tdd-guide.md
+│   ├── code-reviewer.md
+│   ├── security-reviewer.md
+│   ├── build-error-resolver.md
+│   ├── e2e-runner.md
+│   ├── refactor-cleaner.md
+│   ├── doc-updater.md
+│   └── database-reviewer.md
 │
-├── commands/              ← Slash commands (34 total)
-│   ├── [20 general]      ← /plan, /tdd, /code-review, etc.
-│   └── trellis/           ← /trellis:start, /trellis:parallel, etc.
+├── commands/              ← Slash commands (20 total)
+│   ├── plan.md, tdd.md, code-review.md, build-fix.md, e2e.md
+│   ├── learn.md, evolve.md, instinct-status.md, instinct-import.md, instinct-export.md
+│   ├── orchestrate.md, checkpoint.md, eval.md, verify.md
+│   ├── refactor-clean.md, update-docs.md, update-codemaps.md
+│   ├── setup-pm.md, skill-create.md, test-coverage.md
+│   └── ...
 │
-├── hooks/                 ← Hook scripts
-│   ├── hooks.json.template
-│   ├── inject-subagent-context.py
-│   ├── ralph-loop.py
-│   └── session-start.py
+├── hooks/                 ← Hook scripts (JS only)
+│   └── hooks.json.template
 │
 ├── rules/                 ← Always-loaded rules (8 files)
 ├── contexts/              ← dev / review / research modes
 ├── stacks/                ← Tech stack specs (frontend, java, python)
 ├── scripts/               ← JS hook scripts + utilities
+│   ├── hooks/             ← 8 JS hook scripts
+│   └── lib/               ← Shared utilities
+├── skills/                ← Skill definitions (50+)
 ├── homunculus/            ← Auto-learning system
 │   └── instincts/         ← personal/ + inherited/
-├── sessions/              ← Session state persistence
-│
-└── .trellis/              ← Trellis pipeline config
-    ├── workflow.md
-    ├── worktree.yaml
-    ├── spec/              ← Development guidelines
-    ├── scripts/           ← Shell automation scripts
-    ├── workspace/         ← Developer workspaces
-    └── tasks/             ← Task tracking
+└── sessions/              ← Session state persistence
 ```
 
-## Integration Timeline
+## Version History
 
 | Date | Version | Changes |
 |------|---------|---------|
 | 2026-01-22 | v1.2 | Initial Skill system |
 | 2026-02-02 | v2.0 | everything-claude-code integration (Skills, Agents, Commands, Rules) |
 | 2026-02-03 | v2.3-2.5 | Vibe Coding, Memory, Auto-learning |
-| 2026-02-06 | v3.0 | Trellis integration (Pipeline Agents, Hooks, Commands, Spec system) |
 | 2026-02-25 | v3.1 | Skills optimization, verify scripts, routing table update |
+| 2026-02-26 | v4.0 | Pure everything-claude-code version (forge-v2) |
 
 ## Key Concepts
 
-### Three-Layer Agent Architecture
+### Agent System
 
-- **Layer 1 (Pipeline)**: `implement`, `check`, `debug`, `research`, `dispatch`, `plan` — managed by Hooks, used in `/trellis:parallel`
-- **Layer 2 (Interactive)**: `planner`, `architect`, `tdd-guide`, `code-reviewer`, etc. — managed by CLAUDE.md routing table
-- **Layer 3 (Built-in)**: `Explore`, `Plan`, `Bash`, `general-purpose` — system-provided
+10 interactive agents managed by CLAUDE.md routing table, invoked via `Task(subagent_type="...", prompt="...")`.
+
+See [AGENTS.md](AGENTS.md) for the full list.
 
 ### Hook System
 
-- `inject-subagent-context.py` — Injects task context (PRD, .jsonl) into Pipeline Agents
-- `ralph-loop.py` — Quality control loop for Check Agent (max 5 iterations)
-- `session-start.py` — Loads previous context on session start
-- JS hooks in `scripts/hooks/` — Session management, auto-learning, compaction
+JS hooks in `scripts/hooks/` handle:
+- Session lifecycle (start, end, pre-compact)
+- Auto-learning (observe, evaluate-session)
+- Code quality (check-console-log, suggest-compact)
 
 ### Skill System
 
@@ -86,9 +91,7 @@ Forge is a production-ready configuration framework for Claude Code that combine
 
 ### Command System
 
-34 slash commands total:
-- 20 from everything-claude-code (`/plan`, `/tdd`, `/code-review`, etc.)
-- 14 from Trellis (`/trellis:start`, `/trellis:parallel`, etc.)
+20 slash commands: `/plan`, `/tdd`, `/code-review`, `/build-fix`, `/e2e`, `/learn`, `/evolve`, etc.
 
 ## Installation
 
@@ -101,7 +104,7 @@ Forge is a production-ready configuration framework for Claude Code that combine
 ```
 
 The installer:
-1. Checks dependencies (git, python)
+1. Checks dependencies (git, node)
 2. Copies all configuration files and directories
 3. Applies templates (settings.json, .mcp.json, hooks.json)
 4. Runs installation verification (verify.sh/verify.ps1)
@@ -109,14 +112,14 @@ The installer:
 
 ## Getting Started
 
-1. Run `/trellis:onboard` for first-time setup
-2. Run `/trellis:start` at the beginning of each session
-3. Use `/plan` for complex features
-4. Use `/trellis:finish-work` before ending a session
+1. Open Claude Code and start coding
+2. Use `/plan` for complex features
+3. Use `/tdd`, `/code-review`, `/build-fix` for development workflows
+4. Use `/learn`, `/evolve` for the learning system
 
 ## References
 
 - [CLAUDE.md](CLAUDE.md) — Core routing table
 - [CAPABILITIES.md](CAPABILITIES.md) — Full capability index
 - [USAGE-GUIDE.md](USAGE-GUIDE.md) — User guide
-- [.trellis/workflow.md](.trellis/workflow.md) — Trellis workflow
+- [AGENTS.md](AGENTS.md) — Agent system overview
