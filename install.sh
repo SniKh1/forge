@@ -23,7 +23,7 @@ echo -e "${CYAN}  =======================================${NC}"
 echo ""
 
 # --- Step 1: Check dependencies ---
-echo -e "${YELLOW}[1/6] Checking dependencies...${NC}"
+echo -e "${YELLOW}[1/5] Checking dependencies...${NC}"
 
 if ! command -v git &> /dev/null; then
   echo -e "${RED}  Error: git is not installed${NC}"
@@ -38,7 +38,7 @@ else
 fi
 
 # --- Step 2: Install files ---
-echo -e "${YELLOW}[2/6] Installing files...${NC}"
+echo -e "${YELLOW}[2/5] Installing files...${NC}"
 
 mkdir -p "$CLAUDE_HOME"
 
@@ -52,7 +52,7 @@ for f in CLAUDE.md CAPABILITIES.md USAGE-GUIDE.md AGENTS.md GUIDE.md; do
 done
 echo -e "${GRAY}  Docs: $doc_count files${NC}"
 
-# Directories
+# Directories (excluding skills, handled separately)
 dir_count=0
 for d in agents commands contexts rules stacks hooks scripts; do
   if [ -d "$SCRIPT_DIR/$d" ]; then
@@ -61,21 +61,20 @@ for d in agents commands contexts rules stacks hooks scripts; do
     dir_count=$((dir_count + 1))
   fi
 done
+echo -e "${GRAY}  Directories: $dir_count synced${NC}"
 
-# Skills (bundled): merge into existing, preserve learned/
+# Skills: full copy, preserve learned/
 if [ -d "$SCRIPT_DIR/skills" ]; then
   mkdir -p "$CLAUDE_HOME/skills"
+  skill_count=0
   for skill_dir in "$SCRIPT_DIR"/skills/*/; do
     skill_name=$(basename "$skill_dir")
     [ "$skill_name" = "learned" ] && continue
     cp -r "$skill_dir" "$CLAUDE_HOME/skills/"
+    skill_count=$((skill_count + 1))
   done
-  dir_count=$((dir_count + 1))
-  bundled=$(ls -d "$SCRIPT_DIR"/skills/*/ 2>/dev/null | grep -v learned | wc -l)
-  echo -e "${GRAY}  Bundled skills: $bundled copied${NC}"
+  echo -e "${GRAY}  Skills: $skill_count copied (learned/ preserved)${NC}"
 fi
-
-echo -e "${GRAY}  Directories: $dir_count synced${NC}"
 
 # Ensure runtime directories exist
 for dir in \
@@ -89,7 +88,7 @@ done
 echo -e "${GREEN}  Files installed${NC}"
 
 # --- Step 3: Apply templates ---
-echo -e "${YELLOW}[3/6] Applying templates...${NC}"
+echo -e "${YELLOW}[3/5] Applying templates...${NC}"
 
 # settings.json (only if not exists, preserve user customizations)
 if [ -f "$CLAUDE_HOME/settings.json.template" ] && [ ! -f "$CLAUDE_HOME/settings.json" ]; then
@@ -118,7 +117,7 @@ fi
 echo -e "${GREEN}  Templates applied${NC}"
 
 # --- Step 4: Verify installation ---
-echo -e "${YELLOW}[4/6] Verifying...${NC}"
+echo -e "${YELLOW}[4/5] Verifying...${NC}"
 
 VERIFY_SCRIPT="$CLAUDE_HOME/scripts/verify.sh"
 if [ -f "$VERIFY_SCRIPT" ]; then
@@ -135,29 +134,13 @@ else
   done
 fi
 
-# --- Step 5: Optional Skill modules ---
+# --- Step 5: Done ---
 echo ""
-echo -e "${YELLOW}[5/6] Skill modules...${NC}"
-
-SKILL_SCRIPT="$CLAUDE_HOME/scripts/install-skills.sh"
-if [ -f "$SKILL_SCRIPT" ]; then
-  read -rp "  Install skill modules now? [Y/n]: " install_skills
-  install_skills=${install_skills:-Y}
-  if [[ "$install_skills" =~ ^[Yy] ]]; then
-    chmod +x "$SKILL_SCRIPT"
-    bash "$SKILL_SCRIPT"
-  else
-    echo -e "${GRAY}  Skipped. Run later: bash ~/.claude/scripts/install-skills.sh${NC}"
-  fi
-else
-  echo -e "${YELLOW}  install-skills.sh not found, skipping${NC}"
-fi
-
-# --- Step 6: Done ---
-echo ""
-echo -e "${GREEN}[6/6] Done!${NC}"
+echo -e "${GREEN}[5/5] Done!${NC}"
 echo ""
 echo -e "${CYAN}  Location: $CLAUDE_HOME${NC}"
+skill_total=$(ls -d "$CLAUDE_HOME/skills"/*/ 2>/dev/null | grep -v learned | wc -l)
+echo -e "${CYAN}  Skills:   $skill_total installed${NC}"
 echo ""
 echo -e "${CYAN}  Next steps:${NC}"
 echo -e "${GRAY}    1. Open Claude Code and start coding${NC}"

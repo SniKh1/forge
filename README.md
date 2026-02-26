@@ -2,7 +2,7 @@
 
 **A batteries-included configuration framework for Claude Code.**
 
-Forge packages community best practices into a ready-to-install Claude Code setup. Skills are installed on demand by role — no more downloading 79 MB of files you'll never use.
+Forge packages community best practices into a ready-to-install Claude Code setup. One command installs everything — 115 skills, 10 agents, 20 commands, and more.
 
 <p align="center">
   <a href="README.zh-CN.md">简体中文</a> | English
@@ -14,13 +14,12 @@ Forge packages community best practices into a ready-to-install Claude Code setu
 
 | Component | Count | Description |
 |-----------|-------|-------------|
-| Skills | 94 | Modular, on-demand — frontend, backend, Java, Python, Go, security, docs… |
+| Skills | 115 | Frontend, backend, Java, Python, Go, security, docs, and more — all included |
 | Agents | 10 | Interactive agents covering the full dev lifecycle |
 | Commands | 20 | Slash-command shortcuts for common workflows |
 | Rules | 8 | Security, code style, testing, Git conventions |
 | Contexts | 3 | dev / review / research mode switching |
 | Stacks | 3 | Tech-stack guides (frontend, Java, Python) |
-| Role Presets | 8 | fullstack, frontend-dev, backend-dev, java-dev, python-dev, and more |
 
 ---
 
@@ -40,67 +39,35 @@ git clone https://github.com/SniKh1/forge.git /tmp/forge
 bash /tmp/forge/install.sh
 ```
 
-The installer will: back up your existing config → copy files → replace template variables → optionally install Skill modules.
+The installer will: copy all files → apply template variables → install all 115 skills.
 
 ### Prerequisites
 
 - [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/) (required by the Skill installer and hooks)
+- [Node.js](https://nodejs.org/) (required by hooks)
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI, installed and authenticated
 
 ---
 
-## Skill Modules
+## Skills
 
-Skills are organized into 12 modules. Pick a role preset, or mix and match modules yourself.
+All 115 skills are installed automatically — no module selection or separate download needed. Categories include:
 
-### Role Presets
+| Category | Examples |
+|----------|----------|
+| Core Workflow | superpowers, continuous-learning, tdd-workflow, coding-standards, verification-loop |
+| Frontend | frontend-design, frontend-patterns, theme-factory, canvas-design, algorithmic-art |
+| Backend | backend-patterns, postgres-patterns, clickhouse-io, api-design, deployment-patterns |
+| Java | java-coding-standards, jpa-patterns, springboot-patterns/security/tdd/verification |
+| Python | python-patterns, python-testing, django-patterns/security/tdd/verification |
+| Go | golang-patterns, golang-testing |
+| Security | security-review, security-scan |
+| Docs | doc-coauthoring, docx, pdf, pptx, xlsx, internal-comms |
+| Testing | webapp-testing, e2e-testing, cpp-testing |
+| AI/ML | ai-multimodal, google-adk-python |
+| MCP | mcp-builder, mcp-management |
 
-| Preset | Modules Included | Skills |
-|--------|-----------------|--------|
-| `fullstack` | core + frontend + backend + docs + testing | 41 |
-| `frontend-dev` | core + frontend + testing + docs | 38 |
-| `backend-dev` | core + backend + testing + docs | 34 |
-| `java-dev` | core + backend + java + testing + docs | 40 |
-| `python-dev` | core + backend + python + ai-ml + docs | 39 |
-| `security-eng` | core + security + testing | 26 |
-| `devops-eng` | core + security + docs | 31 |
-| `all` | every module | 66 |
-
-### Module Breakdown
-
-| Module | Skills | Highlights |
-|--------|--------|------------|
-| core (always installed) | 22 | superpowers, continuous-learning, tdd-workflow, coding-standards, verification-loop |
-| frontend | 7 | frontend-design, frontend-patterns, theme-factory, canvas-design, algorithmic-art |
-| backend | 3 | backend-patterns, postgres-patterns, clickhouse-io |
-| java | 6 | java-coding-standards, jpa-patterns, springboot-patterns/security/tdd/verification |
-| python | 6 | python-patterns, python-testing, django-patterns/security/tdd/verification |
-| golang | 2 | golang-patterns, golang-testing |
-| security | 2 | security-review, security-scan |
-| docs | 7 | doc-coauthoring, docx, pdf, pptx, xlsx, internal-comms, nutrient-document-processing |
-| testing | 2 | webapp-testing, cpp-testing |
-| ai-ml | 1 | notebooklm |
-| mcp | 1 | mcp-builder |
-| extras | 7 | obsidian-skills, skill-creator, planning-with-files, slack-gif-creator |
-
-### Install Skills Separately
-
-```bash
-# Interactive mode — choose preset or modules from a menu
-bash ~/.claude/scripts/install-skills.sh
-
-# CLI mode
-bash ~/.claude/scripts/install-skills.sh --preset fullstack
-bash ~/.claude/scripts/install-skills.sh --modules frontend,backend,docs
-bash ~/.claude/scripts/install-skills.sh --list
-```
-
-```powershell
-# PowerShell
-& ~/.claude/scripts/install-skills.ps1
-& ~/.claude/scripts/install-skills.ps1 --preset fullstack
-```
+See [SKILLS-CATALOG.md](SKILLS-CATALOG.md) for the full list.
 
 ---
 
@@ -140,9 +107,8 @@ Claude Code will automatically:
 ├── rules/                 # 8 behavioral rules
 ├── stacks/                # Tech-stack guides (frontend, java, python)
 ├── scripts/
-│   ├── install-skills.*   # Skill module installer (bash + PowerShell)
-│   └── lib/               # skills-registry.json + modules.json
-├── skills/                # Installed skill modules (on-demand)
+│   └── verify.*           # Installation verification
+├── skills/                # 115 skills (all included)
 │   └── learned/           # Auto-learned patterns (preserved across installs)
 ├── settings.json.template
 └── mcp.json.template
@@ -185,13 +151,13 @@ Claude Code will automatically:
 The installer asks for confirmation first. Your existing config is backed up to `~/.claude-backup-<timestamp>/`.
 
 **Where do Skills come from?**
-Downloaded on demand from [anthropics/skills](https://github.com/anthropics/skills), [obra/superpowers](https://github.com/obra/superpowers), [everything-claude-code](https://github.com/affaan-m/everything-claude-code), and a few standalone repos. Only the modules you choose are installed.
+All 115 skills are bundled in the repo, sourced from [anthropics/skills](https://github.com/anthropics/skills), [obra/superpowers](https://github.com/obra/superpowers), [everything-claude-code](https://github.com/affaan-m/everything-claude-code), and other community repos.
 
 **How do I update?**
-Re-run the install script — it backs up and overwrites. Run `install-skills.sh` again to update Skills.
+Re-run the install script — it overwrites with the latest version.
 
-**Can I add more Skills later?**
-Yes. Run `install-skills.sh --modules <module>` to add a module, or run it without arguments for the interactive menu.
+**Can I add my own Skills?**
+Yes. Drop a skill directory into `~/.claude/skills/`. Claude Code picks it up automatically.
 
 ---
 

@@ -26,7 +26,7 @@ function Copy-DirMerge($src, $dest) {
 }
 
 # --- Step 1: Check dependencies ---
-Write-Host "[1/6] Checking dependencies..." -ForegroundColor Yellow
+Write-Host "[1/5] Checking dependencies..." -ForegroundColor Yellow
 
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     Write-Host "  Error: git is not installed" -ForegroundColor Red
@@ -41,7 +41,7 @@ if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
 }
 
 # --- Step 2: Install files ---
-Write-Host "[2/6] Installing files..." -ForegroundColor Yellow
+Write-Host "[2/5] Installing files..." -ForegroundColor Yellow
 
 if (-not (Test-Path $ClaudeHome)) {
     New-Item -ItemType Directory -Path $ClaudeHome | Out-Null
@@ -58,7 +58,7 @@ foreach ($f in @("CLAUDE.md", "CAPABILITIES.md", "USAGE-GUIDE.md", "AGENTS.md", 
 }
 Write-Host "  Docs: $docCount files" -ForegroundColor Gray
 
-# Directories
+# Directories (excluding skills, handled separately)
 $dirList = @("agents", "commands", "contexts", "rules", "stacks", "hooks", "scripts")
 $dirCount = 0
 foreach ($d in $dirList) {
@@ -70,19 +70,19 @@ foreach ($d in $dirList) {
 }
 Write-Host "  Directories: $dirCount synced" -ForegroundColor Gray
 
-# Skills (bundled): merge into existing, preserve learned/
+# Skills: full copy, preserve learned/
 $skillsSrc = Join-Path $ScriptDir "skills"
 if (Test-Path $skillsSrc) {
     $skillsDest = Join-Path $ClaudeHome "skills"
     if (-not (Test-Path $skillsDest)) {
         New-Item -ItemType Directory -Path $skillsDest -Force | Out-Null
     }
-    $bundled = 0
+    $skillCount = 0
     Get-ChildItem -Path $skillsSrc -Directory | Where-Object { $_.Name -ne "learned" } | ForEach-Object {
         Copy-DirMerge $_.FullName (Join-Path $skillsDest $_.Name)
-        $bundled++
+        $skillCount++
     }
-    Write-Host "  Bundled skills: $bundled copied" -ForegroundColor Gray
+    Write-Host "  Skills: $skillCount copied (learned/ preserved)" -ForegroundColor Gray
 }
 
 # Ensure runtime directories exist
@@ -103,7 +103,7 @@ foreach ($dir in @(
 Write-Host "  Files installed" -ForegroundColor Green
 
 # --- Step 3: Apply templates ---
-Write-Host "[3/6] Applying templates..." -ForegroundColor Yellow
+Write-Host "[3/5] Applying templates..." -ForegroundColor Yellow
 
 # settings.json (only if not exists)
 $settingsDest = Join-Path $ClaudeHome "settings.json"
@@ -138,7 +138,7 @@ if (Test-Path $hooksTemplate) {
 Write-Host "  Templates applied" -ForegroundColor Green
 
 # --- Step 4: Verify installation ---
-Write-Host "[4/6] Verifying..." -ForegroundColor Yellow
+Write-Host "[4/5] Verifying..." -ForegroundColor Yellow
 
 $verifyScript = Join-Path $ClaudeHome "scripts\verify.ps1"
 if (Test-Path $verifyScript) {
@@ -155,28 +155,13 @@ if (Test-Path $verifyScript) {
     }
 }
 
-# --- Step 5: Optional Skill modules ---
+# --- Step 5: Done ---
 Write-Host ""
-Write-Host "[5/6] Skill modules..." -ForegroundColor Yellow
-
-$SkillScript = Join-Path $ClaudeHome "scripts\install-skills.ps1"
-if (Test-Path $SkillScript) {
-    $installSkills = Read-Host "  Install skill modules now? [Y/n]"
-    if (-not $installSkills) { $installSkills = "Y" }
-    if ($installSkills -match '^[Yy]') {
-        & $SkillScript
-    } else {
-        Write-Host "  Skipped. Run later: powershell ~/.claude/scripts/install-skills.ps1" -ForegroundColor Gray
-    }
-} else {
-    Write-Host "  install-skills.ps1 not found, skipping" -ForegroundColor Yellow
-}
-
-# --- Step 6: Done ---
-Write-Host ""
-Write-Host "[6/6] Done!" -ForegroundColor Green
+Write-Host "[5/5] Done!" -ForegroundColor Green
 Write-Host ""
 Write-Host "  Location: $ClaudeHome" -ForegroundColor Cyan
+$skillTotal = (Get-ChildItem -Path "$ClaudeHome\skills" -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne "learned" }).Count
+Write-Host "  Skills:   $skillTotal installed" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  Next steps:" -ForegroundColor Cyan
 Write-Host "    1. Open Claude Code and start coding" -ForegroundColor Gray

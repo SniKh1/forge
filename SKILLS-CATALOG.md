@@ -1,47 +1,26 @@
 # Forge - Skills Catalog
 
-**Version**: 1.0
-**Total Downloadable Skills**: 102
+**Version**: 2.0
+**Total Skills**: 115
 **Last Updated**: 2026-02-26
 
-> 本目录列出所有可通过 `install-skills.sh` / `install-skills.ps1` 安装的 Skill。
-> 安装命令：`bash ~/.claude/scripts/install-skills.sh` 或 `powershell ~/.claude/scripts/install-skills.ps1`
+> 本目录列出 Forge 内置的全部 Skill。运行 `install.sh` 或 `install.ps1` 即可一键安装。
 
 ---
 
 ## Quick Start
 
 ```bash
-# Interactive mode (recommended)
-bash ~/.claude/scripts/install-skills.sh
+# macOS / Linux
+git clone https://github.com/SniKh1/forge.git /tmp/forge
+bash /tmp/forge/install.sh
 
-# Install a preset
-bash ~/.claude/scripts/install-skills.sh --preset fullstack
-
-# Install specific modules
-bash ~/.claude/scripts/install-skills.sh --modules frontend,backend,docs
-
-# List all modules and presets
-bash ~/.claude/scripts/install-skills.sh --list
-
-# Show installed skills
-bash ~/.claude/scripts/install-skills.sh --installed
+# Windows (PowerShell)
+git clone https://github.com/SniKh1/forge.git $env:TEMP\forge
+& $env:TEMP\forge\install.ps1
 ```
 
----
-
-## Role Presets
-
-| Preset | Modules | Description |
-|--------|---------|-------------|
-| fullstack | core + frontend + backend + docs + testing + debugging | Full-stack development |
-| frontend-dev | core + frontend + testing + docs | Frontend specialist |
-| backend-dev | core + backend + testing + docs | Backend specialist |
-| java-dev | core + backend + java + testing + docs | Java/Spring Boot developer |
-| python-dev | core + backend + python + ai-ml + docs | Python developer |
-| security-eng | core + security + testing + devops | Security engineer |
-| devops-eng | core + devops + security + docs | DevOps engineer |
-| all | core + all modules + extras | Everything |
+All 115 skills are installed automatically.
 
 ---
 

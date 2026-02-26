@@ -212,12 +212,16 @@ KISS / DRY / 不可变 / 保护调用链。详见 `rules/coding-style.md`
 
 ## 更新记录
 
+- **v4.2** (2026-02-26) - Skills 全量内置版
+  - 全部 115 个 Skills 内置于仓库，安装脚本直接复制，无需下载
+  - 移除 install-skills.sh / install-skills.ps1 下载脚本
+  - 移除模块选择、角色预设等复杂安装流程
+  - 安装脚本简化为 5 步：检查依赖 → 复制文件 → 应用模板 → 验证 → 完成
+
 - **v4.1** (2026-02-26) - Skills 可配置化版
-  - Skills 从捆绑安装改为按模块动态下载（~79MB → 按需下载）
-  - 新增 `install-skills.sh` / `install-skills.ps1` 独立 Skill 安装脚本
-  - 14 个模块分类 + 8 个角色预设（fullstack/frontend-dev/backend-dev 等）
-  - 新增 `SKILLS-CATALOG.md` 完整 Skill 目录（102 个可下载 Skill）
-  - 主安装脚本不再复制 skills 目录，改为可选安装步骤
+  - Skills 按模块动态下载
+  - 14 个模块分类 + 8 个角色预设
+  - 新增 `SKILLS-CATALOG.md` 完整 Skill 目录
 
 - **v4.0** (2026-02-26) - Pure everything-claude-code 版
   - 移除全部外部流水线依赖（Pipeline Agents、Python Hooks）
