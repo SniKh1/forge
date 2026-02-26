@@ -14,7 +14,7 @@ Forge packages community best practices into a ready-to-install Claude Code setu
 
 | Component | Count | Description |
 |-----------|-------|-------------|
-| Skills | 66 | Modular, on-demand — frontend, backend, Java, Python, Go, security, docs… |
+| Skills | 94 | Modular, on-demand — frontend, backend, Java, Python, Go, security, docs… |
 | Agents | 10 | Interactive agents covering the full dev lifecycle |
 | Commands | 20 | Slash-command shortcuts for common workflows |
 | Rules | 8 | Security, code style, testing, Git conventions |

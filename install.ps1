@@ -70,6 +70,21 @@ foreach ($d in $dirList) {
 }
 Write-Host "  Directories: $dirCount synced" -ForegroundColor Gray
 
+# Skills (bundled): merge into existing, preserve learned/
+$skillsSrc = Join-Path $ScriptDir "skills"
+if (Test-Path $skillsSrc) {
+    $skillsDest = Join-Path $ClaudeHome "skills"
+    if (-not (Test-Path $skillsDest)) {
+        New-Item -ItemType Directory -Path $skillsDest -Force | Out-Null
+    }
+    $bundled = 0
+    Get-ChildItem -Path $skillsSrc -Directory | Where-Object { $_.Name -ne "learned" } | ForEach-Object {
+        Copy-DirMerge $_.FullName (Join-Path $skillsDest $_.Name)
+        $bundled++
+    }
+    Write-Host "  Bundled skills: $bundled copied" -ForegroundColor Gray
+}
+
 # Ensure runtime directories exist
 foreach ($dir in @(
     "$ClaudeHome\homunculus\instincts\personal",

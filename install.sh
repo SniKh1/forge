@@ -61,6 +61,20 @@ for d in agents commands contexts rules stacks hooks scripts; do
     dir_count=$((dir_count + 1))
   fi
 done
+
+# Skills (bundled): merge into existing, preserve learned/
+if [ -d "$SCRIPT_DIR/skills" ]; then
+  mkdir -p "$CLAUDE_HOME/skills"
+  for skill_dir in "$SCRIPT_DIR"/skills/*/; do
+    skill_name=$(basename "$skill_dir")
+    [ "$skill_name" = "learned" ] && continue
+    cp -r "$skill_dir" "$CLAUDE_HOME/skills/"
+  done
+  dir_count=$((dir_count + 1))
+  bundled=$(ls -d "$SCRIPT_DIR"/skills/*/ 2>/dev/null | grep -v learned | wc -l)
+  echo -e "${GRAY}  Bundled skills: $bundled copied${NC}"
+fi
+
 echo -e "${GRAY}  Directories: $dir_count synced${NC}"
 
 # Ensure runtime directories exist
