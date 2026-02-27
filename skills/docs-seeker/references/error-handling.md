@@ -36,8 +36,8 @@ https://[library].io/llms.txt
 
 **3. Search for llms.txt if still not found:**
 ```
-WebSearch: "[library] llms.txt"
-WebSearch: "[library] documentation AI format"
+mcp__exa__web_search_exa: "[library] llms.txt"
+mcp__exa__web_search_exa: "[library] documentation AI format"
 ```
 
 **4. Fall back to repository analysis:**
@@ -58,7 +58,7 @@ Problem: https://context7.com/org/new-lib/llms.txt returns 404
 
 Steps:
 1. Check official site: https://new-lib.dev/llms.txt ✗ Not found
-2. WebSearch for llms.txt ✗ Not found
+2. mcp__exa__web_search_exa for llms.txt ✗ Not found
 3. Fall back to repository: https://github.com/org/new-lib ✓ Found
 4. Use Repomix for documentation extraction
 5. Note in report: "No llms.txt available, analyzed repository directly"
@@ -97,8 +97,8 @@ https://www.[name].com/llms.txt
 
 **4. Search for llms.txt mention:**
 ```
-WebSearch: "[library] llms.txt"
-WebSearch: "[library] documentation AI format"
+mcp__exa__web_search_exa: "[library] llms.txt"
+mcp__exa__web_search_exa: "[library] documentation AI format"
 ```
 
 **5. Check documentation announcements:**
@@ -142,26 +142,26 @@ Steps:
 
 **1. Search official website:**
 ```
-WebSearch: "[library] official website"
+mcp__exa__web_search_exa: "[library] official website"
 ```
 
 **2. Check package registries:**
 ```
-WebSearch: "[library] npm"
-WebSearch: "[library] pypi"
-WebSearch: "[library] crates.io"
+mcp__exa__web_search_exa: "[library] npm"
+mcp__exa__web_search_exa: "[library] pypi"
+mcp__exa__web_search_exa: "[library] crates.io"
 ```
 
 **3. Look for organization GitHub:**
 ```
-WebSearch: "[company] github organization"
-WebSearch: "[library] github org:[known-org]"
+mcp__exa__web_search_exa: "[company] github organization"
+mcp__exa__web_search_exa: "[library] github org:[known-org]"
 ```
 
 **4. Check for mirrors or forks:**
 ```
-WebSearch: "[library] github mirror"
-WebSearch: "[library] source code"
+mcp__exa__web_search_exa: "[library] github mirror"
+mcp__exa__web_search_exa: "[library] source code"
 ```
 
 **5. Verify through package manager:**
@@ -438,7 +438,7 @@ curl https://example.com/robots.txt
 
 **1. Set explicit timeouts:**
 ```
-WebSearch: 30 seconds max
+mcp__exa__web_search_exa: 30 seconds max
 WebFetch: 60 seconds max
 Repository clone: 5 minutes max
 Repomix processing: 10 minutes max

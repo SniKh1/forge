@@ -28,7 +28,7 @@ Understanding boundaries and measuring effectiveness of documentation discovery.
 **Example:**
 ```
 Tried: https://context7.com/org/new-lib/llms.txt → 404
-Fallback: WebSearch for "new-lib llms.txt" → Found
+Fallback: mcp__exa__web_search_exa for "new-lib llms.txt" → Found
 Used: Official llms.txt from website
 ```
 

@@ -41,11 +41,11 @@ Examples:
 - Reduces search time
 
 **When to use:**
-- ALWAYS try context7.com first before WebSearch
+- ALWAYS try context7.com first before mcp__exa__web_search_exa
 - Use topic parameter when user asks about specific feature
-- Fall back to WebSearch only if context7.com returns 404
+- Fall back to mcp__exa__web_search_exa only if context7.com returns 404
 
-## WebSearch
+## mcp__exa__web_search_exa
 
 **Use when:**
 - context7.com unavailable or returns 404
@@ -227,7 +227,7 @@ context7.com found?
   YES → Process llms.txt URLs (go to URL count check)
   NO → Continue
   ↓
-Fallback: WebSearch for llms.txt
+Fallback: mcp__exa__web_search_exa for llms.txt
   ↓
 Single URL?
   YES → WebFetch
@@ -255,7 +255,7 @@ No structured docs?
 |------|----------|-------|----------|------------|
 | context7.com | llms.txt lookup | Instant | High | Low |
 | context7.com?topic= | Targeted search | Instant | Focused | Low |
-| WebSearch | Finding URLs | Fast | Narrow | Low |
+| mcp__exa__web_search_exa | Finding URLs | Fast | Narrow | Low |
 | WebFetch | Single page | Fast | Single | Low |
 | Explorer | Multiple URLs | Fast | Medium | Medium |
 | Researcher | Scattered info | Slow | Wide | High |

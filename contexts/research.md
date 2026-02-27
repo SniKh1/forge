@@ -19,7 +19,7 @@ Focus: Understanding before acting
 ## Tools to favor
 - Read for understanding code
 - Grep, Glob for finding patterns
-- WebSearch, WebFetch for external docs
+- mcp__exa__web_search_exa, WebFetch for external docs
 - Task with Explore agent for codebase questions
 
 ## Output

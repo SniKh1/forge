@@ -116,7 +116,7 @@ KISS / DRY / 不可变 / 保护调用链。详见 `rules/coding-style.md`
 | 文件名匹配 | `Glob` |
 | 库官方文档 | `context7`（先 resolve 再 query） |
 | 开源项目 | `deepwiki` |
-| 联网搜索 | `WebSearch` |
+| 联网搜索 | `mcp__exa__web_search_exa` |
 | 跨会话记忆 | `mcp__memory__*` |
 | 复杂多步骤 | `Task` + 合适的 `subagent_type` |
 

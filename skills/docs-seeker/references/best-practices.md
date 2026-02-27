@@ -32,7 +32,7 @@ Specific topic needed?
   ↓
 Found?
   YES → Use as primary source
-  NO → Fall back to WebSearch for llms.txt
+  NO → Fall back to mcp__exa__web_search_exa for llms.txt
   ↓
 Still not found?
   YES → Fall back to repository analysis
@@ -55,7 +55,7 @@ Total time: ~10 seconds
 
 Good fallback approach:
 1. context7.com returns 404
-2. WebSearch: "Astro llms.txt site:docs.astro.build"
+2. mcp__exa__web_search_exa: "Astro llms.txt site:docs.astro.build"
 3. Found → WebFetch llms.txt
 4. Launch Explorer agents for URLs
 Total time: ~60 seconds
@@ -71,8 +71,8 @@ Total time: ~5 minutes
 ### When Not Available
 
 Fallback strategy when context7.com unavailable:
-- If context7.com returns 404 → try WebSearch for llms.txt
-- If WebSearch finds nothing in 30 seconds → move to repository
+- If context7.com returns 404 → try mcp__exa__web_search_exa for llms.txt
+- If mcp__exa__web_search_exa finds nothing in 30 seconds → move to repository
 - If domain is incorrect → try 2-3 alternatives, then move on
 - If documentation is very old → likely doesn't have llms.txt
 
@@ -438,7 +438,7 @@ Agents returned mixed information:
 
 **Set explicit timeouts:**
 ```
-WebSearch: 30 seconds
+mcp__exa__web_search_exa: 30 seconds
 WebFetch: 60 seconds
 Repository clone: 5 minutes
 Repomix processing: 10 minutes

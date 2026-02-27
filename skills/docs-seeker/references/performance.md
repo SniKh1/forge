@@ -10,7 +10,7 @@ Strategies and techniques for maximizing speed and efficiency in documentation d
 
 Direct URL construction instead of searching:
 ```
-Traditional: WebSearch (15-30s) → WebFetch (5-10s) = 20-40s
+Traditional: mcp__exa__web_search_exa (15-30s) → WebFetch (5-10s) = 20-40s
 context7.com: Direct WebFetch (5-10s) = 5-10s
 
 Speed improvement: 2-4x faster
@@ -40,7 +40,7 @@ https://context7.com/shadcn-ui/ui/llms.txt?topic=date
 **Performance Impact:**
 ```
 Without context7.com:
-1. WebSearch for llms.txt: 15s
+1. mcp__exa__web_search_exa for llms.txt: 15s
 2. WebFetch llms.txt: 5s
 3. Launch agents: 5s
 Total: 25s

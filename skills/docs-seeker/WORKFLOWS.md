@@ -65,7 +65,7 @@ Step 1: Initial Search (PRIORITIZE context7.com)
 → Result: Contains 8+ documentation URLs (success!)
 
 Alternative if context7.com fails:
-→ WebSearch: "Astro llms.txt site:docs.astro.build"
+→ mcp__exa__web_search_exa: "Astro llms.txt site:docs.astro.build"
 → Result: https://docs.astro.build/llms.txt found
 
 Step 2: Process llms.txt
@@ -109,7 +109,7 @@ Step 1: Try context7.com first
 → Result: Not found (404)
 
 Step 2: Find GitHub Repository
-→ WebSearch: "[library-name] github repository"
+→ mcp__exa__web_search_exa: "[library-name] github repository"
 → Result: https://github.com/org/library-name
 
 Step 2a: Try context7.com with GitHub info
@@ -174,8 +174,8 @@ Step 1: Identify Version Requirements
 → Primary focus: migration path and breaking changes
 
 Step 2: Search Both Versions
-→ WebSearch: "[library] v1 llms.txt"
-→ WebSearch: "[library] v2 llms.txt"
+→ mcp__exa__web_search_exa: "[library] v1 llms.txt"
+→ mcp__exa__web_search_exa: "[library] v2 llms.txt"
 
 Step 3: Launch Parallel Version Analysis
 → Deploy two sets of Explorer agents:
@@ -213,9 +213,9 @@ Step 5: Present Side-by-Side Analysis
 
 ```
 Step 1: Exhaust Structured Sources
-→ WebSearch: llms.txt (not found)
-→ WebSearch: GitHub repo (not found or no docs)
-→ WebSearch: Official website (minimal content)
+→ mcp__exa__web_search_exa: llms.txt (not found)
+→ mcp__exa__web_search_exa: GitHub repo (not found or no docs)
+→ mcp__exa__web_search_exa: Official website (minimal content)
 
 Step 2: Deploy Researcher Agents
 → Launch 4 Researcher agents in parallel:
@@ -366,7 +366,7 @@ Agent 3: Guides (best-practices.md, troubleshooting.md)
 
 **Set timeouts:**
 ```
-1. WebSearch: 30 seconds max
+1. mcp__exa__web_search_exa: 30 seconds max
 2. WebFetch: 60 seconds max
 3. Repository clone: 5 minutes max
 4. Repomix processing: 10 minutes max

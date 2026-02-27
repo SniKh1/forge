@@ -33,7 +33,7 @@
       "Glob",
       "Grep",
       "WebFetch",
-      "WebSearch",
+      "mcp__exa__web_search_exa",
       "TodoWrite",
       "Task",
       "Skill",

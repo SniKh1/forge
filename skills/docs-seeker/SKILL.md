@@ -60,7 +60,7 @@ Intelligent discovery and analysis of technical documentation through multiple s
 
    **Fallback: Traditional llms.txt search**
    ```
-   WebSearch: "[library name] llms.txt site:[docs domain]"
+   mcp__exa__web_search_exa: "[library name] llms.txt site:[docs domain]"
    ```
    Common patterns:
    - `https://docs.[library].com/llms.txt`
@@ -94,7 +94,7 @@ Launch 3 Explorer agents simultaneously:
 
 **When llms.txt not found:**
 
-1. Find GitHub repository via WebSearch
+1. Find GitHub repository via mcp__exa__web_search_exa
 2. Use Repomix to pack repository:
    ```bash
    npm install -g repomix  # if needed
@@ -156,7 +156,7 @@ Launch 3 Explorer agents simultaneously:
 ## Quick Reference
 
 **Tool selection:**
-- WebSearch → Find llms.txt URLs, GitHub repositories
+- mcp__exa__web_search_exa → Find llms.txt URLs, GitHub repositories
 - WebFetch → Read single documentation pages
 - Task (Explore) → Multiple URLs, parallel exploration
 - Task (Researcher) → Scattered documentation, diverse sources
