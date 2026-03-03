@@ -172,6 +172,16 @@ KISS / DRY / 不可变 / 保护调用链。详见 `rules/coding-style.md`
 
 **学习命令**：`/learn` `/evolve` `/instinct-status` `/instinct-import` `/instinct-export`
 
+**强制自动触发规则**（无需用户提醒，收到以下信号立即执行）：
+
+| Hook 信号 | 必须立即执行 |
+|-----------|-------------|
+| stderr 含 `[LEARNING-TRIGGER]` | 立即运行 `/learn`，完成后继续原任务 |
+| stderr 含 `[MILESTONE-TRIGGER]` | 立即运行 `/learn` |
+| git commit 成功后（无 hook 信号时） | 主动提议运行 `/learn` |
+| 用户说"搞定"/"完成"/"提交"后 | 提醒是否需要运行 `/learn` |
+| instincts/personal/ 积累 5+ 个文件 | 主动提议运行 `/evolve` |
+
 ---
 
 ## 七、上下文模式与 Vibe Coding

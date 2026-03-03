@@ -39,6 +39,14 @@ async function main() {
   }
 
   log('[PreCompact] State saved before compaction');
+
+  // Signal Claude to run /learn before compaction proceeds
+  console.error('');
+  console.error('[LEARNING-TRIGGER] 上下文即将压缩');
+  console.error('[LEARNING-TRIGGER] 请在压缩前立即运行 /learn，将本次会话的关键模式固化为 skill');
+  console.error('[LEARNING-TRIGGER] 如果 instincts/personal/ 已积累 3+ 个文件，也请运行 /evolve');
+  console.error('');
+
   process.exit(0);
 }
 
