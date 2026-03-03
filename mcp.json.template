@@ -14,7 +14,7 @@
     },
     "deepwiki": {
       "command": "npx",
-      "args": ["-y", "@cognitionnow/deepwiki-mcp"]
+      "args": ["-y", "deepwiki-mcp"]
     },
     "exa": {
       "command": "npx",

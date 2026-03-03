@@ -3,9 +3,21 @@
 ## [Unreleased]
 
 ### Fixed
-- **CRITICAL**: Corrected Exa MCP server package name
-  - Changed from `@modelcontextprotocol/server-exa` (non-existent) to `exa-mcp-server`
-  - Exa MCP server now works correctly
+- **CRITICAL**: Corrected MCP server package names
+  - `@modelcontextprotocol/server-exa` → `exa-mcp-server`
+  - `@cognitionnow/deepwiki-mcp` → `deepwiki-mcp`
+  - All MCP servers now work correctly
+- **CRITICAL**: Fixed MCP configuration method
+  - Changed from copying `.mcp.json` to using `claude mcp add` commands
+  - MCP servers now properly register in `~/.claude.json`
+  - Configuration persists across Claude Code restarts
+
+### Added
+- `scripts/install-mcp.sh` - Automated MCP server installation script
+- `scripts/verify-mcp.sh` - MCP server verification script
+- `docs/MCP-SETUP-GUIDE.md` - Complete MCP configuration guide
+- Automatic `uvx` (uv package manager) installation
+- Interactive API key configuration during installation
 
 ### Security
 - **CRITICAL**: Removed hardcoded Exa API key from `mcp.json.template`
