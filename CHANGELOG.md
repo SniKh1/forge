@@ -2,44 +2,67 @@
 
 ## [Unreleased]
 
+### Major Refactoring
+
+**Installation Scripts**:
+- Completely rewritten `install.sh` and `install.ps1` with unified functionality
+- Added bilingual support (Chinese/English) with Chinese as default
+- Added installation mode selection (incremental/full)
+- Incremental mode preserves existing files (default)
+- Full mode overwrites all files
+- Integrated MCP configuration using `claude mcp add` commands
+- Automatic `uvx` installation for fetch MCP server
+- Interactive Exa API key configuration
+- Built-in verification
+
+**Removed Redundant Scripts**:
+- `scripts/install-mcp.sh` - merged into main installer
+- `scripts/install-skills.sh/ps1` - merged into main installer
+- `scripts/verify-mcp.sh` - merged into main installer
+- `docs/MCP-SETUP-GUIDE.md` - internal documentation removed
+
+**Documentation**:
+- README.md now defaults to Chinese (简体中文)
+- README.en.md for English version
+- Removed README.zh-CN.md (replaced by README.md)
+- Simplified documentation structure
+
 ### Fixed
+
 - **CRITICAL**: Corrected MCP server package names
   - `@modelcontextprotocol/server-exa` → `exa-mcp-server`
   - `@cognitionnow/deepwiki-mcp` → `deepwiki-mcp`
-  - All MCP servers now work correctly
+
 - **CRITICAL**: Fixed MCP configuration method
   - Changed from copying `.mcp.json` to using `claude mcp add` commands
   - MCP servers now properly register in `~/.claude.json`
   - Configuration persists across Claude Code restarts
 
-### Added
-- `scripts/install-mcp.sh` - Automated MCP server installation script
-- `scripts/verify-mcp.sh` - MCP server verification script
-- `docs/MCP-SETUP-GUIDE.md` - Complete MCP configuration guide
-- Automatic `uvx` (uv package manager) installation
-- Interactive API key configuration during installation
-
 ### Security
+
 - **CRITICAL**: Removed hardcoded Exa API key from `mcp.json.template`
   - Template now uses `{{EXA_API_KEY}}` placeholder
   - Installation scripts prompt for API key during setup
   - Users can skip and manually configure later
 
 ### Added
-- Interactive API key configuration during installation
-  - macOS/Linux: `install.sh` prompts for Exa API key
-  - Windows: `install.ps1` prompts for Exa API key
-- FAQ section for Exa API key configuration in README files
+
+- Bilingual installation interface (Chinese/English)
+- Installation mode selection (incremental/full)
+- Automatic dependency checking
+- Optional backup creation before installation
+- Integrated MCP server configuration
+- Automatic `uvx` (uv package manager) installation
+- Interactive API key configuration
+- Built-in installation verification
 
 ### Changed
-- `mcp.json.template`: Replaced hardcoded token with `{{EXA_API_KEY}}` placeholder
-- `install.sh`: Added interactive prompt for Exa API key
-- `install.ps1`: Added interactive prompt for Exa API key
-- Updated README.md and README.zh-CN.md with MCP server details
 
-### Fixed
-- macOS installation now properly handles MCP configuration
-- Template variable replacement for sensitive credentials
+- Default language: English → Chinese
+- Default installation mode: Full → Incremental
+- Single unified installation script per platform
+- Simplified project structure
+- Improved user experience with interactive prompts
 
 ---
 
