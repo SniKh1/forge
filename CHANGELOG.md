@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixed
+- **CRITICAL**: Corrected Exa MCP server package name
+  - Changed from `@modelcontextprotocol/server-exa` (non-existent) to `exa-mcp-server`
+  - Exa MCP server now works correctly
+
 ### Security
 - **CRITICAL**: Removed hardcoded Exa API key from `mcp.json.template`
   - Template now uses `{{EXA_API_KEY}}` placeholder
