@@ -141,7 +141,7 @@ Claude Code will automatically:
 
 **Add a command** — Drop a `.md` file into `commands/`. Invoke it with `/command-name`.
 
-**Add an MCP server** — Edit your local `.mcp.json`. The template ships with common servers only.
+**Add an MCP server** — Edit your local `.mcp.json`. The template ships with common servers (exa, playwright, sequential-thinking, memory, deepwiki, fetch). During installation, you'll be prompted to enter your Exa API key if needed.
 
 ---
 
@@ -149,6 +149,9 @@ Claude Code will automatically:
 
 **Will this overwrite my existing config?**
 The installer asks for confirmation first. Your existing config is backed up to `~/.claude-backup-<timestamp>/`.
+
+**How do I configure Exa API key?**
+During installation, the script will prompt you to enter your Exa API key. If you skip it, you can manually edit `~/.claude/.mcp.json` and replace `{{EXA_API_KEY}}` with your actual key.
 
 **Where do Skills come from?**
 All 115 skills are bundled in the repo, sourced from [anthropics/skills](https://github.com/anthropics/skills), [obra/superpowers](https://github.com/obra/superpowers), [everything-claude-code](https://github.com/affaan-m/everything-claude-code), and other community repos.

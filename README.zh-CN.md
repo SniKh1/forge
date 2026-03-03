@@ -141,7 +141,7 @@ Claude Code 会自动：
 
 **添加命令** — 在 `commands/` 中创建 `.md` 文件，通过 `/command-name` 调用。
 
-**添加 MCP 服务器** — 编辑本地 `.mcp.json`，模板仅包含通用服务器。
+**添加 MCP 服务器** — 编辑本地 `.mcp.json`。模板包含常用服务器 (exa, playwright, sequential-thinking, memory, deepwiki, fetch)。安装时会提示输入 Exa API key。
 
 ---
 
@@ -149,6 +149,9 @@ Claude Code 会自动：
 
 **会覆盖我现有的配置吗？**
 安装脚本会先询问确认，现有配置会备份到 `~/.claude-backup-<timestamp>/`。
+
+**如何配置 Exa API key？**
+安装时脚本会提示输入 Exa API key。如果跳过，可以手动编辑 `~/.claude/.mcp.json`，将 `{{EXA_API_KEY}}` 替换为实际的 key。
 
 **Skills 从哪里来？**
 全部 115 个 Skills 内置在仓库中，来源于 [anthropics/skills](https://github.com/anthropics/skills)、[obra/superpowers](https://github.com/obra/superpowers)、[everything-claude-code](https://github.com/affaan-m/everything-claude-code) 等社区开源仓库。

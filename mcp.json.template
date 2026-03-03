@@ -15,6 +15,17 @@
     "deepwiki": {
       "command": "npx",
       "args": ["-y", "@cognitionnow/deepwiki-mcp"]
+    },
+    "exa": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-exa"],
+      "env": {
+        "EXA_API_KEY": "{{EXA_API_KEY}}"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/playwright-mcp-server"]
     }
   }
 }

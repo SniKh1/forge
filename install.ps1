@@ -119,8 +119,22 @@ if ((Test-Path $settingsTemplate) -and (-not (Test-Path $settingsDest))) {
 $mcpDest = Join-Path $ClaudeHome ".mcp.json"
 $mcpTemplate = Join-Path $ClaudeHome "mcp.json.template"
 if ((Test-Path $mcpTemplate) -and (-not (Test-Path $mcpDest))) {
-    Copy-Item $mcpTemplate $mcpDest -Force
-    Write-Host "  .mcp.json: created" -ForegroundColor Gray
+    $templateContent = Get-Content $mcpTemplate -Raw
+    if ($templateContent -match '\{\{EXA_API_KEY\}\}') {
+        Write-Host "  Enter your Exa API key (or press Enter to skip): " -ForegroundColor Yellow -NoNewline
+        $exaKey = Read-Host
+        if ($exaKey) {
+            $templateContent = $templateContent -replace '\{\{EXA_API_KEY\}\}', $exaKey
+            Set-Content -Path $mcpDest -Value $templateContent
+            Write-Host "  .mcp.json: created with Exa API key" -ForegroundColor Gray
+        } else {
+            Copy-Item $mcpTemplate $mcpDest -Force
+            Write-Host "  .mcp.json: created (Exa API key placeholder preserved)" -ForegroundColor Gray
+        }
+    } else {
+        Copy-Item $mcpTemplate $mcpDest -Force
+        Write-Host "  .mcp.json: created" -ForegroundColor Gray
+    }
 } else {
     Write-Host "  .mcp.json: exists, skipped" -ForegroundColor Gray
 }

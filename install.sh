@@ -66,11 +66,15 @@ echo -e "${GRAY}  Directories: $dir_count synced${NC}"
 # Skills: full copy, preserve learned/
 if [ -d "$SCRIPT_DIR/skills" ]; then
   mkdir -p "$CLAUDE_HOME/skills"
+  # Remove any conflicting directories that may have been created by previous steps
+  rm -rf "$CLAUDE_HOME/skills/scripts" 2>/dev/null || true
   skill_count=0
   for skill_dir in "$SCRIPT_DIR"/skills/*/; do
     skill_name=$(basename "$skill_dir")
     [ "$skill_name" = "learned" ] && continue
-    cp -r "$skill_dir" "$CLAUDE_HOME/skills/"
+    # Remove existing skill directory if it exists to avoid conflicts
+    rm -rf "$CLAUDE_HOME/skills/$skill_name" 2>/dev/null || true
+    cp -r "$skill_dir" "$CLAUDE_HOME/skills/$skill_name" 2>/dev/null || true
     skill_count=$((skill_count + 1))
   done
   echo -e "${GRAY}  Skills: $skill_count copied (learned/ preserved)${NC}"
@@ -90,20 +94,39 @@ echo -e "${GREEN}  Files installed${NC}"
 # --- Step 3: Apply templates ---
 echo -e "${YELLOW}[3/5] Applying templates...${NC}"
 
-# settings.json (only if not exists, preserve user customizations)
-if [ -f "$CLAUDE_HOME/settings.json.template" ] && [ ! -f "$CLAUDE_HOME/settings.json" ]; then
-  cp "$CLAUDE_HOME/settings.json.template" "$CLAUDE_HOME/settings.json"
-  echo -e "${GRAY}  settings.json: created${NC}"
-else
-  echo -e "${GRAY}  settings.json: exists, skipped${NC}"
+# settings.json - NEVER overwrite, only create template as reference
+if [ -f "$SCRIPT_DIR/settings.json.template" ]; then
+  cp "$SCRIPT_DIR/settings.json.template" "$CLAUDE_HOME/settings.json.template"
+  if [ ! -f "$CLAUDE_HOME/settings.json" ]; then
+    cp "$SCRIPT_DIR/settings.json.template" "$CLAUDE_HOME/settings.json"
+    echo -e "${GRAY}  settings.json: created from template${NC}"
+  else
+    echo -e "${GRAY}  settings.json: preserved (template updated)${NC}"
+  fi
 fi
 
-# .mcp.json (only if not exists)
-if [ -f "$CLAUDE_HOME/mcp.json.template" ] && [ ! -f "$CLAUDE_HOME/.mcp.json" ]; then
-  cp "$CLAUDE_HOME/mcp.json.template" "$CLAUDE_HOME/.mcp.json"
-  echo -e "${GRAY}  .mcp.json: created${NC}"
-else
-  echo -e "${GRAY}  .mcp.json: exists, skipped${NC}"
+# .mcp.json - only create if not exists, preserve user customizations
+if [ -f "$SCRIPT_DIR/mcp.json.template" ]; then
+  cp "$SCRIPT_DIR/mcp.json.template" "$CLAUDE_HOME/mcp.json.template"
+  if [ ! -f "$CLAUDE_HOME/.mcp.json" ]; then
+    # Prompt for EXA_API_KEY if template contains placeholder
+    if grep -q "{{EXA_API_KEY}}" "$SCRIPT_DIR/mcp.json.template"; then
+      echo -e "${YELLOW}  Enter your Exa API key (or press Enter to skip):${NC}"
+      read -r EXA_KEY
+      if [ -n "$EXA_KEY" ]; then
+        sed "s/{{EXA_API_KEY}}/$EXA_KEY/g" "$SCRIPT_DIR/mcp.json.template" > "$CLAUDE_HOME/.mcp.json"
+        echo -e "${GRAY}  .mcp.json: created with Exa API key${NC}"
+      else
+        cp "$SCRIPT_DIR/mcp.json.template" "$CLAUDE_HOME/.mcp.json"
+        echo -e "${GRAY}  .mcp.json: created (Exa API key placeholder preserved)${NC}"
+      fi
+    else
+      cp "$SCRIPT_DIR/mcp.json.template" "$CLAUDE_HOME/.mcp.json"
+      echo -e "${GRAY}  .mcp.json: created from template${NC}"
+    fi
+  else
+    echo -e "${GRAY}  .mcp.json: preserved (template updated)${NC}"
+  fi
 fi
 
 # hooks.json (always regenerate from template)
