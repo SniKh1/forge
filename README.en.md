@@ -1,192 +1,138 @@
 # Forge
 
-**A batteries-included configuration framework for Claude Code.**
+**An open-source desktop installer and configuration distribution repo for Claude, Codex, and Gemini.**
 
-Forge packages community best practices into a ready-to-install Claude Code setup. One command installs everything — 115 skills, 10 agents, 20 commands, and more.
+Forge exists to make one thing easy: install a consistent AI capability setup for `Claude`, `Codex`, and `Gemini` on `macOS` and `Windows`, while still keeping CLI and script entrypoints for advanced users.
 
 <p align="center">
   <a href="README.md">简体中文</a> | English
 </p>
 
----
+## Supported Scope
 
-## What's Inside
+- Platforms: `macOS`, `Windows`
+- Clients: `Claude`, `Codex`, `Gemini`
+- Distribution: `Forge Desktop` app + CLI / compatibility scripts
 
-| Component | Count | Description |
-|-----------|-------|-------------|
-| Skills | 115 | Frontend, backend, Java, Python, Go, security, docs, and more — all included |
-| Agents | 10 | Interactive agents covering the full dev lifecycle |
-| Commands | 20 | Slash-command shortcuts for common workflows |
-| Rules | 8 | Security, code style, testing, Git conventions |
-| Contexts | 3 | dev / review / research mode switching |
-| Stacks | 3 | Tech-stack guides (frontend, Java, Python) |
+## Download and Install
 
----
+### Desktop app (recommended)
 
-## Quick Start
+Download the latest release from [GitHub Releases](https://github.com/SniKh1/forge/releases):
 
-### Windows (PowerShell)
+- `macOS`: desktop installer / app archive
+- `Windows`: desktop installer
+
+The desktop app is the primary path for end users. It handles:
+
+- client detection
+- install selection
+- writing Forge configuration
+- post-install verification
+
+### CLI / scripts (advanced)
+
+```bash
+node packages/forge-cli/bin/forge.js setup
+node packages/forge-cli/bin/forge.js verify
+node packages/forge-cli/bin/forge.js doctor
+```
+
+Compatibility wrappers are still available:
+
+```bash
+bash install.sh
+bash codex/install-codex.sh
+bash gemini/install-gemini.sh
+```
 
 ```powershell
-git clone https://github.com/SniKh1/forge.git $env:TEMP\forge
-& $env:TEMP\forge\install.ps1
+.\install.ps1
+.\codex\install-codex.ps1
+.\gemini\install-gemini.ps1
 ```
 
-### macOS / Linux
+These entrypoints are intended for power users, automation, and troubleshooting workflows.
+
+## What Forge Installs
+
+Forge installs client-specific capability packs, including:
+
+- `MCP`: web search, memory, docs lookup, browser automation, and other extensions
+- `Hooks`: enforced checkpoints around key actions
+- `Skills`: reusable task-focused capability bundles
+- `Rules`: behavior constraints and prompt-routing rules
+- `Stacks`: frontend / Java / Python stack guidance
+- `Memory / Learned`: project memory and learned patterns
+- `Commands / Playbooks`: common workflow entrypoints
+
+The desktop app lets users choose components by platform; the CLI and scripts keep deeper control paths available.
+
+## Common Usage Paths
+
+### As an end user
+
+- download the desktop app
+- choose `Claude`, `Codex`, or `Gemini`
+- choose which components to install
+- run install or repair
+
+### As an advanced user
+
+- use the CLI for install, verify, and doctor flows
+- use compatibility scripts in existing shell workflows
+- run the desktop app from source for local development
+
+### Run the desktop app from source
 
 ```bash
-git clone https://github.com/SniKh1/forge.git /tmp/forge
-bash /tmp/forge/install.sh
+npm install
+cd apps/forge-desktop
+npm run tauri:dev
 ```
 
-The installer will: copy all files → apply template variables → install all 115 skills.
+## Support and Feedback
 
-### Prerequisites
+GitHub Issues is the public support channel:
 
-- [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/) (required by hooks)
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI, installed and authenticated
+- [Bug Report](https://github.com/SniKh1/forge/issues/new/choose)
+- [Feature Request](https://github.com/SniKh1/forge/issues/new/choose)
+- [Question](https://github.com/SniKh1/forge/issues/new/choose)
 
----
+When possible, include:
 
-## Skills
+- platform and version
+- target client
+- reproduction steps
+- logs or screenshots
 
-All 115 skills are installed automatically — no module selection or separate download needed. Categories include:
+## Versioning and Compatibility
 
-| Category | Examples |
-|----------|----------|
-| Core Workflow | superpowers, continuous-learning, tdd-workflow, coding-standards, verification-loop |
-| Frontend | frontend-design, frontend-patterns, theme-factory, canvas-design, algorithmic-art |
-| Backend | backend-patterns, postgres-patterns, clickhouse-io, api-design, deployment-patterns |
-| Java | java-coding-standards, jpa-patterns, springboot-patterns/security/tdd/verification |
-| Python | python-patterns, python-testing, django-patterns/security/tdd/verification |
-| Go | golang-patterns, golang-testing |
-| Security | security-review, security-scan |
-| Docs | doc-coauthoring, docx, pdf, pptx, xlsx, internal-comms |
-| Testing | webapp-testing, e2e-testing, cpp-testing |
-| AI/ML | ai-multimodal, google-adk-python |
-| MCP | mcp-builder, mcp-management |
+Forge now uses a unified repository version line: `0.x`.
 
-See [SKILLS-CATALOG.md](SKILLS-CATALOG.md) for the full list.
+That means:
 
----
+- the CLI and desktop app share the same version
+- Git tags and Release names stay aligned
+- `0.x` signals active iteration with public open-source release discipline
 
-## After Installation
+See [CHANGELOG.md](CHANGELOG.md) for release history.
 
-Just use Claude Code as usual — Forge loads automatically from `~/.claude/`.
+## Commit Convention
 
-```bash
-claude
+Recommended commit prefixes:
 
-/plan          # Create an implementation plan
-/tdd           # Test-driven development
-/code-review   # Code review
-/build-fix     # Fix build errors
-/e2e           # End-to-end testing
-/learn         # Extract reusable patterns
-/evolve        # Evolve instincts
-```
+- `feat`
+- `fix`
+- `docs`
+- `chore`
+- `ci`
+- `release`
 
-Claude Code will automatically:
-- Route tasks to the right Agent based on context
-- Enforce code style, security, and testing rules
-- Detect keywords and invoke matching Skills
-- Track reusable patterns via the continuous-learning system
+## Repository Surface
 
----
-
-## Project Structure
-
-```
-~/.claude/
-├── CLAUDE.md              # Core routing table and principles
-├── agents/                # 10 interactive agents
-├── commands/              # 20 slash commands
-├── contexts/              # 3 context modes (dev / review / research)
-├── hooks/                 # Hook scripts and templates
-├── rules/                 # 8 behavioral rules
-├── stacks/                # Tech-stack guides (frontend, java, python)
-├── scripts/
-│   └── verify.*           # Installation verification
-├── skills/                # 115 skills (all included)
-│   └── learned/           # Auto-learned patterns (preserved across installs)
-├── settings.json.template
-└── mcp.json.template
-```
-
----
-
-## Agents
-
-| Agent | Purpose |
-|-------|---------|
-| planner | Break down complex features into implementation plans |
-| architect | System design and architectural decisions |
-| tdd-guide | Test-driven development — write tests first, then implement |
-| code-reviewer | Post-implementation code review |
-| security-reviewer | Security analysis before commits |
-| build-error-resolver | Diagnose and fix build failures |
-| e2e-runner | End-to-end testing with Playwright |
-| database-reviewer | Database schema and query optimization |
-| doc-updater | Keep documentation in sync with code |
-| refactor-cleaner | Dead code cleanup and consolidation |
-
----
-
-## Customization
-
-**Add a tech-stack guide** — Create `<stack>.md` in `stacks/`, reference it in `CLAUDE.md`.
-
-**Add a rule** — Drop a `.md` file into `rules/`. Claude Code picks it up automatically.
-
-**Add a command** — Drop a `.md` file into `commands/`. Invoke it with `/command-name`.
-
-**Add an MCP server** — Edit your local `.mcp.json`. The template ships with common servers (exa, playwright, sequential-thinking, memory, deepwiki, fetch). During installation, you'll be prompted to enter your Exa API key if needed.
-
----
-
-## FAQ
-
-**Will this overwrite my existing config?**
-The installer asks for confirmation first. Your existing config is backed up to `~/.claude-backup-<timestamp>/`.
-
-**How do I configure Exa API key?**
-During installation, the script will prompt you to enter your Exa API key. If you skip it, you can manually edit `~/.claude/.mcp.json` and replace `{{EXA_API_KEY}}` with your actual key.
-
-**Where do Skills come from?**
-All 115 skills are bundled in the repo, sourced from [anthropics/skills](https://github.com/anthropics/skills), [obra/superpowers](https://github.com/obra/superpowers), [everything-claude-code](https://github.com/affaan-m/everything-claude-code), and other community repos.
-
-**How do I update?**
-Re-run the install script — it overwrites with the latest version.
-
-**Can I add my own Skills?**
-Yes. Drop a skill directory into `~/.claude/skills/`. Claude Code picks it up automatically.
-
----
-
-## Skill Sources
-
-Skills are fetched from these open-source repositories:
-
-| Source | Repository | Skills |
-|--------|-----------|--------|
-| Superpowers | [obra/superpowers](https://github.com/obra/superpowers) | 14 |
-| Anthropic Skills | [anthropics/skills](https://github.com/anthropics/skills) | 16 |
-| Everything Claude Code | [affaan-m/everything-claude-code](https://github.com/affaan-m/everything-claude-code) | 32 |
-| NotebookLM | [PleasePrompto/notebooklm-skill](https://github.com/PleasePrompto/notebooklm-skill) | 1 |
-| Obsidian Skills | [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) | 1 |
-| Planning with Files | [ryanmac/planning-with-files](https://github.com/ryanmac/planning-with-files) | 1 |
-| Skill Prompt Generator | [disler/skill-prompt-generator](https://github.com/disler/skill-prompt-generator) | 1 |
-
----
-
-## Credits
-
-- **[everything-claude-code](https://github.com/affaan-m/everything-claude-code)** — Skills, Agents, Commands, Rules
-- **[superpowers](https://github.com/obra/superpowers)** — Core workflow Skills
-
----
+Only `README.md`, `README.en.md`, `CHANGELOG.md`, and `LICENSE` are intended as the public entrypoint surface. The rest of the docs and implementation material remain in-repo for maintenance and internal evolution, but are intentionally not part of the primary user path.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Forge is released under the [MIT License](LICENSE).
