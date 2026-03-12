@@ -31,3 +31,4 @@ Thumbs.db
 *.tsbuildinfo
 apps/forge-desktop/src-tauri/.DS_Store
 apps/forge-desktop/src-tauri/gen/
+docs/plans/
