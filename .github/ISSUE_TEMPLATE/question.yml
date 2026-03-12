@@ -1,0 +1,31 @@
+name: Question
+description: Ask for help using Forge.
+title: "[Question]: "
+labels:
+  - question
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Questions are welcome. Provide enough context so the issue can be answered directly.
+        欢迎提问，请尽量提供足够上下文，方便直接定位。
+  - type: input
+    id: platform
+    attributes:
+      label: Platform / 平台
+      placeholder: macOS 15 / Windows 11
+  - type: input
+    id: target-client
+    attributes:
+      label: Target client / 目标客户端
+      placeholder: Claude / Codex / Gemini
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question / 你的问题
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Relevant context / 相关上下文

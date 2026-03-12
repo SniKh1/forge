@@ -1,0 +1,40 @@
+name: Feature request
+description: Propose an improvement or new capability.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the user problem first, then the proposed solution.
+        请先描述用户问题，再描述你希望的改进方案。
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve / 要解决的问题
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution / 建议方案
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered / 考虑过的替代方案
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Affected surface / 影响范围
+      options:
+        - Desktop app
+        - CLI / scripts
+        - Claude adapter
+        - Codex adapter
+        - Gemini adapter
+        - Documentation
+        - Release / CI
+      multiple: true
