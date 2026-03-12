@@ -25,3 +25,8 @@ apps/forge-desktop/src-tauri/icons/icon.svg.png
 # OS
 .DS_Store
 Thumbs.db
+# Local caches
+**/__pycache__/
+*.pyc
+*.tsbuildinfo
+apps/forge-desktop/src-tauri/.DS_Store
