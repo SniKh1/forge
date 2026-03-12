@@ -1,46 +1,39 @@
-# Claude Code 完整能力总览
+# Forge Capability Reference
 
 **版本**：v2.0
 **更新日期**：2026-02-26
 
-> 本文档是所有能力的统一索引，涵盖 everything-claude-code 的完整能力体系。
+> 本文档是能力参考索引。它主要描述 Forge 的共享资源层与 Claude-first 工作流。多客户端支持矩阵请看 `docs/CLIENT-CAPABILITY-MATRIX.md`。
 
 ---
 
-## 一、能力来源与架构
+## 一、能力来源与范围
 
 ### 1.1 能力来源
 
 | 来源 | 说明 | 集成时间 |
 |------|------|----------|
-| **everything-claude-code** | 社区最佳实践集合：50+ Skills、10 Agents、20 Commands、8 Rules、3 Contexts | 2026-02-02 |
+| **everything-claude-code** | 社区最佳实践集合：Skills、Agents、Commands、Rules、Contexts | 2026-02-02 |
+| **Forge shared core** | 多客户端 capability matrix、MCP catalog、memory layout | 2026-03-11 |
 | **自定义编码规范** | CLAUDE.md 路由表、rules/、stacks/、contexts/ | 2026-01-22 |
 
-### 1.2 整体架构
+### 1.2 文档范围说明
+
+- 本文档：共享能力与 Claude-first 参考
+- `README.md` / `README.en.md`：产品入口
+- `docs/user/getting-started.md`：安装与修复
+- `docs/CLIENT-CAPABILITY-MATRIX.md`：多客户端支持情况
+
+### 1.3 共享资源层
 
 ```
-~/.claude/                          ← 全局配置根目录
-├── CLAUDE.md                       ← 核心路由表 + 精简原则（v4.0）
-├── GUIDE.md                        ← 集成记录
-├── CAPABILITIES.md                 ← 本文件：完整能力总览
-├── USAGE-GUIDE.md                  ← 使用指南
-├── AGENTS.md                       ← Agent 系统概览
-│
-├── agents/                         ← Agent 定义文件（10个交互式 Agent）
-├── commands/                       ← 斜杠命令定义（20个）
-├── hooks/                          ← Hook 配置模板
-├── scripts/                        ← JS Hook 脚本 + 工具库
-│   ├── hooks/                      ← 8 个 JS Hook 脚本
-│   └── lib/                        ← 共享工具库
-│
-├── rules/                          ← 始终加载的规则（8个）
-├── stacks/                         ← 技术栈规范（按需加载）
-├── skills/                         ← Skill 定义文件（50+）
-├── contexts/                       ← 上下文模式（3个）
-│
-├── homunculus/                     ← 自动学习系统
-│   └── instincts/                  ← personal/ + inherited/
-└── sessions/                       ← 会话状态持久化
+repo/
+├── agents/ commands/ rules/ contexts/ stacks/ skills/
+├── core/
+├── packages/forge-cli/
+├── codex/
+├── gemini/
+└── apps/forge-desktop/
 ```
 
 ---
@@ -75,7 +68,7 @@
 
 ---
 
-## 三、Skill 体系（50+）
+## 三、Skill 体系（115）
 
 ### 3.1 开发流程类
 
@@ -232,7 +225,7 @@ Hook（最高）> CLAUDE.md > rules/ > stacks/（最低）
 |------|------|
 | Interactive Agents | 10 |
 | Built-in Agents | 4 |
-| Skills | 50+ |
+| Skills | 115 |
 | Commands | 20 |
 | Rules | 8 |
 | Contexts | 3 |

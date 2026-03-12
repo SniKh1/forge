@@ -126,8 +126,23 @@ function Test-CoreFiles {
 
     Test-FileExists $ClaudeMd "CLAUDE.md" | Out-Null
     Test-FileExists $SettingsFile "settings.json" | Out-Null
-    Test-FileExists $McpFile ".mcp.json" | Out-Null
     Test-FileExists $HooksFile "hooks/hooks.json" | Out-Null
+
+    if (Test-Path $McpFile) {
+        Write-Status "PASS" ".mcp.json exists"
+    } else {
+        $GlobalClaudeConfig = Join-Path $HOME ".claude.json"
+        if (Test-Path $GlobalClaudeConfig) {
+            $globalContent = Get-Content $GlobalClaudeConfig -Raw
+            if ($globalContent -match '"mcpServers"\s*:') {
+                Write-Status "PASS" "~/.claude.json contains mcpServers"
+            } else {
+                Write-Status "WARN" "MCP configuration not found (.mcp.json or ~/.claude.json mcpServers)"
+            }
+        } else {
+            Write-Status "WARN" "MCP configuration not found (.mcp.json or ~/.claude.json mcpServers)"
+        }
+    }
 }
 
 # ============================================================================
@@ -168,7 +183,7 @@ function Test-ConfigContent {
         if ($permCount -gt 0) {
             Write-Status "PASS" "settings.json has $permCount permission rules"
         } else {
-            Write-Status "WARN" "settings.json has no permission rules configured"
+            Write-Status "WARN" "settings.json permissions list is empty"
         }
 
         # Check for template variables
@@ -259,16 +274,16 @@ function Test-AssetCounts {
     if (Test-Path $InstalledFile) {
         $installed = Get-Content $InstalledFile -Raw | ConvertFrom-Json
         $skillCount = ($installed.skills | Measure-Object).Count
-        Write-Status "PASS" "Skills: $skillCount installed (via install-skills)"
+        Write-Status "PASS" "Skills: $skillCount installed (via manifest)"
     } elseif (Test-Path $SkillsDir) {
         $skillCount = (Get-ChildItem -Path $SkillsDir -Directory | Measure-Object).Count
         if ($skillCount -ge 1) {
             Write-Status "PASS" "Skills: $skillCount directories found"
         } else {
-            Write-Status "WARN" "Skills: none installed. Run: ~/.claude/scripts/install-skills.ps1"
+            Write-Status "WARN" "Skills: none installed"
         }
     } else {
-        Write-Status "WARN" "Skills: not installed yet. Run: ~/.claude/scripts/install-skills.ps1"
+        Write-Status "WARN" "Skills: not installed yet"
     }
 
     # Agents total count

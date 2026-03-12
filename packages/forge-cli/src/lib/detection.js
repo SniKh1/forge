@@ -1,0 +1,32 @@
+const fs = require('fs');
+const path = require('path');
+const { clientHomes } = require('./constants');
+const { commandExists } = require('./utils');
+
+function detectClient(name) {
+  const home = clientHomes[name];
+  const marker = {
+    claude: path.join(home, 'CLAUDE.md'),
+    codex: path.join(home, 'AGENTS.md'),
+    gemini: path.join(home, 'GEMINI.md'),
+  }[name];
+
+  const commandMap = {
+    claude: 'claude',
+    codex: 'codex',
+    gemini: 'gemini',
+  };
+
+  return {
+    name,
+    home,
+    detected: fs.existsSync(home) || commandExists(commandMap[name]),
+    configured: fs.existsSync(marker),
+  };
+}
+
+function detectAll() {
+  return ['claude', 'codex', 'gemini'].map(detectClient);
+}
+
+module.exports = { detectClient, detectAll };

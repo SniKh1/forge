@@ -1,13 +1,19 @@
-# Claude Code 使用指南
+# Forge 使用指南（Claude-first）
 
 **版本**：v2.1
 **更新日期**：2026-02-26
 
-> 本文档面向实际项目使用者，介绍每项功能的作用、适用场景和使用方法。
+> 本文档面向实际项目使用者，重点说明 Claude-first 工作流如何使用 Forge 资源层。安装与多客户端入口请看 `README.md` 与 `docs/user/getting-started.md`。
 
 ---
 
 ## 一、快速开始
+
+补充入口：
+
+- 多客户端安装入口：`README.md`
+- 用户安装/修复说明：`docs/user/getting-started.md`
+- 多客户端能力矩阵：`docs/CLIENT-CAPABILITY-MATRIX.md`
 
 ### 1.1 日常开发（最常用）
 

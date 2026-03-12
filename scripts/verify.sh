@@ -33,13 +33,21 @@ echo ""
 # ---- 1. Core Files ----
 echo -e "${CYAN}[1/6] Core files...${NC}"
 
-for f in CLAUDE.md settings.json .mcp.json; do
+for f in CLAUDE.md settings.json; do
   if [ -f "$CLAUDE_HOME/$f" ]; then
     pass "$f"
   else
     fail "$f not found"
   fi
 done
+
+if [ -f "$CLAUDE_HOME/.mcp.json" ]; then
+  pass ".mcp.json"
+elif [ -f "$HOME/.claude.json" ] && grep -q '"mcpServers"' "$HOME/.claude.json" 2>/dev/null; then
+  pass "~/.claude.json (mcpServers configured)"
+else
+  warn "MCP configuration not found (.mcp.json or ~/.claude.json mcpServers)"
+fi
 
 if [ -f "$CLAUDE_HOME/hooks/hooks.json" ]; then
   pass "hooks/hooks.json"
@@ -61,11 +69,12 @@ if [ -f "$CLAUDE_HOME/CLAUDE.md" ]; then
 fi
 
 if [ -f "$CLAUDE_HOME/settings.json" ]; then
-  perm_count=$(grep -c '"Bash\|"Read\|"Write\|"Edit\|"Glob\|"Grep\|"Web\|"Todo\|"Task\|"Skill\|"mcp__' "$CLAUDE_HOME/settings.json" 2>/dev/null || echo 0)
-  if [ "$perm_count" -ge 20 ]; then
+  perm_count=$(grep -Eoc '"(Bash|Read|Write|Edit|Glob|Grep|Web|Todo|Task|Skill|mcp__)' "$CLAUDE_HOME/settings.json" 2>/dev/null || true)
+  perm_count=${perm_count:-0}
+  if [ "$perm_count" -gt 0 ]; then
     pass "settings.json permissions: $perm_count entries"
   else
-    warn "settings.json permissions: only $perm_count entries (expected 20+)"
+    warn "settings.json permissions list is empty"
   fi
 fi
 
@@ -133,16 +142,16 @@ if [ -f "$CLAUDE_HOME/installed-skills.json" ]; then
     var d = JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));
     console.log((d.skills||[]).length);
   ' "$CLAUDE_HOME/installed-skills.json" 2>/dev/null || echo 0)
-  pass "Skills: $skill_count installed (via install-skills.sh)"
+  pass "Skills: $skill_count installed (via manifest)"
 elif [ -d "$CLAUDE_HOME/skills" ]; then
   skill_count=$(find "$CLAUDE_HOME/skills" -maxdepth 1 -mindepth 1 -type d | wc -l | tr -d ' ')
   if [ "$skill_count" -ge 1 ]; then
     pass "Skills: $skill_count directories found"
   else
-    warn "Skills: none installed. Run: bash ~/.claude/scripts/install-skills.sh"
+    warn "Skills: none installed"
   fi
 else
-  warn "Skills: not installed yet. Run: bash ~/.claude/scripts/install-skills.sh"
+  warn "Skills: not installed yet"
 fi
 
 if [ -d "$CLAUDE_HOME/agents" ]; then

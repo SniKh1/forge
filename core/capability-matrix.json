@@ -1,0 +1,47 @@
+{
+  "clients": ["claude", "codex", "gemini", "opencode"],
+  "capabilities": {
+    "mcp": {
+      "claude": "Native",
+      "codex": "Native",
+      "gemini": "Native",
+      "opencode": "Unsupported"
+    },
+    "rules_policy_routing": {
+      "claude": "Native",
+      "codex": "Adapted",
+      "gemini": "Adapted",
+      "opencode": "Unsupported"
+    },
+    "stacks": {
+      "claude": "Native",
+      "codex": "Adapted",
+      "gemini": "Adapted",
+      "opencode": "Unsupported"
+    },
+    "learned_skills": {
+      "claude": "Native",
+      "codex": "Adapted",
+      "gemini": "Adapted",
+      "opencode": "Unsupported"
+    },
+    "project_memory": {
+      "claude": "Native",
+      "codex": "Adapted",
+      "gemini": "Adapted",
+      "opencode": "Unsupported"
+    },
+    "hooks": {
+      "claude": "Native",
+      "codex": "Adapted",
+      "gemini": "Fallback",
+      "opencode": "Unsupported"
+    },
+    "slash_like_commands": {
+      "claude": "Native",
+      "codex": "Adapted",
+      "gemini": "Fallback",
+      "opencode": "Unsupported"
+    }
+  }
+}

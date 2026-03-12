@@ -1,64 +1,42 @@
 # Forge Integration Guide
 
-**Version**: v2.0
-**Date**: 2026-02-26
+**Version**: v3.0
+**Date**: 2026-03-12
 
-> This document records the architecture of Forge v2 — a pure everything-claude-code configuration framework.
+> This document records the repository architecture of Forge Phase 1 — a shared core with Claude, Codex, and Gemini adapters.
 
 ---
 
 ## What is Forge?
 
-Forge is a production-ready configuration framework for Claude Code that packages:
+Forge is a production-ready AI capability pack built around:
 
-1. **everything-claude-code** — Community best practices: 50+ Skills, 10 Interactive Agents, 20 Commands, 8 Rules, 3 Contexts
-2. **Custom coding specifications** — CLAUDE.md routing table, rules/, stacks/, contexts/
-3. **Auto-learning system** — Homunculus instinct extraction, memory persistence, session state
+1. **Shared resource layer** — skills, agents, commands, rules, contexts, stacks
+2. **Shared install core** — Node CLI, capability catalog, MCP catalog, memory conventions
+3. **Client adapters** — Claude, Codex, and Gemini
+4. **Desktop shell** — Tauri UI that calls the same install core
 
 ## Architecture Overview
 
 ```
-~/.claude/
-├── CLAUDE.md              ← Core routing table + principles (v4.0)
-├── CAPABILITIES.md        ← Full capability index
-├── USAGE-GUIDE.md         ← User guide
-├── AGENTS.md              ← Agent system overview
-├── GUIDE.md               ← This file
-│
-├── agents/                ← Agent definitions (10 interactive)
-│   ├── planner.md
-│   ├── architect.md
-│   ├── tdd-guide.md
-│   ├── code-reviewer.md
-│   ├── security-reviewer.md
-│   ├── build-error-resolver.md
-│   ├── e2e-runner.md
-│   ├── refactor-cleaner.md
-│   ├── doc-updater.md
-│   └── database-reviewer.md
-│
-├── commands/              ← Slash commands (20 total)
-│   ├── plan.md, tdd.md, code-review.md, build-fix.md, e2e.md
-│   ├── learn.md, evolve.md, instinct-status.md, instinct-import.md, instinct-export.md
-│   ├── orchestrate.md, checkpoint.md, eval.md, verify.md
-│   ├── refactor-clean.md, update-docs.md, update-codemaps.md
-│   ├── setup-pm.md, skill-create.md, test-coverage.md
-│   └── ...
-│
-├── hooks/                 ← Hook scripts (JS only)
-│   └── hooks.json.template
-│
-├── rules/                 ← Always-loaded rules (8 files)
-├── contexts/              ← dev / review / research modes
-├── stacks/                ← Tech stack specs (frontend, java, python)
-├── scripts/               ← JS hook scripts + utilities
-│   ├── hooks/             ← 8 JS hook scripts
-│   └── lib/               ← Shared utilities
-├── skills/                ← Skill definitions (50+)
-├── homunculus/            ← Auto-learning system
-│   └── instincts/         ← personal/ + inherited/
-└── sessions/              ← Session state persistence
+repo/
+├── core/                  ← Shared capability and MCP definitions
+├── packages/forge-cli/    ← Shared Node install core
+├── apps/forge-desktop/    ← Tauri desktop shell
+├── codex/                 ← Codex adapter
+├── gemini/                ← Gemini adapter
+├── agents/commands/rules/contexts/stacks/skills
+│                         ← Shared resource layer
+├── install.sh|ps1         ← Claude compatibility wrappers
+└── docs/                  ← User docs, capability matrix, design notes
 ```
+
+## Phase 1 shape
+
+- Claude remains the reference adapter for native hooks and slash-command semantics
+- Codex uses adapted rules, project memory, learned skills, and MCP configuration
+- Gemini uses adapted MCP, prompts, and memory scaffolding
+- Desktop and CLI share one installation backend
 
 ## Version History
 
@@ -68,7 +46,8 @@ Forge is a production-ready configuration framework for Claude Code that package
 | 2026-02-02 | v2.0 | everything-claude-code integration (Skills, Agents, Commands, Rules) |
 | 2026-02-03 | v2.3-2.5 | Vibe Coding, Memory, Auto-learning |
 | 2026-02-25 | v3.1 | Skills optimization, verify scripts, routing table update |
-| 2026-02-26 | v4.0 | Pure everything-claude-code version (forge-v2) |
+| 2026-02-26 | v4.0 | Pure everything-claude-code version |
+| 2026-03-11 | Phase 1 | Multi-client core + adapters + desktop shell |
 
 ## Key Concepts
 
@@ -82,12 +61,12 @@ See [AGENTS.md](AGENTS.md) for the full list.
 
 JS hooks in `scripts/hooks/` handle:
 - Session lifecycle (start, end, pre-compact)
-- Auto-learning (observe, evaluate-session)
+- Auto-learning evaluation (evaluate-session)
 - Code quality (check-console-log, suggest-compact)
 
 ### Skill System
 
-50+ Skills from everything-claude-code. Mandatory check: if 1% chance a Skill applies, invoke it.
+115 Skills are bundled in this repository. Mandatory check: if 1% chance a Skill applies, invoke it.
 
 ### Command System
 
@@ -96,30 +75,31 @@ JS hooks in `scripts/hooks/` handle:
 ## Installation
 
 ```bash
-# macOS/Linux
-./install.sh
+node packages/forge-cli/bin/forge.js setup
 
-# Windows
-.\install.ps1
+# or compatibility wrappers
+bash install.sh
 ```
 
-The installer:
-1. Checks dependencies (git, node)
-2. Copies all configuration files and directories
-3. Applies templates (settings.json, .mcp.json, hooks.json)
-4. Runs installation verification (verify.sh/verify.ps1)
-5. Shows next steps
+The shared installer:
+1. Detects installed clients
+2. Loads shared capability definitions from `core/`
+3. Renders client-specific configuration
+4. Creates memory and learned-skill scaffolding
+5. Configures MCP
+6. Runs verification
 
 ## Getting Started
 
-1. Open Claude Code and start coding
-2. Use `/plan` for complex features
-3. Use `/tdd`, `/code-review`, `/build-fix` for development workflows
-4. Use `/learn`, `/evolve` for the learning system
+1. Read [`README.md`](README.md) or [`README.en.md`](README.en.md)
+2. Use [`docs/user/getting-started.md`](docs/user/getting-started.md) for install / verify / repair
+3. Use adapter READMEs for Codex and Gemini specifics
+4. Use `AGENTS.md`, `CAPABILITIES.md`, and `USAGE-GUIDE.md` as reference docs
 
 ## References
 
 - [CLAUDE.md](CLAUDE.md) — Core routing table
-- [CAPABILITIES.md](CAPABILITIES.md) — Full capability index
-- [USAGE-GUIDE.md](USAGE-GUIDE.md) — User guide
+- [CAPABILITIES.md](CAPABILITIES.md) — Capability reference
+- [USAGE-GUIDE.md](USAGE-GUIDE.md) — Workflow guide
 - [AGENTS.md](AGENTS.md) — Agent system overview
+- [docs/README.md](docs/README.md) — Full documentation index

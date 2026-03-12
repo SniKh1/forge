@@ -1,0 +1,90 @@
+{
+  "servers": {
+    "sequential-thinking": {
+      "optional": false,
+      "clients": ["claude", "codex", "gemini"],
+      "config": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+      }
+    },
+    "context7": {
+      "optional": false,
+      "clients": ["claude", "codex", "gemini"],
+      "config": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@upstash/context7-mcp"]
+      }
+    },
+    "memory": {
+      "optional": false,
+      "clients": ["claude", "codex", "gemini"],
+      "config": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-memory"]
+      }
+    },
+    "fetch": {
+      "optional": false,
+      "clients": ["claude", "codex", "gemini"],
+      "config": {
+        "type": "stdio",
+        "command": "uvx",
+        "args": ["mcp-server-fetch"]
+      }
+    },
+    "playwright": {
+      "optional": false,
+      "clients": ["claude", "codex", "gemini"],
+      "config": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["@playwright/mcp@latest"]
+      },
+      "overrides": {
+        "claude": {
+          "args": ["-y", "@executeautomation/playwright-mcp-server"]
+        }
+      }
+    },
+    "deepwiki": {
+      "optional": false,
+      "clients": ["claude", "codex", "gemini"],
+      "config": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "mcp-deepwiki@latest"]
+      },
+      "overrides": {
+        "claude": {
+          "args": ["-y", "deepwiki-mcp"]
+        }
+      }
+    },
+    "exa": {
+      "optional": true,
+      "clients": ["claude", "codex", "gemini"],
+      "config": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "exa-mcp-server"],
+        "env": {
+          "EXA_API_KEY": "{{EXA_API_KEY}}"
+        }
+      }
+    },
+    "pencil": {
+      "optional": true,
+      "clients": ["codex", "gemini"],
+      "platforms": ["darwin"],
+      "config": {
+        "type": "stdio",
+        "command": "/Applications/Pencil.app/Contents/Resources/app.asar.unpacked/out/mcp-server-darwin-arm64",
+        "args": ["--app", "desktop"]
+      }
+    }
+  }
+}
