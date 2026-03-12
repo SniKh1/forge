@@ -9,6 +9,12 @@ The format follows a Keep a Changelog style, adapted for Forge.
 ### Added
 - Placeholder for upcoming changes.
 
+## [0.3.1] - 2026-03-12
+
+### Fixed
+- Corrected the GitHub Release workflow to use a valid `tauri-apps/tauri-action` reference.
+- Prepared a patch release after the initial `v0.3.0` tag failed before asset publication.
+
 ## [0.3.0] - 2026-03-12
 
 ### Added
