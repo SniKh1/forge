@@ -9,6 +9,12 @@ The format follows a Keep a Changelog style, adapted for Forge.
 ### Added
 - Placeholder for upcoming changes.
 
+## [0.3.2] - 2026-03-12
+
+### Fixed
+- Added the standard npm `tauri` script expected by `tauri-action`, so GitHub Releases can invoke `npm run tauri build` successfully.
+- Prepared a follow-up patch after `v0.3.1` failed at the desktop build command entrypoint.
+
 ## [0.3.1] - 2026-03-12
 
 ### Fixed
