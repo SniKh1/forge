@@ -1,7 +1,15 @@
 # Runtime
 node_modules/
+apps/forge-desktop/node_modules/
+apps/forge-desktop/dist/
+apps/forge-desktop/src-tauri/target/
+
+# Local/generated workspace state
 sessions/
 homunculus/
+.tmp/
+scripts/__pycache__/
+image.png
 
 # Generated from templates
 settings.json
@@ -10,6 +18,9 @@ hooks/hooks.json
 
 # Local records
 CHANGELOG-LOCAL.md
+
+# Build artifacts and previews
+apps/forge-desktop/src-tauri/icons/icon.svg.png
 
 # OS
 .DS_Store
