@@ -12,9 +12,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - macos-latest
-          - windows-latest
+        include:
+          - os: macos-latest
+            args: '--target aarch64-apple-darwin'
+          - os: macos-latest
+            args: '--target x86_64-apple-darwin'
+          - os: windows-latest
+            args: ''
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -28,18 +32,25 @@ jobs:
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Install frontend dependencies
         run: npm ci
 
       - name: Build and publish desktop artifacts
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: apps/forge-desktop
           tagName: ${{ github.ref_name }}
           releaseName: Forge ${{ github.ref_name }}
-          releaseBody: See CHANGELOG.md for release notes.
+          releaseBody: |
+            Download the installer or bundle asset for your platform from the list below.
+
+            Full release details are tracked in CHANGELOG.md.
+          generateReleaseNotes: true
           releaseDraft: false
           prerelease: false
+          args: ${{ matrix.args }}

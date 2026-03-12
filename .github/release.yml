@@ -1,0 +1,18 @@
+changelog:
+  categories:
+    - title: Forge Desktop
+      labels:
+        - desktop
+    - title: Adapters
+      labels:
+        - adapter
+    - title: Core Installer
+      labels:
+        - core
+    - title: Documentation and Project Meta
+      labels:
+        - documentation
+        - chore
+  exclude:
+    labels:
+      - skip-changelog
