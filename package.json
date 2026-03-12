@@ -1,0 +1,15 @@
+{
+  "name": "forge-monorepo",
+  "private": true,
+  "version": "0.3.0",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "forge": "node packages/forge-cli/bin/forge.js",
+    "forge:setup": "node packages/forge-cli/bin/forge.js setup",
+    "forge:verify": "node packages/forge-cli/bin/forge.js verify",
+    "forge:doctor": "node packages/forge-cli/bin/forge.js doctor"
+  }
+}
