@@ -48,12 +48,15 @@ def ensure_uvx(install_uv):
     subprocess.run("curl -LsSf https://astral.sh/uv/install.sh | sh", shell=True, check=True)
 
 
-def resolve_servers(client, exa_key="", include_optional=True):
+def resolve_servers(client, exa_key="", include_optional=True, selected_servers=None):
     catalog = load_mcp_catalog()["servers"]
     resolved = {}
+    selected = set(selected_servers or [])
 
     for name, item in catalog.items():
         if client not in item.get("clients", []):
+            continue
+        if selected and name not in selected:
             continue
         if not include_optional and item.get("optional"):
             continue

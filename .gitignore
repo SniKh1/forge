@@ -30,3 +30,4 @@ Thumbs.db
 *.pyc
 *.tsbuildinfo
 apps/forge-desktop/src-tauri/.DS_Store
+apps/forge-desktop/src-tauri/gen/

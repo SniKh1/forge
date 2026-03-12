@@ -17,6 +17,7 @@ def main():
     parser.add_argument("--exa-key", default=os.environ.get("FORGE_EXA_KEY", ""))
     parser.add_argument("--install-uv", action="store_true")
     parser.add_argument("--sync-cli", action="store_true")
+    parser.add_argument("--servers", default="")
     args = parser.parse_args()
 
     ensure_uvx(args.install_uv)
@@ -24,7 +25,8 @@ def main():
     claude_home = Path(args.claude_home).expanduser()
     claude_home.mkdir(parents=True, exist_ok=True)
 
-    servers = resolve_servers("claude", exa_key=args.exa_key, include_optional=True)
+    selected_servers = [item.strip() for item in args.servers.split(",") if item.strip()]
+    servers = resolve_servers("claude", exa_key=args.exa_key, include_optional=True, selected_servers=selected_servers)
     payload = {"mcpServers": {}}
     for name, config in servers.items():
         item = {"command": config["command"], "args": config.get("args", [])}

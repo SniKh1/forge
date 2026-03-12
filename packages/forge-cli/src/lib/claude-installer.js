@@ -9,6 +9,15 @@ function workspaceSlug(cwd) {
   return cwd.replace(/[:\\/]+/g, '-').replace(/-+/g, '-').replace(/^-/, '');
 }
 
+function hasOptionalComponent(options, name) {
+  const selected = Array.isArray(options.components) ? options.components : [];
+  return selected.includes(name);
+}
+
+function selectedSkills(options) {
+  return new Set(Array.isArray(options.skillNames) ? options.skillNames : []);
+}
+
 function scaffoldMemory(homeDir, cwd) {
   const projectDir = path.join(homeDir, 'projects', workspaceSlug(cwd), 'memory');
   ensureDir(projectDir);
@@ -23,7 +32,7 @@ function scaffoldMemory(homeDir, cwd) {
   ensureDir(path.join(homeDir, 'skills', 'learned'));
 }
 
-function copyAssets(mode) {
+function copyAssets(mode, options) {
   const homeDir = clientHomes.claude;
   ensureDir(homeDir);
   for (const file of ['CLAUDE.md', 'CAPABILITIES.md', 'USAGE-GUIDE.md', 'AGENTS.md', 'GUIDE.md']) {
@@ -39,17 +48,21 @@ function copyAssets(mode) {
     const dest = path.join(homeDir, dir);
     if (fs.existsSync(src)) copyDir(src, dest, mode);
   }
-  const skillsSrc = path.join(repoRoot, 'skills');
   const skillsDest = path.join(homeDir, 'skills');
   ensureDir(skillsDest);
-  if (fs.existsSync(skillsSrc)) {
-    for (const entry of fs.readdirSync(skillsSrc, { withFileTypes: true })) {
-      if (!entry.isDirectory() || entry.name === 'learned') continue;
-      const src = path.join(skillsSrc, entry.name);
-      const dest = path.join(skillsDest, entry.name);
-      if (mode === 'full' || !fs.existsSync(dest)) {
-        fs.rmSync(dest, { recursive: true, force: true });
-        fs.cpSync(src, dest, { recursive: true });
+  if (hasOptionalComponent(options, 'skills')) {
+    const skillSelection = selectedSkills(options);
+    const skillsSrc = path.join(repoRoot, 'skills');
+    if (fs.existsSync(skillsSrc)) {
+      for (const entry of fs.readdirSync(skillsSrc, { withFileTypes: true })) {
+        if (!entry.isDirectory() || entry.name === 'learned') continue;
+        if (skillSelection.size && !skillSelection.has(entry.name)) continue;
+        const src = path.join(skillsSrc, entry.name);
+        const dest = path.join(skillsDest, entry.name);
+        if (mode === 'full' || !fs.existsSync(dest)) {
+          fs.rmSync(dest, { recursive: true, force: true });
+          fs.cpSync(src, dest, { recursive: true });
+        }
       }
     }
   }
@@ -91,16 +104,23 @@ function maybeBackup(skipBackup) {
 
 function installClaude(options) {
   const backupDir = maybeBackup(options.skipBackup);
-  copyAssets(options.installMode);
+  copyAssets(options.installMode, options);
   configureTemplates(options.installMode);
-  scaffoldMemory(clientHomes.claude, options.cwd);
+  if (hasOptionalComponent(options, 'memory')) {
+    scaffoldMemory(clientHomes.claude, options.cwd);
+  } else {
+    ensureDir(path.join(clientHomes.claude, 'skills', 'learned'));
+  }
 
   const python = commandExists('python3') ? 'python3' : (commandExists('python') ? 'python' : null);
-  if (python) {
+  if (python && hasOptionalComponent(options, 'mcp')) {
     const args = [path.join(repoRoot, 'scripts', 'configure-claude-mcp.py'), '--install-uv'];
     if (options.syncMcpCli) args.push('--sync-cli');
     if (options.exaApiKey) {
       args.push('--exa-key', options.exaApiKey);
+    }
+    if (Array.isArray(options.mcpServers) && options.mcpServers.length) {
+      args.push('--servers', options.mcpServers.join(','));
     }
     run(python, args, {
       env: {

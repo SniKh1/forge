@@ -20,6 +20,9 @@ function parseArgs(argv) {
     skipBackup: process.env.FORGE_SKIP_BACKUP === '1',
     cwd: process.cwd(),
     json: false,
+    components: [],
+    mcpServers: [],
+    skillNames: [],
   };
 
   const positional = [];
@@ -43,6 +46,12 @@ function parseArgs(argv) {
       options.includeOptionalMcp = false;
     } else if (token === '--json') {
       options.json = true;
+    } else if (token === '--components') {
+      options.components = (rest[++i] || '').split(',').map((item) => item.trim()).filter(Boolean);
+    } else if (token === '--mcp-servers') {
+      options.mcpServers = (rest[++i] || '').split(',').map((item) => item.trim()).filter(Boolean);
+    } else if (token === '--skills-list' || token === '--skills') {
+      options.skillNames = (rest[++i] || '').split(',').map((item) => item.trim()).filter(Boolean);
     } else {
       positional.push(token);
     }
@@ -55,6 +64,11 @@ function resolveClients(options, fallbackDetected = true) {
   if (options.clients.length) return options.clients;
   const detected = detectAll().filter((item) => item.detected).map((item) => item.name);
   return detected.length || !fallbackDetected ? detected : ['claude', 'codex', 'gemini'];
+}
+
+function resolveComponents(options) {
+  if (options.components.length) return options.components;
+  return ['mcp', 'skills', 'memory'];
 }
 
 async function runSetup(options) {
@@ -76,6 +90,8 @@ async function runSetup(options) {
     if (modeAnswer) options.installMode = modeAnswer;
     const wantsBackup = await askYesNo(rl, 'Create backup before install?', !options.skipBackup);
     options.skipBackup = !wantsBackup;
+    const componentAnswer = await ask(rl, 'Optional components [mcp,skills,memory]: ');
+    options.components = (componentAnswer || 'mcp,skills,memory').split(',').map((item) => item.trim()).filter(Boolean);
     console.log(`EXA_API_KEY will be written into selected client configs. Current value: ${sanitizeToken(options.exaApiKey)}`);
     const tokenAnswer = await ask(rl, 'Enter EXA_API_KEY (press Enter to keep/skip): ');
     if (tokenAnswer) options.exaApiKey = tokenAnswer;
@@ -83,6 +99,7 @@ async function runSetup(options) {
   } else if (!options.clients.length) {
     options.clients = resolveClients(options);
   }
+  options.components = resolveComponents(options);
 
   if (!options.clients.length) {
     console.log('No client selected. Install Claude, Codex, or Gemini first, or rerun with --client.');
@@ -104,6 +121,7 @@ async function runInstall(positional, options) {
     throw new Error('Usage: forge install claude|codex|gemini');
   }
   options.clients = [client];
+  options.components = resolveComponents(options);
   const results = await installClients([client], options);
   printInstallSummary(results);
 }
@@ -129,6 +147,7 @@ function runDoctor(positional, options) {
 
 async function runRepair(positional, options) {
   const clients = options.clients.length ? options.clients : (positional[0] ? [positional[0]] : ['claude', 'codex', 'gemini']);
+  options.components = resolveComponents(options);
   for (const client of clients) {
     console.log(`\n[repair] ${client}`);
     adapters[client].repair({ ...options, nonInteractive: true, skipBackup: true });

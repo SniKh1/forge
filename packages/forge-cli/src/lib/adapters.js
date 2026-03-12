@@ -18,6 +18,9 @@ function buildEnv(options, client) {
     FORGE_CODEX_EXA_KEY: client === 'codex' ? (options.exaApiKey || '') : process.env.FORGE_CODEX_EXA_KEY || '',
     FORGE_GEMINI_EXA_KEY: client === 'gemini' ? (options.exaApiKey || '') : process.env.FORGE_GEMINI_EXA_KEY || '',
     FORGE_CONFIGURE_CODEX_MCP: '1',
+    FORGE_COMPONENTS: (options.components || []).join(','),
+    FORGE_MCP_SERVERS: (options.mcpServers || []).join(','),
+    FORGE_SKILLS: (options.skillNames || []).join(','),
   };
 }
 
