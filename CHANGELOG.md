@@ -9,6 +9,12 @@ The format follows a Keep a Changelog style, adapted for Forge.
 ### Added
 - Placeholder for upcoming changes.
 
+## [0.3.3] - 2026-03-12
+
+### Fixed
+- Added the Windows `.ico` application icon required by `tauri-build` so Windows release packaging can complete on GitHub Actions.
+- Adjusted the GitHub release matrix so Apple Silicon macOS builds publish an `.app` bundle instead of failing during `dmg` creation.
+
 ## [0.3.2] - 2026-03-12
 
 ### Fixed

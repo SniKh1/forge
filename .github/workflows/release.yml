@@ -14,9 +14,9 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            args: '--target aarch64-apple-darwin'
+            args: '--target aarch64-apple-darwin --bundles app'
           - os: macos-latest
-            args: '--target x86_64-apple-darwin'
+            args: '--target x86_64-apple-darwin --bundles dmg'
           - os: windows-latest
             args: ''
     runs-on: ${{ matrix.os }}
