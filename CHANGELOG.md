@@ -9,6 +9,14 @@ The format follows a Keep a Changelog style, adapted for Forge.
 ### Added
 - Placeholder for upcoming changes.
 
+## [0.3.4] - 2026-03-13
+
+### Added
+- Extended promotion patch drafts so `domain pack` targets (`ecommerce`, `video-creation`, `image-generation`, `workflow-automation`) can produce domain-aware `Output Shape`, `Validation Checklist`, and `Collaboration Contract` suggestions.
+
+### Fixed
+- Added explicit Tauri `bundle.icon` configuration so Windows release packaging can resolve the `.ico` icon during GitHub Actions builds.
+
 ## [0.3.3] - 2026-03-12
 
 ### Fixed

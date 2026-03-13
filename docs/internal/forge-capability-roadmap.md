@@ -88,7 +88,8 @@ Forge 最终应稳定在四层结构：
 - 已补齐 role / stack patch draft v1（按 `Default Skills / Trigger Cues / Validation Checklist / Collaboration Contract` 等 section 生成可 review 的插入片段）
 - 已补齐 file-aware patch hint：能识别目标 pack 文件中的真实 section 变体（例如 `Verification Before Completion`、`Delivery Checklist`、带编号 heading），并输出更贴近文件现状的插入提示
 - 已补齐更高语义贴合度的 patch draft：`Default Skills / Preferred Skills / Collaboration Contract` 现在会附带更贴近具体 role-pack / stack-pack 的用途说明与协同语义。
-- 下一步集中在更高质量的 semantic extraction，以及让 domain pack 也输出更细的专属 patch 建议。
+- 已补齐 domain-aware patch draft：`ecommerce`、`video-creation`、`image-generation`、`workflow-automation` 现在也会产出更贴近领域语义的 `Output Shape / Validation Checklist / Collaboration Contract` 建议。
+- 下一步集中在更高质量的 semantic extraction，以及让 patch draft 在更多文件结构变体下保持稳定。
 
 ### P4 — Desktop / Catalog Alignment
 - 先选 role-pack，再选 stack-pack

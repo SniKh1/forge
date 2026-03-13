@@ -40,7 +40,7 @@
 - [x] 让 update proposal 草案输出更接近可直接合并的 role / stack patch
 - [x] 继续提升 patch draft 质量（更精准的 section 映射与更少噪音）
 - [x] 继续提升 patch draft 的语义贴合度（减少泛化 bullet，增强 role/stack 特异性）
-- [ ] 继续提升 patch draft 的领域适配度（让 domain pack 也输出更细的专属建议）
+- [x] 继续提升 patch draft 的领域适配度（让 domain pack 也输出更细的专属建议）
 
 ## P2 — Desktop / Catalog
 ## P2.5 — External Registry Integration

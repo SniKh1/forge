@@ -307,6 +307,51 @@ const STACK_COLLABORATION_FOCUS = {
   'workflow-automation': '触发链路、容错、observability 和 rollback'
 };
 
+const DOMAIN_OUTPUT_FOCUS = {
+  ecommerce: [
+    '输出应覆盖商品、购物车、结算、订单和售后等关键转化路径。',
+    '交付物要明确运营入口、异常状态和用户可见反馈。'
+  ],
+  'video-creation': [
+    '输出应覆盖脚本、镜头结构、素材处理和最终交付格式。',
+    '交付物要明确时长、节奏、字幕/封面和发布要求。'
+  ],
+  'image-generation': [
+    '输出应覆盖视觉方向、prompt 约束、素材来源和最终图像规格。',
+    '交付物要明确尺寸、风格一致性和可复用素材规范。'
+  ],
+  'workflow-automation': [
+    '输出应覆盖触发条件、执行步骤、失败处理和回滚路径。',
+    '交付物要明确 observability、告警、幂等与人工接管点。'
+  ]
+};
+
+const DOMAIN_VALIDATION_FOCUS = {
+  ecommerce: [
+    '验证关键转化链路、价格/库存一致性与异常订单流。',
+    '验证登录态、支付前后状态和运营可用性。'
+  ],
+  'video-creation': [
+    '验证素材可用性、导出格式、时长与画面/音频同步。',
+    '验证发布平台所需的封面、字幕和元数据是否齐全。'
+  ],
+  'image-generation': [
+    '验证最终图像尺寸、风格一致性、文本准确性和版权风险。',
+    '验证 prompt、素材和导出规格是否可复用。'
+  ],
+  'workflow-automation': [
+    '验证触发链路、幂等行为、失败重试和回滚能力。',
+    '验证日志、告警和人工接管路径是否可用。'
+  ]
+};
+
+const DOMAIN_COLLABORATION_FOCUS = {
+  ecommerce: '把商品、营销、履约和运营约束转成可验证的交付标准。',
+  'video-creation': '把内容目标、素材要求和发布规格转成统一制作流程。',
+  'image-generation': '把视觉方向、prompt 约束和输出规格对齐给设计与实现方。',
+  'workflow-automation': '把 trigger、状态流转、容错和 observability 对齐给实现与运维。'
+};
+
 const SKILL_REASON_MAP = {
   brainstorming: '用于先做问题建模和范围澄清。',
   'frontend-design': '用于页面结构、组件实现和可落地前端方案。',
@@ -360,6 +405,19 @@ function describeStackCollaboration(targetStackId, collaboratorId) {
     return `与 \`${collaboratorId}\` 配合时，把 ${stackFocus} 明确成这个角色可执行、可验证的标准。`;
   }
   return `对 \`${collaboratorId}\` 相关场景保持一致的 ${stackFocus} 规则。`;
+}
+
+function isDomainStack(targetStackId) {
+  return Object.prototype.hasOwnProperty.call(DOMAIN_OUTPUT_FOCUS, targetStackId);
+}
+
+function describeDomainCollaboration(targetStackId, collaboratorId) {
+  const focus = DOMAIN_COLLABORATION_FOCUS[targetStackId] || '把领域约束转成可执行的交付标准。';
+  const roleFocus = ROLE_COLLABORATION_FOCUS[collaboratorId];
+  if (roleFocus) {
+    return `与 \`${collaboratorId}\` 协作时，优先围绕 ${focus}`;
+  }
+  return `对 \`${collaboratorId}\` 相关场景，保持 ${focus}`;
 }
 
 function extractPrimaryPackCandidates(item, targetType) {
@@ -501,18 +559,23 @@ function buildStackDraftSections(entry) {
   const candidateSkillIds = Array.from(entry.candidateSkillIds || []);
   const candidateRolePacks = Array.from(entry.candidateRolePacks || []);
   const reuseTags = Array.from(entry.reuseTags || []);
+  const domainMode = isDomainStack(entry.targetId);
   const preferredSkills = formatSkillDraftLines(candidateSkillIds, '暂无足够证据新增 Preferred Skills', 8);
   const outputShape = mergeUniqueBullets(
     entry.problemSummaries.map(value => `需要覆盖：${toSentence(value)}`),
-    entry.chosenFixSummaries.map(value => `应能支持：${toSentence(value)}`)
+    entry.chosenFixSummaries.map(value => `应能支持：${toSentence(value)}`),
+    domainMode ? DOMAIN_OUTPUT_FOCUS[entry.targetId] : []
   );
   const validationChecklist = mergeUniqueBullets(
     entry.verificationSummaries.map(value => `是否验证：${toSentence(value)}`),
-    entry.rootCauseSummaries.map(value => `是否避免再次出现：${toSentence(value)}`)
+    entry.rootCauseSummaries.map(value => `是否避免再次出现：${toSentence(value)}`),
+    domainMode ? DOMAIN_VALIDATION_FOCUS[entry.targetId] : []
   );
   const collaborationContract = mergeUniqueBullets(
-    candidateRolePacks.map(value => describeStackCollaboration(entry.targetId, value)),
-    reuseTags.map(value => `对 \`${value}\` 相关场景保持一致的 ${STACK_COLLABORATION_FOCUS[entry.targetId] || '交付规则'}。`)
+    candidateRolePacks.map(value => domainMode
+      ? describeDomainCollaboration(entry.targetId, value)
+      : describeStackCollaboration(entry.targetId, value)),
+    reuseTags.map(value => `对 \`${value}\` 相关场景保持一致的 ${(domainMode ? DOMAIN_COLLABORATION_FOCUS[entry.targetId] : STACK_COLLABORATION_FOCUS[entry.targetId]) || '交付规则'}。`)
   );
 
   const sectionConfigs = [
