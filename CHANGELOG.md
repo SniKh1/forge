@@ -9,6 +9,14 @@ The format follows a Keep a Changelog style, adapted for Forge.
 ### Added
 - Placeholder for upcoming changes.
 
+## [0.3.6] - 2026-03-13
+
+### Changed
+- Switched macOS release builds from cross-target matrix builds on `macos-latest` to native runner builds on `macos-14` (arm64) and `macos-13` (x64).
+
+### Fixed
+- Removed the remaining cross-architecture macOS release path assumptions that were still breaking tagged desktop builds for `v0.3.5`.
+
 ## [0.3.5] - 2026-03-13
 
 ### Changed

@@ -13,16 +13,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
-            target: 'aarch64-apple-darwin'
+          - os: macos-14
+            target: ''
             bundles: 'app'
             artifact_name: 'forge-desktop-macos-arm64-app'
-            artifact_glob: 'apps/forge-desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Forge Desktop.app.tar.gz'
-          - os: macos-latest
-            target: 'x86_64-apple-darwin'
+            artifact_glob: 'apps/forge-desktop/src-tauri/target/release/bundle/macos/Forge Desktop.app.tar.gz'
+          - os: macos-13
+            target: ''
             bundles: 'dmg'
             artifact_name: 'forge-desktop-macos-x64-dmg'
-            artifact_glob: 'apps/forge-desktop/src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg'
+            artifact_glob: 'apps/forge-desktop/src-tauri/target/release/bundle/dmg/*.dmg'
           - os: windows-latest
             target: ''
             bundles: 'msi'
@@ -43,8 +43,6 @@ jobs:
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Install frontend dependencies
         run: npm ci
@@ -60,10 +58,10 @@ jobs:
         shell: bash
 
       - name: Pack macOS app bundle
-        if: matrix.os == 'macos-latest' && matrix.bundles == 'app'
+        if: startsWith(matrix.os, 'macos-') && matrix.bundles == 'app'
         run: |
-          APP_PATH="apps/forge-desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Forge Desktop.app"
-          TAR_PATH="apps/forge-desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Forge Desktop.app.tar.gz"
+          APP_PATH="apps/forge-desktop/src-tauri/target/release/bundle/macos/Forge Desktop.app"
+          TAR_PATH="apps/forge-desktop/src-tauri/target/release/bundle/macos/Forge Desktop.app.tar.gz"
           rm -f "$TAR_PATH"
           tar -C "$(dirname "$APP_PATH")" -czf "$TAR_PATH" "$(basename "$APP_PATH")"
         shell: bash
