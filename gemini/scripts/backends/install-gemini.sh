@@ -31,7 +31,7 @@ for f in CLAUDE.md CAPABILITIES.md USAGE-GUIDE.md AGENTS.md GUIDE.md; do
   [ -f "$ROOT_DIR/$f" ] && cp "$ROOT_DIR/$f" "$FORGE_HOME/$f"
 done
 
-for d in agents commands contexts rules stacks hooks scripts; do
+for d in agents commands contexts core roles rules stacks hooks scripts; do
   [ -d "$ROOT_DIR/$d" ] || continue
   mkdir -p "$FORGE_HOME/$d"
   rsync -a "$ROOT_DIR/$d/" "$FORGE_HOME/$d/"
@@ -39,14 +39,22 @@ done
 
 if has_component "skills"; then
   mkdir -p "$GEMINI_HOME/skills"
-  for skill_dir in "$ROOT_DIR"/skills/*/; do
-    [ -d "$skill_dir" ] || continue
-    name="$(basename "$skill_dir")"
-    [ "$name" = "learned" ] && continue
-    has_selected_skill "$name" || continue
-    rm -rf "$GEMINI_HOME/skills/$name" 2>/dev/null || true
-    cp -R "$skill_dir" "$GEMINI_HOME/skills/$name"
-  done
+  if command -v node >/dev/null 2>&1 && [ -f "$ROOT_DIR/scripts/sync-runtime-skills.js" ]; then
+    sync_args=("$ROOT_DIR/scripts/sync-runtime-skills.js" "$ROOT_DIR" "$GEMINI_HOME/skills" "--mode" "full")
+    if [ -n "$FORGE_SKILLS" ]; then
+      sync_args+=("--selected" "$FORGE_SKILLS")
+    fi
+    node "${sync_args[@]}" >/dev/null
+  else
+    for skill_dir in "$ROOT_DIR"/skills/*/; do
+      [ -d "$skill_dir" ] || continue
+      name="$(basename "$skill_dir")"
+      [ "$name" = "learned" ] && continue
+      has_selected_skill "$name" || continue
+      rm -rf "$GEMINI_HOME/skills/$name" 2>/dev/null || true
+      cp -R "$skill_dir" "$GEMINI_HOME/skills/$name"
+    done
+  fi
 fi
 
 mkdir -p "$FORGE_HOME/gemini"

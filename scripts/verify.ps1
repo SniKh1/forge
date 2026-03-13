@@ -36,6 +36,7 @@ $RulesDir = Join-Path $ClaudeDir "rules"
 $StacksDir = Join-Path $ClaudeDir "stacks"
 $SkillsDir = Join-Path $ClaudeDir "skills"
 $CommandsDir = Join-Path $ClaudeDir "commands"
+$DupScript = Join-Path $PSScriptRoot "check-runtime-skill-duplicates.js"
 
 # ============================================================================
 # Helper Functions
@@ -304,6 +305,38 @@ function Test-AssetCounts {
 }
 
 # ============================================================================
+# Section 4.5: Runtime Skill Hygiene
+# ============================================================================
+
+function Test-DuplicateRuntimeSkills {
+    Write-Section "4.5 Runtime Skill Hygiene"
+
+    if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+        Write-Status "WARN" "node not available, skipped duplicate runtime skill check"
+        return
+    }
+
+    if (-not (Test-Path $DupScript)) {
+        Write-Status "WARN" "duplicate skill checker missing"
+        return
+    }
+
+    if (-not (Test-Path $SkillsDir)) {
+        Write-Status "WARN" "skills directory missing, skipped duplicate runtime skill check"
+        return
+    }
+
+    $dupJson = node $DupScript --json --warn-only $SkillsDir
+    $dupData = $dupJson | ConvertFrom-Json
+    if ($dupData.duplicateCount -gt 0) {
+        $dupIds = ($dupData.duplicates | ForEach-Object { $_.id }) -join ", "
+        Write-Status "WARN" "duplicate runtime skills detected: $dupIds"
+    } else {
+        Write-Status "PASS" "No duplicate runtime skills"
+    }
+}
+
+# ============================================================================
 # Section 5: Runtime Dependencies
 # ============================================================================
 
@@ -387,6 +420,7 @@ Test-CoreFiles
 Test-ConfigContent
 Test-DirectoryCompleteness
 Test-AssetCounts
+Test-DuplicateRuntimeSkills
 Test-RuntimeDeps
 Write-Summary
 

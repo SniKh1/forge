@@ -26,6 +26,9 @@ echo ""
 
 [ -f "$CODEX_HOME/AGENTS.md" ] && ok "AGENTS.md" || bad "AGENTS.md missing"
 [ -f "$FORGE_HOME/CLAUDE.md" ] && ok "forge/CLAUDE.md" || bad "forge/CLAUDE.md missing"
+[ -d "$FORGE_HOME/core" ] && ok "forge/core" || bad "forge/core missing"
+[ -f "$FORGE_HOME/core/skill-registry.json" ] && ok "forge/core/skill-registry.json" || bad "forge/core/skill-registry.json missing"
+[ -d "$FORGE_HOME/roles" ] && ok "forge/roles" || bad "forge/roles missing"
 [ -d "$FORGE_HOME/agents" ] && ok "forge/agents" || bad "forge/agents missing"
 [ -d "$FORGE_HOME/rules" ] && ok "forge/rules" || bad "forge/rules missing"
 [ -d "$FORGE_HOME/stacks" ] && ok "forge/stacks" || bad "forge/stacks missing"
@@ -44,20 +47,26 @@ else
   bad "skills directory missing"
 fi
 
+if command -v node >/dev/null 2>&1 && [ -f "$FORGE_HOME/scripts/check-runtime-skill-duplicates.js" ] && [ -d "$CODEX_HOME/skills" ]; then
+  dup_json=$(node "$FORGE_HOME/scripts/check-runtime-skill-duplicates.js" --json --warn-only "$CODEX_HOME/skills")
+  dup_count=$(printf '%s' "$dup_json" | node -e 'const fs=require("fs"); const data=JSON.parse(fs.readFileSync(0,"utf8")); process.stdout.write(String(data.duplicateCount||0));')
+  if [ "${dup_count:-0}" -gt 0 ]; then
+    dup_ids=$(printf '%s' "$dup_json" | node -e 'const fs=require("fs"); const data=JSON.parse(fs.readFileSync(0,"utf8")); process.stdout.write((data.duplicates||[]).map((x) => x.id).join(", "));')
+    warn "duplicate runtime skills detected: $dup_ids"
+  else
+    ok "no duplicate runtime skills"
+  fi
+fi
+
 [ -d "$CODEX_HOME/skills/learned" ] && ok "skills/learned" || bad "skills/learned missing"
 [ -d "$CODEX_HOME/homunculus/instincts/personal" ] && ok "homunculus/instincts/personal" || bad "homunculus/instincts/personal missing"
 [ -d "$CODEX_HOME/homunculus/evolved" ] && ok "homunculus/evolved" || bad "homunculus/evolved missing"
+[ -d "$CODEX_HOME/projects" ] && ok "projects/ exists" || bad "projects/ missing"
 
-if [ -d "$CODEX_HOME/projects" ]; then
-  ok "projects/ exists"
+if [ -f "$FORGE_HOME/rules/security.md" ] && [ -f "$FORGE_HOME/agents/planner.md" ] && [ -f "$FORGE_HOME/stacks/frontend.md" ] && [ -f "$FORGE_HOME/roles/developer.md" ]; then
+  ok "key governance packs installed"
 else
-  bad "projects/ missing"
-fi
-
-if [ -f "$FORGE_HOME/rules/security.md" ] && [ -f "$FORGE_HOME/agents/planner.md" ] && [ -f "$FORGE_HOME/stacks/frontend.md" ]; then
-  ok "key playbooks installed"
-else
-  bad "key playbooks missing"
+  bad "key governance packs missing"
 fi
 
 echo ""

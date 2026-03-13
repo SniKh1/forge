@@ -236,26 +236,34 @@ install_assets() {
     fi
   done
 
-  for d in agents commands contexts rules stacks hooks scripts; do
+  for d in agents commands contexts core roles rules stacks hooks scripts; do
     [ -d "$ROOT_DIR/$d" ] && sync_dir "$ROOT_DIR/$d" "$FORGE_HOME/$d"
   done
   log_ok "Playbooks/rules/stacks/hooks/scripts installed"
 
   local skills=0
   if has_component "skills"; then
-    for skill_dir in "$ROOT_DIR"/skills/*/; do
-      [ -d "$skill_dir" ] || continue
-      local name
-      name="$(basename "$skill_dir")"
-      [ "$name" = "learned" ] && continue
-      has_selected_skill "$name" || continue
-
-      if [ "$INSTALL_MODE" = "full" ] || [ ! -d "$CODEX_HOME/skills/$name" ]; then
-        rm -rf "$CODEX_HOME/skills/$name" 2>/dev/null || true
-        cp -r "$skill_dir" "$CODEX_HOME/skills/$name"
-        skills=$((skills + 1))
+    if command -v node >/dev/null 2>&1 && [ -f "$ROOT_DIR/scripts/sync-runtime-skills.js" ]; then
+      sync_args=("$ROOT_DIR/scripts/sync-runtime-skills.js" "$ROOT_DIR" "$CODEX_HOME/skills" "--mode" "$INSTALL_MODE")
+      if [ -n "$FORGE_SKILLS" ]; then
+        sync_args+=("--selected" "$FORGE_SKILLS")
       fi
-    done
+      skills=$(node "${sync_args[@]}" | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8")); process.stdout.write(String(d.installed||0));')
+    else
+      for skill_dir in "$ROOT_DIR"/skills/*/; do
+        [ -d "$skill_dir" ] || continue
+        local name
+        name="$(basename "$skill_dir")"
+        [ "$name" = "learned" ] && continue
+        has_selected_skill "$name" || continue
+
+        if [ "$INSTALL_MODE" = "full" ] || [ ! -d "$CODEX_HOME/skills/$name" ]; then
+          rm -rf "$CODEX_HOME/skills/$name" 2>/dev/null || true
+          cp -r "$skill_dir" "$CODEX_HOME/skills/$name"
+          skills=$((skills + 1))
+        fi
+      done
+    fi
   fi
   if ! has_component "skills"; then
     log_ok "Skills: skipped"

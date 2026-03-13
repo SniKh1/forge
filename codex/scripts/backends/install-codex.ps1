@@ -222,7 +222,7 @@ function Install-Assets {
         }
     }
 
-    @("agents","commands","contexts","rules","stacks","hooks","scripts") | ForEach-Object {
+    @("agents","commands","contexts","core","roles","rules","stacks","hooks","scripts") | ForEach-Object {
         $src = Join-Path $RootDir $_
         $dst = Join-Path $ForgeHome $_
         if (Test-Path $src) { Sync-Dir $src $dst }
@@ -231,13 +231,22 @@ function Install-Assets {
 
     $skillCount = 0
     if (Has-Component "skills") {
-        Get-ChildItem -Path (Join-Path $RootDir "skills") -Directory | Where-Object { $_.Name -ne "learned" } | ForEach-Object {
-            if (-not (Has-SelectedSkill $_.Name)) { return }
-            $dst = Join-Path (Join-Path $CodexHome "skills") $_.Name
-            if ($InstallMode -eq "full" -or -not (Test-Path $dst)) {
-                if (Test-Path $dst) { Remove-Item $dst -Recurse -Force }
-                Copy-Item $_.FullName -Destination $dst -Recurse -Force
-                $skillCount++
+        $syncScript = Join-Path $RootDir "scripts\sync-runtime-skills.js"
+        if ((Get-Command node -ErrorAction SilentlyContinue) -and (Test-Path $syncScript)) {
+            $syncArgs = @($syncScript, $RootDir, (Join-Path $CodexHome "skills"), "--mode", $InstallMode)
+            if ($env:FORGE_SKILLS) { $syncArgs += @("--selected", $env:FORGE_SKILLS) }
+            $syncJson = & node @syncArgs
+            $syncResult = $syncJson | ConvertFrom-Json
+            $skillCount = [int]$syncResult.installed
+        } else {
+            Get-ChildItem -Path (Join-Path $RootDir "skills") -Directory | Where-Object { $_.Name -ne "learned" -and -not $_.Name.StartsWith('.') } | ForEach-Object {
+                if (-not (Has-SelectedSkill $_.Name)) { return }
+                $dst = Join-Path (Join-Path $CodexHome "skills") $_.Name
+                if ($InstallMode -eq "full" -or -not (Test-Path $dst)) {
+                    if (Test-Path $dst) { Remove-Item $dst -Recurse -Force }
+                    Copy-Item $_.FullName -Destination $dst -Recurse -Force
+                    $skillCount++
+                }
             }
         }
     }

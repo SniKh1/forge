@@ -33,6 +33,26 @@
           }
         ],
         "description": "Evaluate session for extractable patterns"
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{CLAUDE_HOME}}/scripts/hooks/auto-learn.js\""
+          }
+        ],
+        "description": "Convert repeated observations into instincts"
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{CLAUDE_HOME}}/scripts/hooks/problem-solution-memory.js\""
+          }
+        ],
+        "description": "Create problem-solution memory scaffold for meaningful sessions"
       }
     ],
     "PreCompact": [
@@ -48,6 +68,16 @@
       }
     ],
     "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{CLAUDE_HOME}}/scripts/hooks/observe.js\" pre"
+          }
+        ],
+        "description": "Capture tool start observations"
+      },
       {
         "matcher": "tool == \"Bash\" && tool_input.command matches \"(npm run dev|pnpm( run)? dev|yarn dev|bun run dev)\"",
         "hooks": [
@@ -80,6 +110,16 @@
       }
     ],
     "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{CLAUDE_HOME}}/scripts/hooks/observe.js\" post"
+          }
+        ],
+        "description": "Capture tool completion observations"
+      },
       {
         "matcher": "tool == \"Bash\"",
         "hooks": [

@@ -51,17 +51,26 @@ function copyAssets(mode, options) {
   const skillsDest = path.join(homeDir, 'skills');
   ensureDir(skillsDest);
   if (hasOptionalComponent(options, 'skills')) {
-    const skillSelection = selectedSkills(options);
-    const skillsSrc = path.join(repoRoot, 'skills');
-    if (fs.existsSync(skillsSrc)) {
-      for (const entry of fs.readdirSync(skillsSrc, { withFileTypes: true })) {
-        if (!entry.isDirectory() || entry.name === 'learned') continue;
-        if (skillSelection.size && !skillSelection.has(entry.name)) continue;
-        const src = path.join(skillsSrc, entry.name);
-        const dest = path.join(skillsDest, entry.name);
-        if (mode === 'full' || !fs.existsSync(dest)) {
-          fs.rmSync(dest, { recursive: true, force: true });
-          fs.cpSync(src, dest, { recursive: true });
+    const syncScript = path.join(repoRoot, 'scripts', 'sync-runtime-skills.js');
+    const skillSelection = [...selectedSkills(options)];
+    if (fs.existsSync(syncScript)) {
+      const args = [syncScript, repoRoot, skillsDest, '--mode', mode];
+      if (skillSelection.length) {
+        args.push('--selected', skillSelection.join(','));
+      }
+      run(process.execPath, args);
+    } else {
+      const skillsSrc = path.join(repoRoot, 'skills');
+      if (fs.existsSync(skillsSrc)) {
+        for (const entry of fs.readdirSync(skillsSrc, { withFileTypes: true })) {
+          if (!entry.isDirectory() || entry.name === 'learned' || entry.name.startsWith('.')) continue;
+          if (skillSelection.length && !skillSelection.includes(entry.name)) continue;
+          const src = path.join(skillsSrc, entry.name);
+          const dest = path.join(skillsDest, entry.name);
+          if (mode === 'full' || !fs.existsSync(dest)) {
+            fs.rmSync(dest, { recursive: true, force: true });
+            fs.cpSync(src, dest, { recursive: true });
+          }
         }
       }
     }

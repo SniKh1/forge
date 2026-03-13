@@ -58,6 +58,7 @@ function getLearningPaths(cwd) {
     memoryDir: path.join(projectRoot, 'memory'),
     memoryFile: path.join(projectRoot, 'memory', 'MEMORY.md'),
     projectMemoryFile: path.join(projectRoot, 'memory', 'PROJECT-MEMORY.md'),
+    problemSolutionsDir: path.join(projectRoot, 'memory', 'problem-solutions'),
     learnedDir: path.join(codexHome, 'skills', 'learned'),
     instinctsPersonalDir: path.join(codexHome, 'homunculus', 'instincts', 'personal'),
     instinctsInheritedDir: path.join(codexHome, 'homunculus', 'instincts', 'inherited'),
@@ -69,6 +70,7 @@ function ensureStructure(cwd) {
   const p = getLearningPaths(cwd);
 
   ensureDir(p.memoryDir);
+  ensureDir(p.problemSolutionsDir);
   ensureDir(p.learnedDir);
   ensureDir(p.instinctsPersonalDir);
   ensureDir(p.instinctsInheritedDir);
@@ -127,6 +129,245 @@ function cmdLearn(args) {
     action: 'learn',
     file: outFile,
     workspace_slug: p.workspaceSlug
+  }, null, 2));
+}
+
+function cmdRecord(args) {
+  const cwd = args.cwd || process.cwd();
+  const p = ensureStructure(cwd);
+  const title = args.title || `record-${nowDate()}`;
+  const fileStem = sanitizeName(title);
+  const mdFile = path.join(p.problemSolutionsDir, `${fileStem}.md`);
+  const jsonFile = path.join(p.problemSolutionsDir, `${fileStem}.json`);
+  const problem = args.problem || '';
+  const rootCause = args['root-cause'] || '';
+  const chosenFix = args.fix || args.solution || '';
+  const verification = args.verification || '';
+  const reuseTags = String(args.tags || '')
+    .split(',')
+    .map(x => x.trim())
+    .filter(Boolean);
+  const upgradeTarget = args.upgrade || 'memory';
+  const rolePacks = String(args.roles || 'developer').split(',').map(x => x.trim()).filter(Boolean);
+  const stackPacks = String(args.stacks || '').split(',').map(x => x.trim()).filter(Boolean);
+  const skillIds = String(args.skills || '').split(',').map(x => x.trim()).filter(Boolean);
+
+  const record = {
+    schemaVersion: '1.0',
+    createdAt: new Date().toISOString(),
+    workspaceSlug: p.workspaceSlug,
+    sessionId: `manual-${Date.now()}`,
+    source: 'codex-learning',
+    status: 'reviewed',
+    transcriptPath: null,
+    userMessageCount: null,
+    problem,
+    rootCause,
+    chosenFix,
+    verification,
+    reuseTags,
+    upgradeTarget,
+    candidateSkillIds: skillIds,
+    candidateRolePacks: rolePacks,
+    candidateStackPacks: stackPacks
+  };
+
+  const md = `# Problem-Solution Record: ${title}
+**Workspace:** ${p.workspaceSlug}
+**Source:** codex-learning
+**Status:** reviewed
+**Schema:** 1.0
+
+## Problem
+${problem || '- '}
+
+## Root Cause
+${rootCause || '- '}
+
+## Chosen Fix
+${chosenFix || '- '}
+
+## Verification
+${verification || '- '}
+
+## Reuse Tags
+${reuseTags.length ? reuseTags.map(x => `- ${x}`).join('\n') : '- '}
+
+## Upgrade Target
+- ${upgradeTarget}
+
+## Candidate Role Packs
+${rolePacks.length ? rolePacks.map(x => `- ${x}`).join('\n') : '- '}
+
+## Candidate Stack Packs
+${stackPacks.length ? stackPacks.map(x => `- ${x}`).join('\n') : '- '}
+
+## Candidate Skills
+${skillIds.length ? skillIds.map(x => `- ${x}`).join('\n') : '- '}
+`;
+
+  fs.writeFileSync(mdFile, md, 'utf8');
+  fs.writeFileSync(jsonFile, JSON.stringify(record, null, 2) + '\n', 'utf8');
+
+  console.log(JSON.stringify({
+    ok: true,
+    action: 'record',
+    markdown: mdFile,
+    json: jsonFile,
+    workspace_slug: p.workspaceSlug
+  }, null, 2));
+}
+
+function normalizeText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function loadPromotionRules(repoRoot) {
+  return readJson(path.join(repoRoot, 'core', 'learning-promotion-rules.json')) || {
+    targets: {},
+    decisionOrder: ['stack-pack', 'role-pack', 'learned-skill', 'instinct', 'memory']
+  };
+}
+
+function loadProblemSolutionRecords(dir) {
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
+    .filter(file => file.endsWith('.json'))
+    .map(file => {
+      const fullPath = path.join(dir, file);
+      const data = readJson(fullPath);
+      return data ? { ...data, _file: fullPath } : null;
+    })
+    .filter(Boolean);
+}
+
+function incrementCount(map, key) {
+  if (!key) return;
+  map.set(key, (map.get(key) || 0) + 1);
+}
+
+function buildRecordStats(records) {
+  const stackCounts = new Map();
+  const roleCounts = new Map();
+  const skillCounts = new Map();
+  const tagCounts = new Map();
+  const fixCounts = new Map();
+
+  for (const record of records) {
+    for (const item of record.candidateStackPacks || []) incrementCount(stackCounts, item);
+    for (const item of record.candidateRolePacks || []) incrementCount(roleCounts, item);
+    for (const item of record.candidateSkillIds || []) incrementCount(skillCounts, item);
+    for (const item of record.reuseTags || []) incrementCount(tagCounts, item);
+    incrementCount(fixCounts, normalizeText(record.chosenFix));
+  }
+
+  return { stackCounts, roleCounts, skillCounts, tagCounts, fixCounts };
+}
+
+function requiredFieldsPresent(record, fields) {
+  return (fields || []).every(field => normalizeText(record[field]).length > 0);
+}
+
+function suggestTarget(record, stats, rules) {
+  const targets = rules.targets || {};
+  const stackReq = targets['stack-pack']?.requires || {};
+  const roleReq = targets['role-pack']?.requires || {};
+  const skillReq = targets['learned-skill']?.requires || {};
+  const instinctReq = targets.instinct?.requires || {};
+
+  for (const stack of record.candidateStackPacks || []) {
+    const count = stats.stackCounts.get(stack) || 0;
+    if (count >= Number(stackReq.minOccurrences || 2)) {
+      return { target: 'stack-pack', confidence: 'high', reason: `Stack pack '${stack}' appears in ${count} reviewed records.` };
+    }
+  }
+
+  for (const role of record.candidateRolePacks || []) {
+    const count = stats.roleCounts.get(role) || 0;
+    if (count >= Number(roleReq.minOccurrences || 2)) {
+      return { target: 'role-pack', confidence: 'high', reason: `Role pack '${role}' appears in ${count} reviewed records.` };
+    }
+  }
+
+  if (requiredFieldsPresent(record, skillReq.mustInclude)) {
+    for (const skill of record.candidateSkillIds || []) {
+      const count = stats.skillCounts.get(skill) || 0;
+      if (count >= Number(skillReq.minOccurrences || 2)) {
+        return { target: 'learned-skill', confidence: 'medium', reason: `Skill '${skill}' appears in ${count} reviewed records with required fields present.` };
+      }
+    }
+  }
+
+  for (const tag of record.reuseTags || []) {
+    const count = stats.tagCounts.get(tag) || 0;
+    if (count >= Number(instinctReq.minOccurrences || 3)) {
+      return { target: 'instinct', confidence: 'medium', reason: `Reuse tag '${tag}' appears in ${count} reviewed records.` };
+    }
+  }
+
+  const normalizedFix = normalizeText(record.chosenFix);
+  const fixCount = normalizedFix ? (stats.fixCounts.get(normalizedFix) || 0) : 0;
+  if (fixCount >= Number(instinctReq.minOccurrences || 3)) {
+    return { target: 'instinct', confidence: 'medium', reason: `A similar chosen fix appears in ${fixCount} reviewed records.` };
+  }
+
+  return { target: 'memory', confidence: 'default', reason: 'Not enough repeated evidence yet; keep as durable memory.' };
+}
+
+function cmdSuggest(args) {
+  const cwd = args.cwd || process.cwd();
+  const p = ensureStructure(cwd);
+  const repoRoot = path.resolve(__dirname, '..', '..');
+  const rules = loadPromotionRules(repoRoot);
+  const records = loadProblemSolutionRecords(p.problemSolutionsDir)
+    .filter(record => (record.status || 'scaffold') !== 'scaffold');
+
+  const stats = buildRecordStats(records);
+  const suggestions = records.map(record => {
+    const suggestion = suggestTarget(record, stats, rules);
+    return {
+      file: record._file,
+      title: path.basename(record._file, '.json'),
+      currentTarget: record.upgradeTarget || 'memory',
+      suggestedTarget: suggestion.target,
+      confidence: suggestion.confidence,
+      reason: suggestion.reason
+    };
+  });
+
+  const reportLines = [
+    `# Promotion Suggestions (${nowDate()})`,
+    '',
+    `- Workspace: ${p.workspaceSlug}`,
+    `- Reviewed records: ${records.length}`,
+    ''
+  ];
+
+  if (!suggestions.length) {
+    reportLines.push('No reviewed problem-solution records available.');
+  } else {
+    for (const item of suggestions) {
+      reportLines.push(`## ${item.title}`);
+      reportLines.push(`- Current target: ${item.currentTarget}`);
+      reportLines.push(`- Suggested target: ${item.suggestedTarget}`);
+      reportLines.push(`- Confidence: ${item.confidence}`);
+      reportLines.push(`- Reason: ${item.reason}`);
+      reportLines.push(`- File: ${item.file}`);
+      reportLines.push('');
+    }
+  }
+
+  const outFile = path.join(p.evolvedDir, `promotion-suggestions-${Date.now()}.md`);
+  fs.writeFileSync(outFile, reportLines.join('\n'), 'utf8');
+
+  console.log(JSON.stringify({
+    ok: true,
+    action: 'suggest',
+    report: outFile,
+    suggestions
   }, null, 2));
 }
 
@@ -231,7 +472,7 @@ function cmdEnsure(args) {
 }
 
 function usage() {
-  console.log('Usage: node codex-learning.js <ensure|learn|status|evolve> [--key value]');
+  console.log('Usage: node codex-learning.js <ensure|learn|record|suggest|status|evolve> [--key value]');
 }
 
 function main() {
@@ -245,6 +486,8 @@ function main() {
 
   if (sub === 'ensure') return cmdEnsure(args);
   if (sub === 'learn') return cmdLearn(args);
+  if (sub === 'record') return cmdRecord(args);
+  if (sub === 'suggest') return cmdSuggest(args);
   if (sub === 'status') return cmdStatus(args);
   if (sub === 'evolve') return cmdEvolve(args);
 

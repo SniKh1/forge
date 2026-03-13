@@ -66,8 +66,9 @@ async function main() {
   }
 
   // Signal to Claude that session should be evaluated for extractable patterns
-  log(`[ContinuousLearning] Session has ${messageCount} messages - evaluate for extractable patterns`);
+  log(`[LEARNING-TRIGGER] Session has ${messageCount} messages - evaluate for extractable patterns`);
   log(`[ContinuousLearning] Save learned skills to: ${learnedSkillsPath}`);
+  log(`[ContinuousLearning] Problem-solution memory should be updated for reusable fixes`);
 
   process.exit(0);
 }

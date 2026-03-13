@@ -154,6 +154,17 @@ else
   warn "Skills: not installed yet"
 fi
 
+if command -v node &> /dev/null && [ -f "$(dirname "$0")/check-runtime-skill-duplicates.js" ] && [ -d "$CLAUDE_HOME/skills" ]; then
+  dup_json=$(node "$(dirname "$0")/check-runtime-skill-duplicates.js" --json --warn-only "$CLAUDE_HOME/skills")
+  dup_count=$(printf '%s' "$dup_json" | node -e 'const fs=require("fs"); const data=JSON.parse(fs.readFileSync(0,"utf8")); process.stdout.write(String(data.duplicateCount||0));')
+  if [ "${dup_count:-0}" -gt 0 ]; then
+    dup_ids=$(printf '%s' "$dup_json" | node -e 'const fs=require("fs"); const data=JSON.parse(fs.readFileSync(0,"utf8")); process.stdout.write((data.duplicates||[]).map((x) => x.id).join(", "));')
+    warn "duplicate runtime skills detected: $dup_ids"
+  else
+    pass "No duplicate runtime skills"
+  fi
+fi
+
 if [ -d "$CLAUDE_HOME/agents" ]; then
   agent_count=$(find "$CLAUDE_HOME/agents" -maxdepth 1 -name "*.md" | wc -l | tr -d ' ')
   pass "Agents: $agent_count total"
