@@ -1,0 +1,213 @@
+export const forgeRoleMcpMatrix = {
+  "version": "1.0",
+  "updated": "2026-03-12",
+  "roles": {
+    "product-manager": {
+      "recommendedStacks": [
+        "product",
+        "ecommerce",
+        "video-creation",
+        "image-generation"
+      ],
+      "recommendedSkills": [
+        "brainstorming",
+        "doc-coauthoring",
+        "internal-comms",
+        "mcp-management"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "notion-mcp",
+          "label": "Notion MCP",
+          "type": "official-hosted",
+          "why": "PRDs, specs, project docs, and workspace search.",
+          "source": "https://developers.notion.com/docs/mcp"
+        },
+        {
+          "id": "atlassian-rovo-mcp",
+          "label": "Atlassian Rovo MCP",
+          "type": "official-remote",
+          "why": "Jira and Confluence context for planning, dependencies, and team execution.",
+          "source": "https://www.atlassian.com/platform/remote-mcp-server"
+        },
+        {
+          "id": "linear-mcp",
+          "label": "Linear MCP",
+          "type": "official-remote",
+          "why": "Issue, project, and comment workflows for product planning and prioritization.",
+          "source": "https://linear.app/docs/mcp"
+        },
+        {
+          "id": "slack-mcp",
+          "label": "Slack MCP",
+          "type": "official-hosted",
+          "why": "Search workspace context, retrieve threads, and draft/send follow-up communication.",
+          "source": "https://slack.com/help/articles/48855576908307-Guide-to-the-Slack-MCP-server"
+        },
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "Trace issues, pull requests, and repository state alongside planning and delivery.",
+          "source": "https://github.com/github/github-mcp-server"
+        }
+      ]
+    },
+    "ui-designer": {
+      "recommendedStacks": [
+        "design",
+        "image-generation",
+        "video-creation",
+        "ecommerce"
+      ],
+      "recommendedSkills": [
+        "frontend-design",
+        "aesthetic",
+        "ui-styling",
+        "browser-use",
+        "web-design-guidelines"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "figma-mcp",
+          "label": "Figma MCP Server",
+          "type": "official-remote-or-desktop",
+          "why": "Extract design context, map code to design, and capture live UI back into Figma.",
+          "source": "https://help.figma.com/hc/en-us/articles/32132100833559-Guide-to-the-Figma-MCP-server"
+        },
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "Review implementation state, PR context, and design-system code references.",
+          "source": "https://github.com/github/github-mcp-server"
+        }
+      ],
+      "recommendedLocalTools": [
+        {
+          "id": "browser-use",
+          "label": "browser-use",
+          "why": "Use a real local browser profile for logged-in product validation and UI review."
+        },
+        {
+          "id": "playwright",
+          "label": "Playwright",
+          "why": "Repeatable interaction checks, screenshots, and UI verification."
+        }
+      ]
+    },
+    "solution-architect": {
+      "recommendedStacks": [
+        "architecture",
+        "workflow-automation",
+        "ecommerce"
+      ],
+      "recommendedSkills": [
+        "brainstorming",
+        "context-engineering",
+        "backend-development",
+        "docs-seeker"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "Repository-wide context for boundaries, APIs, and architectural tradeoffs.",
+          "source": "https://github.com/github/github-mcp-server"
+        }
+      ],
+      "recommendedToolMcp": [
+        {
+          "id": "context7",
+          "label": "Context7",
+          "type": "official-docs-tooling",
+          "why": "Pull current official library and framework documentation into architecture decisions."
+        },
+        {
+          "id": "deepwiki",
+          "label": "DeepWiki",
+          "type": "open-source-research-tooling",
+          "why": "Explore open-source repo structure and implementation patterns before designing changes."
+        }
+      ]
+    },
+    "qa-strategist": {
+      "recommendedStacks": [
+        "qa",
+        "workflow-automation",
+        "ecommerce"
+      ],
+      "recommendedSkills": [
+        "tdd-workflow",
+        "webapp-testing",
+        "systematic-debugging",
+        "code-review"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "Inspect PRs, issues, regressions, and code context while building a test strategy.",
+          "source": "https://github.com/github/github-mcp-server"
+        }
+      ],
+      "recommendedLocalTools": [
+        {
+          "id": "playwright",
+          "label": "Playwright",
+          "why": "Primary local automation tool for reproducible UI regression and acceptance checks."
+        },
+        {
+          "id": "memory",
+          "label": "memory",
+          "why": "Recall prior regressions, fixes, and verification evidence across sessions."
+        }
+      ]
+    },
+    "release-devex": {
+      "recommendedStacks": [
+        "release",
+        "workflow-automation",
+        "ecommerce"
+      ],
+      "recommendedSkills": [
+        "devops",
+        "deployment-patterns",
+        "systematic-debugging",
+        "changelog-generator"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "CI, releases, issues, and pull requests are the main release control surface.",
+          "source": "https://github.com/github/github-mcp-server"
+        },
+        {
+          "id": "slack-mcp",
+          "label": "Slack MCP",
+          "type": "official-hosted",
+          "why": "Release coordination, status communication, and post-release incident follow-up.",
+          "source": "https://slack.com/help/articles/48855576908307-Guide-to-the-Slack-MCP-server"
+        }
+      ],
+      "recommendedToolMcp": [
+        {
+          "id": "fetch",
+          "label": "fetch",
+          "type": "web-fetch-tooling",
+          "why": "Pull release notes, docs, and web diagnostics when a direct MCP is not available."
+        },
+        {
+          "id": "context7",
+          "label": "Context7",
+          "type": "official-docs-tooling",
+          "why": "Look up current packaging, framework, and runtime docs during release work."
+        }
+      ]
+    }
+  }
+} as const;

@@ -13,6 +13,7 @@ import {
   ExternalLink,
   FolderOpen,
   Hammer,
+  Plus,
   PlugZap,
   RefreshCw,
   Search,
@@ -24,6 +25,8 @@ import {
 } from 'lucide-react';
 import './styles.css';
 import { forgeSkillOptions } from './generated-catalog';
+import { forgeRoleMcpMatrix } from './generated-role-mcp';
+import { forgeDomainMcpMatrix } from './generated-domain-mcp';
 import forgeBloomIcon from './assets/forge-bloom.png';
 import claudeIcon from './assets/platform-icons/claude.png';
 import codexIcon from './assets/platform-icons/codex.png';
@@ -35,6 +38,10 @@ type Section = 'platform' | 'community' | 'settings';
 type CommunityKind = 'skills' | 'mcp';
 type OptionalComponent = 'mcp' | 'skills' | 'memory';
 type BaseComponent = 'hooks' | 'rules' | 'stacks' | 'commands';
+type RolePack = keyof typeof forgeRoleMcpMatrix.roles;
+type InstallRolePack = RolePack | 'developer';
+type StackPack = 'frontend' | 'java' | 'python' | 'product' | 'design' | 'architecture' | 'qa' | 'release' | 'ecommerce' | 'video-creation' | 'image-generation' | 'workflow-automation';
+type DomainStackPack = keyof typeof forgeDomainMcpMatrix.stacks;
 
 type DetectionItem = {
   name: Client;
@@ -75,7 +82,16 @@ type DetailOption = {
   summary: string;
   note?: string;
   clients: readonly Client[];
+  layer?: string;
+  primaryFor?: readonly string[];
+  recommendedByRole?: readonly string[];
+  recommendedByStack?: readonly string[];
+  overlapGroup?: string | null;
+  clusterRole?: string | null;
+  supportWhen?: readonly string[];
 };
+
+type SkillLayer = 'core' | 'extended' | 'specialized' | 'experimental';
 
 type CommunityEntry = {
   id: string;
@@ -89,11 +105,182 @@ type CommunityEntry = {
 };
 
 const clientOrder: Client[] = ['claude', 'codex', 'gemini'];
+const roleOrder: RolePack[] = ['product-manager', 'ui-designer', 'solution-architect', 'qa-strategist', 'release-devex'];
+const installRoleOrder: InstallRolePack[] = ['developer', 'product-manager', 'ui-designer', 'solution-architect', 'qa-strategist', 'release-devex'];
+const installRoleStacks: Record<InstallRolePack, StackPack[]> = {
+  developer: ['frontend', 'java', 'python', 'workflow-automation', 'ecommerce'],
+  'product-manager': ['product', 'ecommerce', 'video-creation', 'image-generation'],
+  'ui-designer': ['design', 'frontend', 'image-generation', 'video-creation', 'ecommerce'],
+  'solution-architect': ['architecture', 'workflow-automation', 'ecommerce', 'java', 'python', 'frontend'],
+  'qa-strategist': ['qa', 'workflow-automation', 'ecommerce', 'frontend', 'java', 'python'],
+  'release-devex': ['release', 'workflow-automation', 'ecommerce'],
+};
+const stackOrder: StackPack[] = ['frontend', 'java', 'python', 'product', 'design', 'architecture', 'qa', 'release', 'ecommerce', 'video-creation', 'image-generation', 'workflow-automation'];
 
 type ClientMeta = {
   label: string;
   Icon: React.ComponentType<{ className?: string }>;
 };
+
+function roleLabel(role: InstallRolePack, lang: Lang) {
+  const labels: Record<InstallRolePack, Record<Lang, string>> = {
+    developer: { zh: '开发者', en: 'Developer', ja: '開発者' },
+    'product-manager': { zh: '产品经理', en: 'Product Manager', ja: 'プロダクトマネージャー' },
+    'ui-designer': { zh: 'UI 设计', en: 'UI Designer', ja: 'UI デザイナー' },
+    'solution-architect': { zh: '架构设计', en: 'Solution Architect', ja: 'ソリューションアーキテクト' },
+    'qa-strategist': { zh: 'QA 策略', en: 'QA Strategist', ja: 'QA ストラテジスト' },
+    'release-devex': { zh: '发布与 DevEx', en: 'Release / DevEx', ja: 'リリース / DevEx' },
+  };
+  return labels[role][lang];
+}
+
+function stackLabel(stack: StackPack, lang: Lang) {
+  const labels: Record<StackPack, Record<Lang, string>> = {
+    frontend: { zh: '前端', en: 'Frontend', ja: 'フロントエンド' },
+    java: { zh: 'Java', en: 'Java', ja: 'Java' },
+    python: { zh: 'Python', en: 'Python', ja: 'Python' },
+    product: { zh: '产品', en: 'Product', ja: 'プロダクト' },
+    design: { zh: '设计', en: 'Design', ja: 'デザイン' },
+    architecture: { zh: '架构', en: 'Architecture', ja: 'アーキテクチャ' },
+    qa: { zh: 'QA', en: 'QA', ja: 'QA' },
+    release: { zh: '发布', en: 'Release', ja: 'リリース' },
+    ecommerce: { zh: '电商', en: 'Ecommerce', ja: 'Eコマース' },
+    'video-creation': { zh: '视频创作', en: 'Video Creation', ja: '動画制作' },
+    'image-generation': { zh: '图像生成', en: 'Image Generation', ja: '画像生成' },
+    'workflow-automation': { zh: '工作流自动化', en: 'Workflow Automation', ja: 'ワークフロー自動化' },
+  };
+  return labels[stack][lang];
+}
+
+function normalizeSkillLayer(layer?: string | null): SkillLayer {
+  if (layer === 'core' || layer === 'extended' || layer === 'specialized' || layer === 'experimental') {
+    return layer;
+  }
+  return 'specialized';
+}
+
+function skillLayerLabel(layer: SkillLayer, lang: Lang) {
+  const labels: Record<SkillLayer, Record<Lang, string>> = {
+    core: { zh: '核心层', en: 'Core', ja: 'コア層' },
+    extended: { zh: '支撑层', en: 'Support', ja: 'サポート層' },
+    specialized: { zh: '专业层', en: 'Specialized', ja: '専門層' },
+    experimental: { zh: '实验层', en: 'Experimental', ja: '実験層' },
+  };
+  return labels[layer][lang];
+}
+
+function skillLayerHint(layer: SkillLayer, lang: Lang) {
+  const hints: Record<SkillLayer, Record<Lang, string>> = {
+    core: {
+      zh: '高频主能力，优先展示，适合大多数当前角色和栈。',
+      en: 'High-frequency primary skills shown first for the current role and stack.',
+      ja: '高頻度の主力 skill。現在の role と stack に最優先で推奨します。',
+    },
+    extended: {
+      zh: '作为补充和协作能力使用，适合在主技能之外增强工作流。',
+      en: 'Support skills that extend the main workflow without being the primary route.',
+      ja: '主力 skill を補強する支援系の skill です。',
+    },
+    specialized: {
+      zh: '低频但有价值，适合特定领域、格式或平台场景。',
+      en: 'Specialized inventory for domain-specific, format-specific, or platform-specific work.',
+      ja: '特定領域・形式・プラットフォーム向けの専門 skill です。',
+    },
+    experimental: {
+      zh: '实验性能力，建议显式判断后再安装或启用。',
+      en: 'Experimental capabilities that should be enabled deliberately.',
+      ja: '実験段階の capability。明示的に判断して有効化します。',
+    },
+  };
+  return hints[layer][lang];
+}
+
+function skillClusterRoleLabel(clusterRole: string | null | undefined, lang: Lang) {
+  if (clusterRole === 'primary') {
+    return {
+      zh: '主入口',
+      en: 'Primary',
+      ja: '主入口',
+    }[lang];
+  }
+  if (clusterRole === 'support') {
+    return {
+      zh: '支撑',
+      en: 'Support',
+      ja: '支援',
+    }[lang];
+  }
+  if (clusterRole === 'experimental') {
+    return {
+      zh: '实验',
+      en: 'Experimental',
+      ja: '実験',
+    }[lang];
+  }
+  return '';
+}
+
+function skillClusterRoleTint(clusterRole: string | null | undefined) {
+  if (clusterRole === 'primary') {
+    return 'bg-sky-50 text-sky-700 ring-sky-200';
+  }
+  if (clusterRole === 'support') {
+    return 'bg-violet-50 text-violet-700 ring-violet-200';
+  }
+  if (clusterRole === 'experimental') {
+    return 'bg-rose-50 text-rose-700 ring-rose-200';
+  }
+  return 'bg-slate-100 text-slate-600 ring-slate-200';
+}
+
+function skillSupportHint(item: DetailOption) {
+  return item.supportWhen && item.supportWhen.length > 0 ? item.supportWhen[0] : '';
+}
+
+function installRoleGuide(role: InstallRolePack) {
+  if (role === 'developer') {
+    return {
+      recommendedStacks: installRoleStacks.developer,
+      recommendedSkills: ['brainstorming', 'frontend-design', 'backend-development', 'systematic-debugging', 'code-review'],
+      recommendedMcp: [
+        { id: 'context7', label: 'Context7' },
+        { id: 'deepwiki', label: 'DeepWiki' },
+        { id: 'playwright', label: 'Playwright MCP' },
+        { id: 'memory', label: 'memory' },
+        { id: 'fetch', label: 'fetch' },
+        { id: 'exa', label: 'exa' },
+        { id: 'sequential-thinking', label: 'sequential-thinking' },
+      ],
+    } as const;
+  }
+  return forgeRoleMcpMatrix.roles[role];
+}
+
+function roleGuideExtraTools(guide: (typeof forgeRoleMcpMatrix.roles)[RolePack]) {
+  const localTools = 'recommendedLocalTools' in guide ? guide.recommendedLocalTools : [];
+  const toolMcp = 'recommendedToolMcp' in guide ? guide.recommendedToolMcp : [];
+  return [...localTools, ...toolMcp];
+}
+
+function domainGuideExtraTools(guide: (typeof forgeDomainMcpMatrix.stacks)[DomainStackPack]) {
+  const localTools = 'recommendedLocalTools' in guide ? guide.recommendedLocalTools : [];
+  const toolMcp = 'recommendedToolMcp' in guide ? guide.recommendedToolMcp : [];
+  return [...localTools, ...toolMcp];
+}
+
+function isDomainStackPack(stack: StackPack): stack is DomainStackPack {
+  return stack in forgeDomainMcpMatrix.stacks;
+}
+
+function groupSkillsByLayer(items: DetailOption[]) {
+  const order: SkillLayer[] = ['core', 'extended', 'specialized', 'experimental'];
+  return order
+    .map((layer) => ({
+      layer,
+      items: items.filter((item) => normalizeSkillLayer(item.layer) === layer),
+    }))
+    .filter((group) => group.items.length > 0);
+}
 
 const messages: Record<Lang, Messages> = {
   zh: {
@@ -145,6 +332,26 @@ const messages: Record<Lang, Messages> = {
     commandLog: '命令日志',
     clearLog: '清空日志',
     communityHint: '这里保留 Forge 内置能力清单和社区入口。内置 MCP 会随“安装 Forge”中的 MCP 选项一起写入当前平台。',
+    roleRecommendations: '按角色推荐',
+    installPersona: '安装画像',
+    installPersonaHint: '先选当前工作角色和栈，安装弹窗会按这个上下文推荐与排序。',
+    rolePackLabel: '角色包',
+    stackPackLabel: '栈包',
+    recommendedPreset: '按推荐预选',
+    recommendedBadge: '推荐',
+    addToInstallList: '加入安装清单',
+    switchToPlatform: '回到平台安装',
+    currentPersona: '当前画像',
+    roleBoundInstallHint: '内置项可以直接加入当前平台安装清单；社区仓库仍然作为浏览入口。',
+    roleRecommendationHint: '先看角色推荐，再决定要不要从下面的社区仓库继续扩展。',
+    recommendedStacksLabel: '推荐栈',
+    recommendedSkillsLabel: '推荐 Skills',
+    officialMcpLabel: '官方 MCP',
+    companionToolsLabel: '配套工具',
+    domainPackLabel: '领域栈',
+    domainPackHint: '当前领域栈会补充一组更贴近业务场景的 MCP 和工具建议。',
+    domainRecommendedMcpLabel: '领域推荐 MCP',
+    domainRecommendedToolsLabel: '领域配套工具',
     searchPlaceholder: '搜索名称、来源或说明',
     skillsTab: 'Skills',
     mcpTab: 'MCP',
@@ -193,6 +400,10 @@ const messages: Record<Lang, Messages> = {
     openSource: '开源来源',
     installViaHome: '通过首页安装',
     browseOnly: '浏览入口',
+    builtInSkillsSection: 'Forge 内置 Skills',
+    builtInSkillsHint: '这里是当前平台可直接加入安装清单的内置 skill，会按角色和栈优先级排序。',
+    communityReposSection: '社区仓库',
+    communityReposHint: '这些是外部技能仓库入口，适合继续扩展，但默认不会直接写入当前平台。',
     zh: '中文',
     en: 'English',
     ja: '日本語',
@@ -246,6 +457,26 @@ const messages: Record<Lang, Messages> = {
     commandLog: 'Command log',
     clearLog: 'Clear log',
     communityHint: 'This page keeps Forge built-ins and community entry points. Built-in MCP servers are written when MCP is selected on the platform page.',
+    roleRecommendations: 'Role recommendations',
+    installPersona: 'Install persona',
+    installPersonaHint: 'Choose the current role and stack first. The install modal will sort and recommend items from that context.',
+    rolePackLabel: 'Role pack',
+    stackPackLabel: 'Stack pack',
+    recommendedPreset: 'Apply recommended',
+    recommendedBadge: 'Recommended',
+    addToInstallList: 'Add to install list',
+    switchToPlatform: 'Back to platform install',
+    currentPersona: 'Current persona',
+    roleBoundInstallHint: 'Built-in items can be added directly to the current platform install list. Community repositories remain browse-only.',
+    roleRecommendationHint: 'Start from role-based recommendations, then expand with community sources only when needed.',
+    recommendedStacksLabel: 'Recommended stacks',
+    recommendedSkillsLabel: 'Recommended skills',
+    officialMcpLabel: 'Official MCP',
+    companionToolsLabel: 'Companion tools',
+    domainPackLabel: 'Domain stack',
+    domainPackHint: 'The current domain stack adds MCP and tool suggestions that are closer to the business workflow.',
+    domainRecommendedMcpLabel: 'Domain MCP',
+    domainRecommendedToolsLabel: 'Domain companion tools',
     searchPlaceholder: 'Search by name, source, or description',
     skillsTab: 'Skills',
     mcpTab: 'MCP',
@@ -294,6 +525,10 @@ const messages: Record<Lang, Messages> = {
     openSource: 'Source',
     installViaHome: 'Install from platform page',
     browseOnly: 'Browse only',
+    builtInSkillsSection: 'Forge built-in skills',
+    builtInSkillsHint: 'Built-in skills that can be added directly to the current install list, sorted by role and stack priority.',
+    communityReposSection: 'Community repositories',
+    communityReposHint: 'External skill repositories for further expansion. They remain browse-only by default.',
     zh: '中文',
     en: 'English',
     ja: '日本語',
@@ -347,6 +582,26 @@ const messages: Record<Lang, Messages> = {
     commandLog: 'コマンドログ',
     clearLog: 'クリア',
     communityHint: 'ここでは Forge 内蔵の機能一覧とコミュニティ入口を扱います。内蔵 MCP はプラットフォーム画面で MCP を選ぶと一緒に書き込まれます。',
+    roleRecommendations: '役割別の推奨',
+    installPersona: '導入プロファイル',
+    installPersonaHint: '先に現在の役割とスタックを選ぶと、導入ダイアログ内の項目がその文脈で並び替え・推薦されます。',
+    rolePackLabel: 'ロールパック',
+    stackPackLabel: 'スタックパック',
+    recommendedPreset: '推奨で選択',
+    recommendedBadge: '推奨',
+    addToInstallList: '導入一覧に追加',
+    switchToPlatform: 'プラットフォーム導入へ戻る',
+    currentPersona: '現在のプロファイル',
+    roleBoundInstallHint: '内蔵項目は現在のプラットフォーム導入一覧へ直接追加できます。コミュニティリポジトリは閲覧入口のままです。',
+    roleRecommendationHint: 'まず役割別の推奨を見て、必要な場合だけ下のコミュニティソースを追加してください。',
+    recommendedStacksLabel: '推奨スタック',
+    recommendedSkillsLabel: '推奨 Skills',
+    officialMcpLabel: '公式 MCP',
+    companionToolsLabel: '補助ツール',
+    domainPackLabel: 'ドメインスタック',
+    domainPackHint: '現在のドメイン stack に合わせて、より業務寄りの MCP とツール候補を補います。',
+    domainRecommendedMcpLabel: 'ドメイン推奨 MCP',
+    domainRecommendedToolsLabel: 'ドメイン補助ツール',
     searchPlaceholder: '名前、ソース、説明で検索',
     skillsTab: 'Skills',
     mcpTab: 'MCP',
@@ -395,6 +650,10 @@ const messages: Record<Lang, Messages> = {
     openSource: 'ソース',
     installViaHome: 'プラットフォーム画面から導入',
     browseOnly: '閲覧のみ',
+    builtInSkillsSection: 'Forge 内蔵 Skills',
+    builtInSkillsHint: '現在のプラットフォームへ直接追加できる内蔵 skill です。役割とスタックの優先度で並び替えます。',
+    communityReposSection: 'コミュニティリポジトリ',
+    communityReposHint: 'さらに拡張するための外部 skill リポジトリ入口です。既定では閲覧のみです。',
     zh: '中文',
     en: 'English',
     ja: '日本語',
@@ -649,6 +908,9 @@ async function openTarget(target: string) {
 function App() {
   const [section, setSection] = React.useState<Section>('platform');
   const [communityKind, setCommunityKind] = React.useState<CommunityKind>('skills');
+  const [activeRolePack, setActiveRolePack] = React.useState<RolePack>('product-manager');
+  const [installRolePack, setInstallRolePack] = React.useState<InstallRolePack>('developer');
+  const [installStackPack, setInstallStackPack] = React.useState<StackPack>('frontend');
   const [workspace, setWorkspace] = React.useState('/Users/uui6yee/Desktop/dev/forge');
   const [lang, setLang] = React.useState<Lang>(() => {
     const saved = typeof window !== 'undefined' ? window.localStorage.getItem('forge.desktop.lang') : null;
@@ -685,6 +947,13 @@ function App() {
   React.useEffect(() => {
     window.localStorage.setItem('forge.desktop.lang', lang);
   }, [lang]);
+
+  React.useEffect(() => {
+    const allowed = installRoleStacks[installRolePack];
+    if (!allowed.includes(installStackPack)) {
+      setInstallStackPack(allowed[0]);
+    }
+  }, [installRolePack, installStackPack]);
 
   React.useEffect(() => {
     if (typeof document === 'undefined') return undefined;
@@ -759,13 +1028,32 @@ function App() {
   }, [detection, support]);
 
   const optionalComponentList = React.useMemo(() => optionalOptions.filter((item) => true), []);
+  const installGuide = React.useMemo(() => installRoleGuide(installRolePack), [installRolePack]);
+  const activeDomainGuide = React.useMemo(
+    () => (isDomainStackPack(installStackPack) ? forgeDomainMcpMatrix.stacks[installStackPack] : null),
+    [installStackPack],
+  );
+  const recommendedMcpIdSet = React.useMemo<Set<string>>(() => new Set([
+    ...installGuide.recommendedMcp.map((entry) => String(entry.id)),
+    ...(activeDomainGuide?.recommendedMcp?.map((entry) => String(entry.id)) || []),
+  ]), [installGuide, activeDomainGuide]);
+  const recommendedSkillIdSet = React.useMemo<Set<string>>(() => new Set(
+    forgeSkillOptions
+      .filter((item) => item.clients.includes(activeClient))
+      .filter((item) => (item.recommendedByRole as readonly string[] | undefined)?.includes(installRolePack) || (item.recommendedByStack as readonly string[] | undefined)?.includes(installStackPack) || (item.primaryFor as readonly string[] | undefined)?.includes(installRolePack))
+      .map((item) => String(item.id)),
+  ), [activeClient, installRolePack, installStackPack]);
   const mcpDetailList = React.useMemo(
-    () => mcpDetailOptions.filter((item) => item.clients.includes(activeClient)),
-    [activeClient],
+    () => mcpDetailOptions
+      .filter((item) => item.clients.includes(activeClient))
+      .sort((a, b) => Number(recommendedMcpIdSet.has(b.id)) - Number(recommendedMcpIdSet.has(a.id)) || a.title.localeCompare(b.title)),
+    [activeClient, recommendedMcpIdSet],
   );
   const skillDetailList = React.useMemo(
-    () => skillDetailOptions.filter((item) => item.clients.includes(activeClient)),
-    [activeClient],
+    () => skillDetailOptions
+      .filter((item) => item.clients.includes(activeClient))
+      .sort((a, b) => Number(recommendedSkillIdSet.has(b.id)) - Number(recommendedSkillIdSet.has(a.id)) || a.title.localeCompare(b.title)),
+    [activeClient, recommendedSkillIdSet],
   );
   const selectedMcpServerIds = React.useMemo(
     () => mcpDetailList.filter((item) => selectedMcpDetails[item.id]).map((item) => item.id),
@@ -783,6 +1071,23 @@ function App() {
     return ids;
   }, [selectedMcpServerIds.length, selectedOptional.memory, selectedSkillIds.length]);
 
+  const applyRecommendedPreset = React.useCallback(() => {
+    setSelectedMcpDetails((current) => ({
+      ...current,
+      ...Object.fromEntries(mcpDetailList.map((item) => [item.id, recommendedMcpIdSet.has(item.id)])),
+    }));
+    setSelectedSkillDetails((current) => ({
+      ...current,
+      ...Object.fromEntries(skillDetailList.map((item) => [item.id, recommendedSkillIdSet.has(item.id)])),
+    }));
+    setSelectedOptional((current) => ({
+      ...current,
+      mcp: mcpDetailList.some((item) => recommendedMcpIdSet.has(item.id)),
+      skills: skillDetailList.some((item) => recommendedSkillIdSet.has(item.id)),
+      memory: true,
+    }));
+  }, [mcpDetailList, recommendedMcpIdSet, recommendedSkillIdSet, skillDetailList]);
+
   const installLabel = React.useMemo(() => {
     if (!detection?.detected) return t.officialInstall;
     if (detection.configured && support?.ok) return t.updateForge;
@@ -797,6 +1102,54 @@ function App() {
       return [item.name, item.source, item.description, item.note].join(' ').toLowerCase().includes(q);
     });
   }, [communityKind, search]);
+  const builtInSkillResults = React.useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const layerOrder: SkillLayer[] = ['core', 'extended', 'specialized', 'experimental'];
+    return forgeSkillOptions
+      .filter((item) => item.clients.includes(activeClient))
+      .filter((item) => {
+        if (!q) return true;
+        return [
+          item.id,
+          item.title,
+          item.summary,
+          ...(item.primaryFor || []),
+          ...(item.recommendedByRole || []),
+          ...(item.recommendedByStack || []),
+        ].join(' ').toLowerCase().includes(q);
+      })
+      .sort((a, b) => {
+        const recommendedDiff = Number(recommendedSkillIdSet.has(b.id)) - Number(recommendedSkillIdSet.has(a.id));
+        if (recommendedDiff !== 0) return recommendedDiff;
+        const layerDiff = layerOrder.indexOf(normalizeSkillLayer(a.layer)) - layerOrder.indexOf(normalizeSkillLayer(b.layer));
+        if (layerDiff !== 0) return layerDiff;
+        return a.title.localeCompare(b.title);
+      });
+  }, [activeClient, recommendedSkillIdSet, search]);
+  const builtInSkillGroups = React.useMemo(() => groupSkillsByLayer(builtInSkillResults), [builtInSkillResults]);
+  const communityRepoResults = React.useMemo(
+    () => searchResults.filter((entry) => entry.kind === 'skills'),
+    [searchResults],
+  );
+
+  const activeRoleGuide = React.useMemo(() => forgeRoleMcpMatrix.roles[activeRolePack], [activeRolePack]);
+  const roleRecommendedSkills = React.useMemo(
+    () => {
+      const ids = new Set<string>(activeRoleGuide.recommendedSkills as readonly string[]);
+      return forgeSkillOptions
+        .filter((item) => ids.has(item.id))
+        .sort((a, b) => {
+          const layerOrder: SkillLayer[] = ['core', 'extended', 'specialized', 'experimental'];
+          const diff = layerOrder.indexOf(normalizeSkillLayer(a.layer)) - layerOrder.indexOf(normalizeSkillLayer(b.layer));
+          return diff !== 0 ? diff : a.title.localeCompare(b.title);
+        });
+    },
+    [activeRoleGuide],
+  );
+  const roleRecommendedSkillGroups = React.useMemo(() => groupSkillsByLayer(roleRecommendedSkills), [roleRecommendedSkills]);
+
+  const builtInMcpIds = React.useMemo(() => new Set(mcpDetailOptions.map((item) => item.id)), []);
+  const builtInSkillIds = React.useMemo(() => new Set(skillDetailOptions.map((item) => item.id)), []);
 
   const detectionCounts = React.useMemo(() => ({
     detected: report?.detection.filter((item) => item.detected).length || 0,
@@ -818,6 +1171,20 @@ function App() {
       setResultLog(`Copy failed.\n${value}`);
       setLogExpanded(true);
     }
+  }, []);
+
+  const addBuiltInSkillToInstall = React.useCallback((id: string) => {
+    setSelectedOptional((current) => ({ ...current, skills: true }));
+    setSelectedSkillDetails((current) => ({ ...current, [id]: true }));
+    setSection('platform');
+    setResultLog(`Added skill to install list: ${id}`);
+  }, []);
+
+  const addBuiltInMcpToInstall = React.useCallback((id: string) => {
+    setSelectedOptional((current) => ({ ...current, mcp: true }));
+    setSelectedMcpDetails((current) => ({ ...current, [id]: true }));
+    setSection('platform');
+    setResultLog(`Added MCP to install list: ${id}`);
   }, []);
 
   const openConfirm = React.useCallback((mode: 'install' | 'repair') => {
@@ -981,6 +1348,48 @@ function App() {
                 </div>
               </section>
 
+              <section className="overflow-hidden rounded-[12px] border border-slate-200 bg-white shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
+                <div className="border-b border-slate-100 px-4 py-4">
+                  <div className="text-[15px] font-semibold text-slate-900">{t.installPersona}</div>
+                  <div className="mt-1 text-[12px] text-slate-500">{t.installPersonaHint}</div>
+                </div>
+                <div className="grid gap-4 px-4 py-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_160px]">
+                  <div>
+                    <div className="mb-2 text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.rolePackLabel}</div>
+                    <div className="flex flex-wrap gap-2">
+                      {installRoleOrder.map((role) => (
+                        <button
+                          key={role}
+                          type="button"
+                          onClick={() => setInstallRolePack(role)}
+                          className={`rounded-[10px] border px-3 py-2 text-[12px] font-medium ${installRolePack === role ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-slate-50 text-slate-700'}`}
+                        >
+                          {roleLabel(role, lang)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="mb-2 text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.stackPackLabel}</div>
+                    <div className="flex flex-wrap gap-2">
+                      {installRoleStacks[installRolePack].map((stack) => (
+                        <button
+                          key={stack}
+                          type="button"
+                          onClick={() => setInstallStackPack(stack)}
+                          className={`rounded-[10px] border px-3 py-2 text-[12px] font-medium ${installStackPack === stack ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-slate-50 text-slate-700'}`}
+                        >
+                          {stackLabel(stack, lang)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-end">
+                    <button type="button" onClick={applyRecommendedPreset} className="inline-flex w-full items-center justify-center rounded-[10px] bg-slate-900 px-3 py-2.5 text-[12px] font-medium text-white">{t.recommendedPreset}</button>
+                  </div>
+                </div>
+              </section>
+
               <FoldSection title={t.exaSection} hint={t.secretsCollapsedHint} expanded={secretExpanded} onToggle={() => setSecretExpanded((value) => !value)}>
                 <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_160px]">
                   <div>
@@ -1011,6 +1420,7 @@ function App() {
                 <ConfirmModal
                   title={confirmMode === 'repair' ? t.confirmTitleRepair : detection.configured ? t.confirmTitleUpdate : t.confirmTitleInstall}
                   hint={t.confirmHint}
+                  lang={lang}
                   baseTitle={t.modalBase}
                   optionalTitle={t.modalOptional}
                   emptyText={t.selectedOptionalEmpty}
@@ -1044,6 +1454,17 @@ function App() {
                   )}
                   memoryEnabled={selectedOptional.memory}
                   onToggleMemory={() => setSelectedOptional((current) => ({ ...current, memory: !current.memory }))}
+                  installRoleLabel={roleLabel(installRolePack, lang)}
+                  installStackLabel={stackLabel(installStackPack, lang)}
+                  domainPackLabel={isDomainStackPack(installStackPack) ? stackLabel(installStackPack, lang) : null}
+                  domainPackHint={activeDomainGuide ? t.domainPackHint : null}
+                  domainRecommendedMcpLabel={t.domainRecommendedMcpLabel}
+                  domainRecommendedToolsLabel={t.domainRecommendedToolsLabel}
+                  domainRecommendedMcp={activeDomainGuide?.recommendedMcp || []}
+                  domainRecommendedTools={activeDomainGuide ? domainGuideExtraTools(activeDomainGuide) : []}
+                  recommendedMcpIds={recommendedMcpIdSet}
+                  recommendedSkillIds={recommendedSkillIdSet}
+                  onApplyRecommended={applyRecommendedPreset}
                 />
               )}
             </div>
@@ -1087,58 +1508,393 @@ function App() {
                 </div>
               </section>
 
-              <section className="grid grid-cols-2 gap-4 xl:grid-cols-3">
-                {searchResults.length === 0 && (
-                  <div className="col-span-full rounded-[14px] border border-dashed border-slate-300 bg-white px-6 py-16 text-center text-slate-500">
-                    {t.noItems}
+              <section className="rounded-[14px] border border-slate-200 bg-white px-4 py-4 shadow-[0_20px_45px_rgba(15,23,42,0.06)]">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <div className="text-[16px] font-semibold tracking-[-0.02em] text-slate-950">{t.roleRecommendations}</div>
+                    <div className="mt-1 text-[13px] text-slate-500">{t.roleRecommendationHint}</div>
+                    <div className="mt-2 text-[12px] text-slate-400">{t.currentPersona}: {roleLabel(installRolePack, lang)} / {stackLabel(installStackPack, lang)} · {t.roleBoundInstallHint}</div>
                   </div>
-                )}
+                  <div className="inline-flex flex-wrap rounded-[12px] border border-slate-200 bg-slate-50 p-1">
+                    {roleOrder.map((role) => (
+                      <button
+                        key={role}
+                        type="button"
+                        onClick={() => setActiveRolePack(role)}
+                        className={`rounded-[10px] px-3 py-2 text-[12px] font-medium ${
+                          activeRolePack === role ? 'bg-slate-900 text-white' : 'text-slate-600'
+                        }`}
+                      >
+                        {roleLabel(role, lang)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-                {searchResults.map((entry) => (
-                  <article key={entry.id} className="flex flex-col rounded-[14px] border border-slate-200 bg-white p-5 shadow-[0_16px_36px_rgba(15,23,42,0.05)]">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="text-[17px] font-semibold tracking-[-0.02em] text-slate-950">{entry.name}</div>
-                        <div className="mt-1 text-[13px] text-slate-500">{entry.description}</div>
-                      </div>
-                      <span className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ${entry.kind === 'mcp' ? 'bg-sky-50 text-sky-700 ring-sky-200' : 'bg-emerald-50 text-emerald-700 ring-emerald-200'}`}>
-                        {entry.kind === 'mcp' ? 'MCP' : 'Skill'}
-                      </span>
-                    </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {entry.clients.map((client) => (
-                        <span key={`${entry.id}-${client}`} className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${clientTint(client)}`}>
-                          {(() => {
-                            const tab = platformTabs.find((item) => item.id === client);
-                            if (!tab) return null;
-                            return (
-                              <>
-                                <tab.Icon className="h-[18px] w-[18px]" />
-                                <span>{tab.label}</span>
-                              </>
-                            );
-                          })()}
+                <div className="mt-4 grid gap-4 xl:grid-cols-[220px_minmax(0,1fr)]">
+                  <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
+                    <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.recommendedStacksLabel}</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {activeRoleGuide.recommendedStacks.map((stack) => (
+                        <span key={stack} className="rounded-full bg-slate-900 px-3 py-1 text-xs font-medium text-white">
+                          {stackLabel(stack as StackPack, lang)}
                         </span>
                       ))}
                     </div>
-                    <div className="mt-4 rounded-[12px] bg-slate-50 px-4 py-4 text-[13px] text-slate-600">
-                      <div className="font-medium text-slate-900">{t.openSource}</div>
-                      <div className="mt-1">{entry.source}</div>
-                      <div className="mt-3 text-slate-500">{entry.note}</div>
-                    </div>
-                    <div className="mt-auto flex items-center justify-between gap-3 pt-5">
-                      <button type="button" onClick={() => void openTarget(entry.url)} className="inline-flex items-center gap-2 rounded-[14px] border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-700">
-                        <ExternalLink className="h-4 w-4" />
-                        {t.openRepo}
-                      </button>
-                      <button type="button" onClick={() => void handleCopy(entry.id, entry.url)} className="inline-flex items-center gap-2 rounded-[14px] bg-slate-900 px-3 py-2 text-[13px] text-white">
-                        <Copy className="h-4 w-4" />
-                        {copiedKey === entry.id ? t.copied : t.copySource}
-                      </button>
-                    </div>
-                  </article>
-                ))}
+                    {activeDomainGuide && (
+                      <div className="mt-5">
+                        <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.domainPackLabel}</div>
+                        <div className="mt-2 inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
+                          {stackLabel(installStackPack, lang)}
+                        </div>
+                        <div className="mt-2 text-[12px] text-slate-500">{t.domainPackHint}</div>
+                      </div>
+                    )}
+                    {communityKind === 'skills' && (
+                      <div className="mt-5">
+                        <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.recommendedSkillsLabel}</div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {activeRoleGuide.recommendedSkills.map((skillId) => (
+                            <span key={skillId} className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                              {skillId}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {communityKind === 'mcp' ? activeRoleGuide.recommendedMcp.map((entry) => (
+                      <article
+                        key={entry.id}
+                        className="rounded-[12px] border border-slate-200 bg-white px-4 py-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)]"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="text-[15px] font-semibold text-slate-950">{entry.label}</div>
+                            <div className="mt-1 text-[13px] text-slate-500">{entry.why}</div>
+                          </div>
+                          <span className="rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-medium text-sky-700 ring-1 ring-sky-200">
+                            MCP
+                          </span>
+                        </div>
+                        <div className="mt-4 flex items-center justify-between gap-3">
+                          <span className="text-[12px] text-slate-500">{entry.type}</span>
+                          <button
+                            type="button"
+                            onClick={() => void openTarget(entry.source)}
+                            className="inline-flex items-center gap-2 rounded-[10px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                            {t.openRepo}
+                          </button>
+                        </div>
+                      </article>
+                    )) : roleRecommendedSkillGroups.map((group) => (
+                      <div key={group.layer} className="md:col-span-2 overflow-hidden rounded-[12px] border border-slate-200 bg-slate-50">
+                        <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+                          <div>
+                            <div className="text-[13px] font-medium text-slate-900">{skillLayerLabel(group.layer, lang)}</div>
+                            <div className="mt-1 text-[12px] text-slate-500">{skillLayerHint(group.layer, lang)}</div>
+                          </div>
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 ring-1 ring-slate-200">
+                            {group.items.length}
+                          </span>
+                        </div>
+                        <div className="grid gap-3 p-3 md:grid-cols-2">
+                          {group.items.map((entry) => (
+                            <article
+                              key={entry.id}
+                              className="rounded-[12px] border border-slate-200 bg-white px-4 py-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)]"
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <div className="text-[15px] font-semibold text-slate-950">{entry.title}</div>
+                                    {entry.clusterRole && (
+                                      <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${skillClusterRoleTint(entry.clusterRole)}`}>
+                                        {skillClusterRoleLabel(entry.clusterRole, lang)}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="mt-1 text-[13px] text-slate-500">{entry.summary}</div>
+                                  {skillSupportHint(entry) && <div className="mt-1 text-[12px] text-slate-400">{skillSupportHint(entry)}</div>}
+                                </div>
+                                <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-200">
+                                  {skillLayerLabel(normalizeSkillLayer(entry.layer), lang)}
+                                </span>
+                              </div>
+                              <div className="mt-4 flex items-center justify-end">
+                                <button
+                                  type="button"
+                                  onClick={() => addBuiltInSkillToInstall(entry.id)}
+                                  className="inline-flex items-center gap-2 rounded-[10px] bg-slate-900 px-3 py-2 text-[12px] font-medium text-white"
+                                >
+                                  <PlusIcon className="h-3.5 w-3.5" />
+                                  {t.addToInstallList}
+                                </button>
+                              </div>
+                            </article>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                    {communityKind === 'mcp' && roleGuideExtraTools(activeRoleGuide).length > 0 && (
+                      <article className="md:col-span-2 rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
+                        <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.companionToolsLabel}</div>
+                        <div className="mt-3 grid gap-2 md:grid-cols-2">
+                          {roleGuideExtraTools(activeRoleGuide).map((tool) => (
+                            <div key={tool.id} className="rounded-[10px] border border-slate-200 bg-white px-3 py-3">
+                              <div className="text-[13px] font-medium text-slate-900">{tool.label}</div>
+                              <div className="mt-1 text-[12px] text-slate-500">{tool.why}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </article>
+                    )}
+                    {communityKind === 'mcp' && activeDomainGuide && (
+                      <article className="md:col-span-2 rounded-[12px] border border-indigo-200 bg-indigo-50/50 px-4 py-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-indigo-500">{t.domainPackLabel}</div>
+                            <div className="mt-1 text-[14px] font-semibold text-slate-950">{stackLabel(installStackPack, lang)}</div>
+                            <div className="mt-1 text-[12px] text-slate-500">{t.domainPackHint}</div>
+                          </div>
+                        </div>
+                        {activeDomainGuide.recommendedMcp?.length > 0 && (
+                          <div className="mt-4">
+                            <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.domainRecommendedMcpLabel}</div>
+                            <div className="mt-3 grid gap-2 md:grid-cols-2">
+                              {activeDomainGuide.recommendedMcp.map((entry) => (
+                                <div key={entry.id} className="rounded-[10px] border border-indigo-200 bg-white px-3 py-3">
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="text-[13px] font-medium text-slate-900">{entry.label}</div>
+                                    <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-700">MCP</span>
+                                  </div>
+                                  <div className="mt-1 text-[12px] text-slate-500">{entry.why}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {domainGuideExtraTools(activeDomainGuide).length > 0 && (
+                          <div className="mt-4">
+                            <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.domainRecommendedToolsLabel}</div>
+                            <div className="mt-3 grid gap-2 md:grid-cols-2">
+                              {domainGuideExtraTools(activeDomainGuide).map((tool) => (
+                                <div key={tool.id} className="rounded-[10px] border border-indigo-200 bg-white px-3 py-3">
+                                  <div className="text-[13px] font-medium text-slate-900">{tool.label}</div>
+                                  <div className="mt-1 text-[12px] text-slate-500">{tool.why}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </article>
+                    )}
+                  </div>
+                </div>
               </section>
+
+              {communityKind === 'skills' ? (
+                <div className="space-y-4">
+                  <section className="rounded-[14px] border border-slate-200 bg-white px-4 py-4 shadow-[0_20px_45px_rgba(15,23,42,0.06)]">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="text-[16px] font-semibold tracking-[-0.02em] text-slate-950">{t.builtInSkillsSection}</div>
+                        <div className="mt-1 text-[13px] text-slate-500">{t.builtInSkillsHint}</div>
+                      </div>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                        {builtInSkillResults.length}
+                      </span>
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      {builtInSkillGroups.length === 0 ? (
+                        <div className="rounded-[12px] border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center text-slate-500">
+                          {t.noItems}
+                        </div>
+                      ) : builtInSkillGroups.map((group) => (
+                        <div key={group.layer} className="overflow-hidden rounded-[12px] border border-slate-200 bg-slate-50">
+                          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+                            <div>
+                              <div className="text-[13px] font-medium text-slate-900">{skillLayerLabel(group.layer, lang)}</div>
+                              <div className="mt-1 text-[12px] text-slate-500">{skillLayerHint(group.layer, lang)}</div>
+                            </div>
+                            <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 ring-1 ring-slate-200">
+                              {group.items.length}
+                            </span>
+                          </div>
+                          <div className="grid gap-3 p-3 md:grid-cols-2 xl:grid-cols-3">
+                            {group.items.map((entry) => (
+                              <article key={entry.id} className="flex flex-col rounded-[12px] border border-slate-200 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <div className="text-[15px] font-semibold tracking-[-0.02em] text-slate-950">{entry.title}</div>
+                                      {entry.clusterRole && (
+                                        <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${skillClusterRoleTint(entry.clusterRole)}`}>
+                                          {skillClusterRoleLabel(entry.clusterRole, lang)}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="mt-1 text-[13px] text-slate-500">{entry.summary}</div>
+                                    {skillSupportHint(entry) && <div className="mt-1 text-[12px] text-slate-400">{skillSupportHint(entry)}</div>}
+                                  </div>
+                                  <div className="flex flex-col items-end gap-2">
+                                    {recommendedSkillIdSet.has(entry.id) && (
+                                      <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-700 ring-1 ring-amber-200">
+                                        {t.recommendedBadge}
+                                      </span>
+                                    )}
+                                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-200">
+                                      {skillLayerLabel(normalizeSkillLayer(entry.layer), lang)}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="mt-4 flex items-center justify-end">
+                                  <button
+                                    type="button"
+                                    onClick={() => addBuiltInSkillToInstall(entry.id)}
+                                    className="inline-flex items-center gap-2 rounded-[10px] bg-slate-900 px-3 py-2 text-[12px] font-medium text-white"
+                                  >
+                                    <PlusIcon className="h-3.5 w-3.5" />
+                                    {t.addToInstallList}
+                                  </button>
+                                </div>
+                              </article>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section className="rounded-[14px] border border-slate-200 bg-white px-4 py-4 shadow-[0_20px_45px_rgba(15,23,42,0.06)]">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="text-[16px] font-semibold tracking-[-0.02em] text-slate-950">{t.communityReposSection}</div>
+                        <div className="mt-1 text-[13px] text-slate-500">{t.communityReposHint}</div>
+                      </div>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                        {communityRepoResults.length}
+                      </span>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 gap-4 xl:grid-cols-3">
+                      {communityRepoResults.length === 0 && (
+                        <div className="col-span-full rounded-[14px] border border-dashed border-slate-300 bg-slate-50 px-6 py-16 text-center text-slate-500">
+                          {t.noItems}
+                        </div>
+                      )}
+                      {communityRepoResults.map((entry) => (
+                        <article key={entry.id} className="flex flex-col rounded-[14px] border border-slate-200 bg-white p-5 shadow-[0_16px_36px_rgba(15,23,42,0.05)]">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="text-[17px] font-semibold tracking-[-0.02em] text-slate-950">{entry.name}</div>
+                              <div className="mt-1 text-[13px] text-slate-500">{entry.description}</div>
+                            </div>
+                            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
+                              {t.skillsTab}
+                            </span>
+                          </div>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {entry.clients.map((client) => (
+                              <span key={`${entry.id}-${client}`} className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${clientTint(client)}`}>
+                                {(() => {
+                                  const tab = platformTabs.find((item) => item.id === client);
+                                  if (!tab) return null;
+                                  return (
+                                    <>
+                                      <tab.Icon className="h-[18px] w-[18px]" />
+                                      <span>{tab.label}</span>
+                                    </>
+                                  );
+                                })()}
+                              </span>
+                            ))}
+                          </div>
+                          <div className="mt-4 rounded-[12px] bg-slate-50 px-4 py-4 text-[13px] text-slate-600">
+                            <div className="font-medium text-slate-900">{t.openSource}</div>
+                            <div className="mt-1">{entry.source}</div>
+                            <div className="mt-3 text-slate-500">{entry.note}</div>
+                          </div>
+                          <div className="mt-auto flex items-center justify-end gap-2 pt-5">
+                            <button type="button" onClick={() => void openTarget(entry.url)} className="inline-flex items-center gap-2 rounded-[14px] border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-700">
+                              <ExternalLink className="h-4 w-4" />
+                              {t.openRepo}
+                            </button>
+                            <button type="button" onClick={() => void handleCopy(entry.id, entry.url)} className="inline-flex items-center gap-2 rounded-[14px] bg-slate-900 px-3 py-2 text-[13px] text-white">
+                              <Copy className="h-4 w-4" />
+                              {copiedKey === entry.id ? t.copied : t.copySource}
+                            </button>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              ) : (
+                <section className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+                  {searchResults.length === 0 && (
+                    <div className="col-span-full rounded-[14px] border border-dashed border-slate-300 bg-white px-6 py-16 text-center text-slate-500">
+                      {t.noItems}
+                    </div>
+                  )}
+
+                  {searchResults.map((entry) => (
+                    <article key={entry.id} className="flex flex-col rounded-[14px] border border-slate-200 bg-white p-5 shadow-[0_16px_36px_rgba(15,23,42,0.05)]">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="text-[17px] font-semibold tracking-[-0.02em] text-slate-950">{entry.name}</div>
+                          <div className="mt-1 text-[13px] text-slate-500">{entry.description}</div>
+                        </div>
+                        <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
+                          MCP
+                        </span>
+                      </div>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {entry.clients.map((client) => (
+                          <span key={`${entry.id}-${client}`} className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${clientTint(client)}`}>
+                            {(() => {
+                              const tab = platformTabs.find((item) => item.id === client);
+                              if (!tab) return null;
+                              return (
+                                <>
+                                  <tab.Icon className="h-[18px] w-[18px]" />
+                                  <span>{tab.label}</span>
+                                </>
+                              );
+                            })()}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="mt-4 rounded-[12px] bg-slate-50 px-4 py-4 text-[13px] text-slate-600">
+                        <div className="font-medium text-slate-900">{t.openSource}</div>
+                        <div className="mt-1">{entry.source}</div>
+                        <div className="mt-3 text-slate-500">{entry.note}</div>
+                      </div>
+                      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-5">
+                        <button type="button" onClick={() => void openTarget(entry.url)} className="inline-flex items-center gap-2 rounded-[14px] border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-700">
+                          <ExternalLink className="h-4 w-4" />
+                          {t.openRepo}
+                        </button>
+                        <div className="flex items-center gap-2">
+                          {(entry.kind === 'mcp' && builtInMcpIds.has(entry.id)) && (
+                            <button type="button" onClick={() => addBuiltInMcpToInstall(entry.id)} className="inline-flex items-center gap-2 rounded-[14px] border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-700">
+                              <PlusIcon className="h-4 w-4" />
+                              {t.addToInstallList}
+                            </button>
+                          )}
+                          <button type="button" onClick={() => void handleCopy(entry.id, entry.url)} className="inline-flex items-center gap-2 rounded-[14px] bg-slate-900 px-3 py-2 text-[13px] text-white">
+                            <Copy className="h-4 w-4" />
+                            {copiedKey === entry.id ? t.copied : t.copySource}
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </section>
+              )}
             </div>
           )}
 
@@ -1206,6 +1962,10 @@ function clientMeta(client: Client): ClientMeta {
   if (client === 'claude') return { label: 'Claude', Icon: ClaudeMark };
   if (client === 'gemini') return { label: 'Gemini', Icon: GeminiMark };
   return { label: 'Codex', Icon: CodexMark };
+}
+
+function PlusIcon({ className }: { className?: string }) {
+  return <Plus className={className} />;
 }
 
 function AppForgeMark({ className }: { className?: string }) {
@@ -1314,6 +2074,7 @@ function FoldSection({ title, hint, expanded, onToggle, children }: { title: str
 function ConfirmModal({
   title,
   hint,
+  lang,
   baseTitle,
   optionalTitle,
   emptyText,
@@ -1333,9 +2094,21 @@ function ConfirmModal({
   onToggleAllSkill,
   memoryEnabled,
   onToggleMemory,
+  installRoleLabel,
+  installStackLabel,
+  domainPackLabel,
+  domainPackHint,
+  domainRecommendedMcpLabel,
+  domainRecommendedToolsLabel,
+  domainRecommendedMcp,
+  domainRecommendedTools,
+  recommendedMcpIds,
+  recommendedSkillIds,
+  onApplyRecommended,
 }: {
   title: string;
   hint: string;
+  lang: Lang;
   baseTitle: string;
   optionalTitle: string;
   emptyText: string;
@@ -1355,16 +2128,42 @@ function ConfirmModal({
   onToggleAllSkill: () => void;
   memoryEnabled: boolean;
   onToggleMemory: () => void;
+  installRoleLabel: string;
+  installStackLabel: string;
+  domainPackLabel: string | null;
+  domainPackHint: string | null;
+  domainRecommendedMcpLabel: string;
+  domainRecommendedToolsLabel: string;
+  domainRecommendedMcp: readonly {
+    id: string;
+    label: string;
+    why: string;
+  }[];
+  domainRecommendedTools: readonly {
+    id: string;
+    label: string;
+    why: string;
+  }[];
+  recommendedMcpIds: Set<string>;
+  recommendedSkillIds: Set<string>;
+  onApplyRecommended: () => void;
 }) {
   const [expanded, setExpanded] = React.useState<{ mcp: boolean; skills: boolean; memory: boolean }>({
     mcp: false,
     skills: false,
     memory: false,
   });
+  const [skillLayerExpanded, setSkillLayerExpanded] = React.useState<Record<SkillLayer, boolean>>({
+    core: true,
+    extended: false,
+    specialized: false,
+    experimental: false,
+  });
   const selectedMcpCount = mcpItems.filter((item) => selectedMcpDetails[item.id]).length;
   const selectedSkillCount = skillItems.filter((item) => selectedSkillDetails[item.id]).length;
   const allMcpSelected = mcpItems.length > 0 && selectedMcpCount === mcpItems.length;
   const allSkillsSelected = skillItems.length > 0 && selectedSkillCount === skillItems.length;
+  const groupedSkillItems = React.useMemo(() => groupSkillsByLayer(skillItems), [skillItems]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 p-4 backdrop-blur-[2px]">
@@ -1377,6 +2176,45 @@ function ConfirmModal({
           <button type="button" onClick={onCancel} className="rounded-[10px] border border-slate-200 bg-white p-2 text-slate-500"><X className="h-4 w-4" /></button>
         </div>
         <div className="space-y-4 overflow-y-auto px-4 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-slate-200 bg-slate-50 px-3 py-3">
+            <div className="flex flex-wrap items-center gap-2 text-[12px] text-slate-600">
+              <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 font-medium text-slate-700">{t.rolePackLabel}: {installRoleLabel}</span>
+              <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 font-medium text-slate-700">{t.stackPackLabel}: {installStackLabel}</span>
+            </div>
+            <button type="button" onClick={onApplyRecommended} className="text-[12px] font-medium text-slate-700">{t.recommendedPreset}</button>
+          </div>
+          {domainPackLabel && (
+            <div className="rounded-[10px] border border-indigo-200 bg-indigo-50/60 px-3 py-3">
+              <div className="flex flex-wrap items-center gap-2 text-[12px] text-slate-600">
+                <span className="rounded-full border border-indigo-200 bg-white px-2.5 py-1 font-medium text-slate-700">{t.domainPackLabel}: {domainPackLabel}</span>
+              </div>
+              {domainPackHint && <div className="mt-2 text-[12px] text-slate-500">{domainPackHint}</div>}
+              {domainRecommendedMcp.length > 0 && (
+                <div className="mt-3">
+                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-indigo-500">{domainRecommendedMcpLabel}</div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {domainRecommendedMcp.map((entry) => (
+                      <span key={entry.id} className="rounded-full border border-indigo-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                        {entry.label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {domainRecommendedTools.length > 0 && (
+                <div className="mt-3">
+                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{domainRecommendedToolsLabel}</div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {domainRecommendedTools.map((tool) => (
+                      <span key={tool.id} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                        {tool.label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           <div>
             <div className="mb-3 text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{baseTitle}</div>
             <div className="space-y-2">
@@ -1400,12 +2238,15 @@ function ConfirmModal({
                 ) : (
                   <div className="space-y-2">
                     {mcpItems.map((item) => (
-                      <DetailCheckboxRow
-                        key={item.id}
-                        item={item}
-                        checked={Boolean(selectedMcpDetails[item.id])}
-                        onToggle={() => onToggleMcp(item.id)}
-                      />
+                                <DetailCheckboxRow
+                                  key={item.id}
+                                  item={item}
+                                  lang={lang}
+                                  checked={Boolean(selectedMcpDetails[item.id])}
+                                  recommended={recommendedMcpIds.has(item.id)}
+                                  recommendedLabel={t.recommendedBadge}
+                                  onToggle={() => onToggleMcp(item.id)}
+                                />
                     ))}
                   </div>
                 )}
@@ -1423,15 +2264,47 @@ function ConfirmModal({
                 {skillItems.length === 0 ? (
                   <div className="rounded-[8px] border border-dashed border-slate-200 bg-slate-50 px-3 py-3 text-[12px] text-slate-500">{emptyText}</div>
                 ) : (
-                  <div className="space-y-2">
-                    {skillItems.map((item) => (
-                      <DetailCheckboxRow
-                        key={item.id}
-                        item={item}
-                        checked={Boolean(selectedSkillDetails[item.id])}
-                        onToggle={() => onToggleSkill(item.id)}
-                      />
-                    ))}
+                  <div className="space-y-3">
+                    {groupedSkillItems.map((group) => {
+                      const selectedInGroup = group.items.filter((item) => selectedSkillDetails[item.id]).length;
+                      return (
+                        <div key={group.layer} className="overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50">
+                          <button
+                            type="button"
+                            onClick={() => setSkillLayerExpanded((current) => ({ ...current, [group.layer]: !current[group.layer] }))}
+                            className="flex w-full items-center justify-between gap-3 px-3 py-3 text-left"
+                          >
+                            <div>
+                              <div className="text-[13px] font-medium text-slate-900">{skillLayerLabel(group.layer, lang)}</div>
+                              <div className="mt-1 text-[11px] text-slate-500">
+                                {skillLayerHint(group.layer, lang)} · {t.selectedCount} {selectedInGroup}/{group.items.length}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 ring-1 ring-slate-200">
+                                {group.items.length}
+                              </span>
+                              {skillLayerExpanded[group.layer] ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+                            </div>
+                          </button>
+                          {skillLayerExpanded[group.layer] && (
+                            <div className="space-y-2 border-t border-slate-200 bg-white px-3 py-3">
+                              {group.items.map((item) => (
+                                <DetailCheckboxRow
+                                  key={item.id}
+                                  item={item}
+                                  lang={lang}
+                                  checked={Boolean(selectedSkillDetails[item.id])}
+                                  recommended={recommendedSkillIds.has(item.id)}
+                                  recommendedLabel={t.recommendedBadge}
+                                  onToggle={() => onToggleSkill(item.id)}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </ModalSelectGroup>
@@ -1445,6 +2318,7 @@ function ConfirmModal({
               >
                 <DetailCheckboxRow
                   item={{ id: 'memory', title: 'Memory / Learned', summary: t.memoryDetailsHint, clients: ['claude', 'codex', 'gemini'] }}
+                  lang={lang}
                   checked={memoryEnabled}
                   onToggle={onToggleMemory}
                 />
@@ -1637,20 +2511,37 @@ function OptionalInstallGroup({
 
 function DetailCheckboxRow({
   item,
+  lang,
   checked,
   disabled,
+  recommended,
+  recommendedLabel,
   onToggle,
 }: {
   item: DetailOption;
+  lang: Lang;
   checked: boolean;
   disabled?: boolean;
+  recommended?: boolean;
+  recommendedLabel?: string;
   onToggle: () => void;
 }) {
   return (
     <label className={`flex items-start justify-between gap-3 rounded-[8px] border px-3 py-3 ${disabled ? 'border-slate-100 bg-slate-50 opacity-60' : 'border-slate-200 bg-slate-50'}`}>
       <div className="min-w-0 flex-1">
-        <div className="text-[13px] font-medium text-slate-900">{item.title}</div>
+        <div className="flex items-center gap-2">
+          <div className="text-[13px] font-medium text-slate-900">{item.title}</div>
+          {recommended && recommendedLabel && (
+            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-emerald-200">{recommendedLabel}</span>
+          )}
+          {item.clusterRole && (
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ${skillClusterRoleTint(item.clusterRole)}`}>
+              {skillClusterRoleLabel(item.clusterRole, lang)}
+            </span>
+          )}
+        </div>
         <div className="mt-1 text-[12px] text-slate-500">{item.summary}</div>
+        {skillSupportHint(item) && <div className="mt-1 text-[11px] text-slate-400">{skillSupportHint(item)}</div>}
         {item.note && <div className="mt-1 text-[11px] text-slate-400">{item.note}</div>}
       </div>
       <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-slate-900" checked={checked} disabled={disabled} onChange={onToggle} />

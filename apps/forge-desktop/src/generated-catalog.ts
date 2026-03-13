@@ -2,32 +2,70 @@ export const forgeSkillOptions = [
   {
     "id": "aesthetic",
     "title": "aesthetic",
-    "summary": "Create aesthetically beautiful interfaces following proven design principles. Use when building UI/UX, analyzing designs from inspiration sites, generating design images with ai-multimodal, implementing visual hierarchy ",
+    "summary": "Create aesthetically beautiful interfaces following proven design principles. Use when building UI/UX, analyzing designs from inspiration sites, generating design images with ai-multimodal, implementing visual hierarchy and color theory, ad",
     "clients": [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "core",
+    "primaryFor": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByRole": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design",
+      "video-creation",
+      "image-generation"
+    ],
+    "overlapGroup": "ui",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "默认用于视觉层级、审美判断、设计质量提升，并与 frontend-design 组成 UI 主组合。",
+      "需要做 inspiration analysis、aesthetic review 或视觉 refinement 时。"
     ]
   },
   {
     "id": "ai-multimodal",
     "title": "ai-multimodal",
-    "summary": "Process and generate multimedia content using Google Gemini API. Capabilities include analyze audio files (transcription with timestamps, summarization, speech understanding, music/sound analysis up to 9.5 hours), unders",
+    "summary": "Process and generate multimedia content using Google Gemini API. Capabilities include analyze audio files (transcription with timestamps, summarization, speech understanding, music/sound analysis up to 9.5 hours), understand images (caption",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "video-creation",
+      "image-generation"
+    ],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "algorithmic-art",
     "title": "algorithmic-art",
-    "summary": "Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. Use this when users request creating art using code, generative art, algorithmic art, flow fields, or particle systems. C",
+    "summary": "Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. Use this when users request creating art using code, generative art, algorithmic art, flow fields, or particle systems. Create original algor",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "api-design",
@@ -37,27 +75,60 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "artifacts-builder",
     "title": "artifacts-builder",
-    "summary": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or s",
+    "summary": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components ",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "backend-development",
     "title": "backend-development",
-    "summary": "Build robust backend systems with modern technologies (Node.js, Python, Go, Rust), frameworks (NestJS, FastAPI, Django), databases (PostgreSQL, MongoDB, Redis), APIs (REST, GraphQL, gRPC), authentication (OAuth 2.1, JWT)",
+    "summary": "Build robust backend systems with modern technologies (Node.js, Python, Go, Rust), frameworks (NestJS, FastAPI, Django), databases (PostgreSQL, MongoDB, Redis), APIs (REST, GraphQL, gRPC), authentication (OAuth 2.1, JWT), testing strategies",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "core",
+    "primaryFor": [
+      "developer",
+      "solution-architect"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "solution-architect"
+    ],
+    "recommendedByStack": [
+      "java",
+      "python",
+      "architecture",
+      "ecommerce",
+      "workflow-automation"
+    ],
+    "overlapGroup": "backend",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "backend-patterns",
@@ -67,17 +138,40 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "better-auth",
     "title": "better-auth",
-    "summary": "Implement authentication and authorization with Better Auth - a framework-agnostic TypeScript authentication framework. Features include email/password authentication with verification, OAuth providers (Google, GitHub, D",
+    "summary": "Implement authentication and authorization with Better Auth - a framework-agnostic TypeScript authentication framework. Features include email/password authentication with verification, OAuth providers (Google, GitHub, Discord, etc.), two-f",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python",
+      "ecommerce"
+    ],
+    "overlapGroup": "auth",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "brainstorming",
@@ -87,67 +181,201 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "core",
+    "primaryFor": [
+      "developer",
+      "product-manager",
+      "solution-architect"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "product-manager",
+      "solution-architect"
+    ],
+    "recommendedByStack": [
+      "product",
+      "architecture",
+      "release",
+      "ecommerce",
+      "video-creation",
+      "image-generation",
+      "workflow-automation"
+    ],
+    "overlapGroup": "planning",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "默认用于前置问题建模、需求拆解、范围澄清和进入实现前的思考主流程。",
+      "需要决定是否进一步进入 writing-plans、planner agent 或其它执行路径时。"
     ]
   },
   {
     "id": "brand-guidelines",
     "title": "brand-guidelines",
-    "summary": "Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit from having Anthropic's look-and-feel. Use it when brand colors or style guidelines, visual formatting, or company design ",
+    "summary": "Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit from having Anthropic's look-and-feel. Use it when brand colors or style guidelines, visual formatting, or company design standards apply.",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "browser",
     "title": "browser",
-    "summary": "This skill should be used for browser automation tasks using Chrome DevTools Protocol (CDP). Triggers when users need to launch Chrome with remote debugging, navigate pages, execute JavaScript in browser context, capture",
+    "summary": "This skill should be used for browser automation tasks using Chrome DevTools Protocol (CDP). Triggers when users need to launch Chrome with remote debugging, navigate pages, execute JavaScript in browser context, capture screenshots, or int",
     "clients": [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "ui-designer"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "ui-designer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design"
+    ],
+    "overlapGroup": "browser-automation",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要直接附着或控制 CDP / remote debugging",
+      "需要在页面上下文里执行临时 JavaScript",
+      "需要轻量脚本式浏览器操作，而不是完整用户流程"
+    ]
+  },
+  {
+    "id": "browser-use",
+    "title": "browser-use",
+    "summary": "Automates browser interactions for web testing, form filling, screenshots, and data extraction. Use when the user needs to navigate websites, interact with web pages, fill forms, take screenshots, or extract information from web pages.",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "core",
+    "primaryFor": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByRole": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design",
+      "ecommerce",
+      "workflow-automation"
+    ],
+    "overlapGroup": "browser-automation",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "需要真实浏览器、真实 profile、cookies、cache、登录态",
+      "需要表单填写、页面流程验证、截图、信息提取",
+      "需要更接近真实用户路径的浏览器自动化"
     ]
   },
   {
     "id": "canvas-design",
     "title": "canvas-design",
-    "summary": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs",
+    "summary": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying exis",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "image-generation"
+    ],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "changelog-generator",
     "title": "changelog-generator",
-    "summary": "Automatically creates user-facing changelogs from git commits by analyzing commit history, categorizing changes, and transforming technical commits into clear, customer-friendly release notes. Turns hours of manual chang",
+    "summary": "Automatically creates user-facing changelogs from git commits by analyzing commit history, categorizing changes, and transforming technical commits into clear, customer-friendly release notes. Turns hours of manual changelog writing into mi",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "release-devex"
+    ],
+    "recommendedByRole": [
+      "release-devex"
+    ],
+    "recommendedByStack": [
+      "release"
+    ],
+    "overlapGroup": "release",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "chrome-devtools",
     "title": "chrome-devtools",
-    "summary": "Browser automation, debugging, and performance analysis using Puppeteer CLI scripts. Use for automating browsers, taking screenshots, analyzing performance, monitoring network traffic, web scraping, form automation, and ",
+    "summary": "Browser automation, debugging, and performance analysis using Puppeteer CLI scripts. Use for automating browsers, taking screenshots, analyzing performance, monitoring network traffic, web scraping, form automation, and JavaScript debugging",
     "clients": [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "ui-designer"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "ui-designer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design"
+    ],
+    "overlapGroup": "browser-automation",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要 network / performance / console / DOM 调试",
+      "需要更接近 DevTools 面板能力的排查",
+      "需要对页面加载、请求、性能问题做低层分析"
     ]
   },
   {
     "id": "claude-code",
     "title": "claude-code",
-    "summary": "Forge installable skill.",
+    "summary": "Claude Code is Anthropic's agentic coding tool that lives in the terminal and helps turn ideas into code faster. It combines autonomous planning, execution, and validation with extensibility through skills, plugins, MCP servers, and hooks.",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "clickhouse-io",
@@ -157,16 +385,47 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "code-review",
     "title": "code-review",
-    "summary": "Use when receiving code review feedback (especially if unclear or technically questionable), when completing tasks or major features requiring review before proceeding, or before making any completion/success claims. Cov",
+    "summary": "Use when receiving code review feedback (especially if unclear or technically questionable), when completing tasks or major features requiring review before proceeding, or before making any completion/success claims. Covers three practices ",
     "clients": [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "core",
+    "primaryFor": [
+      "developer",
+      "qa-strategist",
+      "release-devex"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "qa-strategist",
+      "release-devex"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python",
+      "qa",
+      "release"
+    ],
+    "overlapGroup": "review",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "默认用于代码审查、完成前复核、提交前确认以及处理 review 语义主流程。",
+      "需要统一调度 code-reviewer agent、自审和 verification 规则时。"
     ]
   },
   {
@@ -177,7 +436,31 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "collision-zone-thinking",
+    "title": "Collision-Zone Thinking",
+    "summary": "Force unrelated concepts together to discover emergent properties - \"What if we treated X like Y?",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "configure-ecc",
@@ -187,7 +470,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "content-hash-cache-pattern",
@@ -197,17 +487,38 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "context-engineering",
     "title": "context-engineering",
-    "summary": "Forge installable skill.",
+    "summary": ">-",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "solution-architect"
+    ],
+    "recommendedByRole": [
+      "solution-architect"
+    ],
+    "recommendedByStack": [
+      "architecture",
+      "workflow-automation"
+    ],
+    "overlapGroup": "agent-design",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "context7",
@@ -217,7 +528,27 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "solution-architect",
+      "developer",
+      "release-devex"
+    ],
+    "recommendedByRole": [
+      "solution-architect",
+      "developer",
+      "release-devex"
+    ],
+    "recommendedByStack": [
+      "architecture",
+      "release",
+      "java",
+      "python"
+    ],
+    "overlapGroup": "docs-research",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "continuous-learning",
@@ -227,6 +558,24 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python"
+    ],
+    "overlapGroup": "learning",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要在 session 结束后快速提取可复用模式，而不是做完整的 problem-solution 复盘时。",
+      "需要沿用 legacy end-of-session learning 流程补充 observation 时。"
     ]
   },
   {
@@ -237,6 +586,24 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python"
+    ],
+    "overlapGroup": "learning",
+    "clusterRole": "support",
+    "supportWhen": [
+      "重点是 hooks / observation / instinct 候选采集，而不是用户可见的学习主流程时。",
+      "需要补充行为层自动观察与 session instrumentation 时。"
     ]
   },
   {
@@ -247,7 +614,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "cpp-coding-standards",
@@ -257,7 +631,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "cpp-testing",
@@ -267,7 +648,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "database-migrations",
@@ -277,27 +665,31 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "databases",
     "title": "databases",
-    "summary": "Work with MongoDB (document database, BSON documents, aggregation pipelines, Atlas cloud) and PostgreSQL (relational database, SQL queries, psql CLI, pgAdmin). Use when designing database schemas, writing queries and agg",
+    "summary": "Work with MongoDB (document database, BSON documents, aggregation pipelines, Atlas cloud) and PostgreSQL (relational database, SQL queries, psql CLI, pgAdmin). Use when designing database schemas, writing queries and aggregations, optimizin",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
-  },
-  {
-    "id": "debugging",
-    "title": "debugging",
-    "summary": "Forge installable skill.",
-    "clients": [
-      "claude",
-      "codex",
-      "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "deployment-patterns",
@@ -307,17 +699,40 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "devops",
     "title": "devops",
-    "summary": "Deploy and manage cloud infrastructure on Cloudflare (Workers, R2, D1, KV, Pages, Durable Objects, Browser Rendering), Docker containers, and Google Cloud Platform (Compute Engine, GKE, Cloud Run, App Engine, Cloud Stora",
+    "summary": "Deploy and manage cloud infrastructure on Cloudflare (Workers, R2, D1, KV, Pages, Durable Objects, Browser Rendering), Docker containers, and Google Cloud Platform (Compute Engine, GKE, Cloud Run, App Engine, Cloud Storage). Use when deploy",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "core",
+    "primaryFor": [
+      "release-devex",
+      "developer"
+    ],
+    "recommendedByRole": [
+      "release-devex",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "release",
+      "workflow-automation"
+    ],
+    "overlapGroup": "release",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "dispatching-parallel-agents",
@@ -327,7 +742,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "django-patterns",
@@ -337,7 +759,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "django-security",
@@ -347,7 +776,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "django-tdd",
@@ -357,6 +793,20 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "python",
+      "qa"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "support",
+    "supportWhen": [
+      "任务明确落在 Django 上下文，需要使用 pytest-django 或 Django/DRF 专用测试模式时。"
     ]
   },
   {
@@ -367,17 +817,42 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "doc-coauthoring",
     "title": "doc-coauthoring",
-    "summary": "Guide users through a structured workflow for co-authoring documentation. Use when user wants to write documentation, proposals, technical specs, decision docs, or similar structured content. This workflow helps users ef",
+    "summary": "Guide users through a structured workflow for co-authoring documentation. Use when user wants to write documentation, proposals, technical specs, decision docs, or similar structured content. This workflow helps users efficiently transfer c",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "core",
+    "primaryFor": [
+      "product-manager",
+      "developer"
+    ],
+    "recommendedByRole": [
+      "product-manager",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "product",
+      "release",
+      "video-creation",
+      "image-generation"
+    ],
+    "overlapGroup": "documentation",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "docker-patterns",
@@ -387,37 +862,57 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "docs-seeker",
     "title": "docs-seeker",
-    "summary": "Searching internet for technical documentation using llms.txt standard, GitHub repositories via Repomix, and parallel exploration. Use when user needs: (1) Latest documentation for libraries/frameworks, (2) Documentation",
+    "summary": "Searching internet for technical documentation using llms.txt standard, GitHub repositories via Repomix, and parallel exploration. Use when user needs: (1) Latest documentation for libraries/frameworks, (2) Documentation in llms.txt format,",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
-  },
-  {
-    "id": "document-skills",
-    "title": "document-skills",
-    "summary": "Forge installable skill.",
-    "clients": [
-      "claude",
-      "codex",
-      "gemini"
-    ]
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "solution-architect",
+      "product-manager"
+    ],
+    "recommendedByRole": [
+      "solution-architect",
+      "product-manager"
+    ],
+    "recommendedByStack": [
+      "product",
+      "architecture"
+    ],
+    "overlapGroup": "docs-research",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "docx",
     "title": "docx",
-    "summary": "Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx files). Triggers include: any mention of 'Word doc', 'word document', '.docx', or requests to produce professional documen",
+    "summary": "Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx files). Triggers include: any mention of 'Word doc', 'word document', '.docx', or requests to produce professional documents with formatting l",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "e2e-testing",
@@ -427,7 +922,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "eval-harness",
@@ -437,7 +939,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "executing-plans",
@@ -447,17 +956,31 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "find-skills",
     "title": "find-skills",
-    "summary": "Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities. This skill should be used w",
+    "summary": "Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities. This skill should be used when the user is look",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "finishing-a-development-branch",
@@ -467,7 +990,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "foundation-models-on-device",
@@ -477,27 +1007,61 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "frontend-design",
     "title": "frontend-design",
-    "summary": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples include websites, landing",
+    "summary": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples include websites, landing pages, dashboards, ",
     "clients": [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "core",
+    "primaryFor": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByRole": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design",
+      "ecommerce"
+    ],
+    "overlapGroup": "ui",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "默认用于页面、组件、应用界面的真实实现，是 UI 执行路径的主入口之一。",
+      "需要产出 production-grade 可运行界面时。"
     ]
   },
   {
     "id": "frontend-development",
-    "title": "frontend-development",
-    "summary": "Frontend development guidelines for React/TypeScript applications. Modern patterns including Suspense, lazy loading, useSuspenseQuery, file organization with features directory, MUI v7 styling, TanStack Router, performan",
+    "title": "frontend-dev-guidelines",
+    "summary": "Frontend development guidelines for React/TypeScript applications. Modern patterns including Suspense, lazy loading, useSuspenseQuery, file organization with features directory, MUI v7 styling, TanStack Router, performance optimization, and",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "frontend-patterns",
@@ -507,7 +1071,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "golang-patterns",
@@ -517,7 +1088,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "golang-testing",
@@ -527,27 +1105,80 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "qa"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "support",
+    "supportWhen": [
+      "任务明确落在 Go 上下文，需要 table-driven tests、benchmarks、fuzzing 等 Go testing 模式时。"
     ]
   },
   {
     "id": "google-adk-python",
     "title": "google-adk-python",
-    "summary": "Forge installable skill.",
+    "summary": "You are an expert guide for Google's Agent Development Kit (ADK) Python - an open-source, code-first toolkit for building, evaluating, and deploying AI agents.",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "internal-comms",
     "title": "internal-comms",
-    "summary": "A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Claude should use this skill whenever asked to write some sort of internal communications (status ",
+    "summary": "A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Claude should use this skill whenever asked to write some sort of internal communications (status reports, leadership ",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "product-manager"
+    ],
+    "recommendedByRole": [
+      "product-manager"
+    ],
+    "recommendedByStack": [
+      "product",
+      "release",
+      "ecommerce",
+      "video-creation"
+    ],
+    "overlapGroup": "communication",
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "inversion-exercise",
+    "title": "Inversion Exercise",
+    "summary": "Flip core assumptions to reveal hidden constraints and alternative approaches - \"what if the opposite were true?",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "iterative-retrieval",
@@ -557,7 +1188,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "java-coding-standards",
@@ -567,7 +1205,18 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "java"
+    ],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "jpa-patterns",
@@ -577,7 +1226,18 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "java"
+    ],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "liquid-glass-design",
@@ -587,47 +1247,124 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "mcp-builder",
     "title": "mcp-builder",
-    "summary": "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, ",
+    "summary": "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, whether in Python (F",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "architecture",
+      "release",
+      "workflow-automation"
+    ],
+    "overlapGroup": "mcp",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "mcp-management",
     "title": "mcp-management",
-    "summary": "Manage Model Context Protocol (MCP) servers - discover, analyze, and execute tools/prompts/resources from configured MCP servers. Use when working with MCP integrations, need to discover available MCP capabilities, filte",
+    "summary": "Manage Model Context Protocol (MCP) servers - discover, analyze, and execute tools/prompts/resources from configured MCP servers. Use when working with MCP integrations, need to discover available MCP capabilities, filter MCP tools for spec",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "core",
+    "primaryFor": [
+      "product-manager",
+      "developer",
+      "ui-designer"
+    ],
+    "recommendedByRole": [
+      "product-manager",
+      "developer",
+      "ui-designer"
+    ],
+    "recommendedByStack": [
+      "product",
+      "design",
+      "release",
+      "ecommerce",
+      "workflow-automation"
+    ],
+    "overlapGroup": "mcp",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "media-processing",
     "title": "media-processing",
-    "summary": "Process multimedia files with FFmpeg (video/audio encoding, conversion, streaming, filtering, hardware acceleration) and ImageMagick (image manipulation, format conversion, batch processing, effects, composition). Use wh",
+    "summary": "Process multimedia files with FFmpeg (video/audio encoding, conversion, streaming, filtering, hardware acceleration) and ImageMagick (image manipulation, format conversion, batch processing, effects, composition). Use when converting media ",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "video-creation",
+      "image-generation"
+    ],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "mermaidjs-v11",
     "title": "mermaidjs-v11",
-    "summary": "Create diagrams and visualizations using Mermaid.js v11 syntax. Use when generating flowcharts, sequence diagrams, class diagrams, state diagrams, ER diagrams, Gantt charts, user journeys, timelines, architecture diagram",
+    "summary": "Create diagrams and visualizations using Mermaid.js v11 syntax. Use when generating flowcharts, sequence diagrams, class diagrams, state diagrams, ER diagrams, Gantt charts, user journeys, timelines, architecture diagrams, or any of 24+ dia",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "meta-pattern-recognition",
+    "title": "Meta-Pattern Recognition",
+    "summary": "Spot patterns appearing in 3+ domains to find universal principles",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "nutrient-document-processing",
@@ -637,27 +1374,31 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
-  },
-  {
-    "id": "obsidian-skills",
-    "title": "obsidian-skills",
-    "summary": "Forge installable skill.",
-    "clients": [
-      "claude",
-      "codex",
-      "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "pdf",
     "title": "pdf",
-    "summary": "Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding w",
+    "summary": "Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating ",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "postgres-patterns",
@@ -667,27 +1408,31 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "pptx",
     "title": "pptx",
-    "summary": "Use this skill any time a .pptx file is involved in any way — as input, output, or both. This includes: creating slide decks, pitch decks, or presentations; reading, parsing, or extracting text from any .pptx file (even ",
+    "summary": "Use this skill any time a .pptx file is involved in any way — as input, output, or both. This includes: creating slide decks, pitch decks, or presentations; reading, parsing, or extracting text from any .pptx file (even if the extracted con",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
-  },
-  {
-    "id": "problem-solving",
-    "title": "problem-solving",
-    "summary": "Forge installable skill.",
-    "clients": [
-      "claude",
-      "codex",
-      "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "project-guidelines-example",
@@ -697,7 +1442,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "python-patterns",
@@ -707,7 +1459,18 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "python"
+    ],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "python-testing",
@@ -717,16 +1480,47 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "python",
+      "qa"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "support",
+    "supportWhen": [
+      "任务明确落在 Python 上下文，需要 pytest、fixtures、mocking、coverage 等 Python testing 模式时。"
     ]
   },
   {
     "id": "receiving-code-review",
     "title": "receiving-code-review",
-    "summary": "Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind ",
+    "summary": "Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation",
     "clients": [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python"
+    ],
+    "overlapGroup": "review",
+    "clusterRole": "support",
+    "supportWhen": [
+      "重点是处理 review feedback、判断反馈是否成立、避免机械接受建议时。"
     ]
   },
   {
@@ -737,17 +1531,31 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "repomix",
     "title": "repomix",
-    "summary": "Package entire code repositories into single AI-friendly files using Repomix. Capabilities include pack codebases with customizable include/exclude patterns, generate multiple output formats (XML, Markdown, plain text), ",
+    "summary": "Package entire code repositories into single AI-friendly files using Repomix. Capabilities include pack codebases with customizable include/exclude patterns, generate multiple output formats (XML, Markdown, plain text), preserve file struct",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "requesting-code-review",
@@ -757,7 +1565,41 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python"
+    ],
+    "overlapGroup": "review",
+    "clusterRole": "support",
+    "supportWhen": [
+      "重点是组织 review 输入、准备 diff、调用 code-reviewer agent 等发起 review 的子流程时。"
     ]
+  },
+  {
+    "id": "scale-game",
+    "title": "Scale Game",
+    "summary": "Test at extremes (1000x bigger/smaller, instant/year-long) to expose fundamental truths hidden at normal scales",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "search-first",
@@ -767,7 +1609,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "security-review",
@@ -777,7 +1626,26 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "core",
+    "primaryFor": [
+      "developer",
+      "release-devex"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "release-devex"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python",
+      "release",
+      "ecommerce"
+    ],
+    "overlapGroup": "security",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "security-scan",
@@ -787,57 +1655,135 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "self-improving-agent",
+    "title": "self-improving-agent",
+    "summary": "A universal self-improving agent that learns from skill experiences and enriches Forge's shared memory system. Uses semantic, episodic, and working-memory concepts as analysis tools, but durable output should land in Forge memory, problem-s",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "core",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python"
+    ],
+    "overlapGroup": "learning",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "默认用于学习、复盘、沉淀经验以及决定是否升级到 instinct、learned skill、role-pack 或 stack-pack。",
+      "需要把 durable output 写回 Forge 统一 memory targets 时。"
     ]
   },
   {
     "id": "sequential-thinking",
     "title": "sequential-thinking",
-    "summary": "Use when complex problems require systematic step-by-step reasoning with ability to revise thoughts, branch into alternative approaches, or dynamically adjust scope. Ideal for multi-stage analysis, design planning, probl",
+    "summary": "Use when complex problems require systematic step-by-step reasoning with ability to revise thoughts, branch into alternative approaches, or dynamically adjust scope. Ideal for multi-stage analysis, design planning, problem decomposition, or",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "shopify",
     "title": "shopify",
-    "summary": "Build Shopify applications, extensions, and themes using GraphQL/REST APIs, Shopify CLI, Polaris UI components, and Liquid templating. Capabilities include app development with OAuth authentication, checkout UI extension",
+    "summary": "Build Shopify applications, extensions, and themes using GraphQL/REST APIs, Shopify CLI, Polaris UI components, and Liquid templating. Capabilities include app development with OAuth authentication, checkout UI extensions for customizing ch",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "ecommerce"
+    ],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "simplification-cascades",
+    "title": "Simplification Cascades",
+    "summary": "Find one insight that eliminates multiple components - \"if this is true, we don't need X, Y, or Z",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "skill-creator",
     "title": "skill-creator",
-    "summary": "Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, update or optimize an existing skill, run evals to test a skill, benchmark skill p",
+    "summary": "Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, update or optimize an existing skill, run evals to test a skill, benchmark skill performance with vari",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
-  },
-  {
-    "id": "skill-prompt-generator",
-    "title": "skill-prompt-generator",
-    "summary": "Forge installable skill.",
-    "clients": [
-      "claude",
-      "codex",
-      "gemini"
-    ]
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "architecture"
+    ],
+    "overlapGroup": "skill-authoring",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "slack-gif-creator",
     "title": "slack-gif-creator",
-    "summary": "Knowledge and utilities for creating animated GIFs optimized for Slack. Provides constraints, validation tools, and animation concepts. Use when users request animated GIFs for Slack like \"make me a GIF of X doing Y for ",
+    "summary": "Knowledge and utilities for creating animated GIFs optimized for Slack. Provides constraints, validation tools, and animation concepts. Use when users request animated GIFs for Slack like \"make me a GIF of X doing Y for Slack.",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "springboot-patterns",
@@ -847,7 +1793,18 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "java"
+    ],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "springboot-security",
@@ -857,7 +1814,18 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "java"
+    ],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "springboot-tdd",
@@ -867,6 +1835,20 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "java",
+      "qa"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "support",
+    "supportWhen": [
+      "任务明确落在 Spring Boot 上下文，需要 JUnit、Mockito、MockMvc、Testcontainers 等 Java testing 模式时。"
     ]
   },
   {
@@ -877,7 +1859,19 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "java",
+      "release"
+    ],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "strategic-compact",
@@ -887,7 +1881,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "subagent-driven-development",
@@ -897,17 +1898,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
-  },
-  {
-    "id": "superpowers",
-    "title": "superpowers",
-    "summary": "Forge installable skill.",
-    "clients": [
-      "claude",
-      "codex",
-      "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "swift-actor-persistence",
@@ -917,7 +1915,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "swift-concurrency-6-2",
@@ -927,7 +1932,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "swift-protocol-di-testing",
@@ -937,7 +1949,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "swiftui-patterns",
@@ -947,7 +1966,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "systematic-debugging",
@@ -957,7 +1983,46 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "core",
+    "primaryFor": [
+      "developer",
+      "qa-strategist",
+      "release-devex"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "qa-strategist",
+      "release-devex"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python",
+      "qa",
+      "release",
+      "workflow-automation"
+    ],
+    "overlapGroup": "debugging",
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "systematic-debugging-sp",
+    "title": "systematic-debugging",
+    "summary": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "tdd-workflow",
@@ -967,6 +2032,27 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "core",
+    "primaryFor": [
+      "developer",
+      "qa-strategist"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "qa-strategist"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python",
+      "qa"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "默认用于测试驱动开发、先写测试再实现以及统一 testing 主流程。",
+      "需要把 developer 与 qa-strategist 的测试路径收敛到同一入口时。"
     ]
   },
   {
@@ -977,7 +2063,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "test-driven-development",
@@ -987,36 +2080,95 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "qa-strategist"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "qa-strategist"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python",
+      "qa"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要强调严格的 TDD 方法论或沿用既有 test-driven-development skill 语义时。"
     ]
   },
   {
     "id": "theme-factory",
     "title": "theme-factory",
-    "summary": "Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, reportings, HTML landing pages, etc. There are 10 pre-set themes with colors/fonts that you can apply to any artifact that has been creatin",
+    "summary": "Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, reportings, HTML landing pages, etc. There are 10 pre-set themes with colors/fonts that you can apply to any artifact that has been creating, or can generate a",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "ui-styling",
     "title": "ui-styling",
-    "summary": "Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing ",
+    "summary": "Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, crea",
     "clients": [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByRole": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design"
+    ],
+    "overlapGroup": "ui",
+    "clusterRole": "support",
+    "supportWhen": [
+      "重点是样式系统、组件库、Tailwind/shadcn/ui 落地，而不是 UI 主路径设计时。"
     ]
   },
   {
     "id": "ui-ux-pro-max",
     "title": "ui-ux-pro-max",
-    "summary": "UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 9 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui). Actions: plan, build, create, design, implement",
+    "summary": "UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 9 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui). Actions: plan, build, create, design, implement, review, fix, impro",
     "clients": [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "experimental",
+    "primaryFor": [
+      "ui-designer"
+    ],
+    "recommendedByRole": [],
+    "recommendedByStack": [
+      "design",
+      "image-generation"
+    ],
+    "overlapGroup": "ui",
+    "clusterRole": "experimental",
+    "supportWhen": [
+      "明确需要大量风格探索、参考枚举或实验性 UI/UX 工作流时。"
     ]
   },
   {
@@ -1027,7 +2179,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "using-superpowers",
@@ -1037,27 +2196,48 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "vercel-react-best-practices",
     "title": "vercel-react-best-practices",
-    "summary": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on task",
+    "summary": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React co",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "verification-before-completion",
     "title": "verification-before-completion",
-    "summary": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions a",
+    "summary": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "verification-loop",
@@ -1067,7 +2247,14 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "visa-doc-translate",
@@ -1077,17 +2264,31 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "web-artifacts-builder",
     "title": "web-artifacts-builder",
-    "summary": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or s",
+    "summary": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components ",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "web-design-guidelines",
@@ -1097,17 +2298,49 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByRole": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design",
+      "qa"
+    ],
+    "overlapGroup": "ui",
+    "clusterRole": "support",
+    "supportWhen": [
+      "重点是 UI 规范检查、可访问性审查、UX audit，而不是默认生成新界面时。"
     ]
   },
   {
     "id": "web-frameworks",
     "title": "web-frameworks",
-    "summary": "Build modern full-stack web applications with Next.js (App Router, Server Components, RSC, PPR, SSR, SSG, ISR), Turborepo (monorepo management, task pipelines, remote caching, parallel execution), and RemixIcon (3100+ SV",
+    "summary": "Build modern full-stack web applications with Next.js (App Router, Server Components, RSC, PPR, SSR, SSG, ISR), Turborepo (monorepo management, task pipelines, remote caching, parallel execution), and RemixIcon (3100+ SVG icons in outlined/",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend"
+    ],
+    "overlapGroup": "frontend-frameworks",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "webapp-testing",
@@ -1117,7 +2350,43 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "qa-strategist",
+      "developer"
+    ],
+    "recommendedByRole": [
+      "qa-strategist",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "qa",
+      "ecommerce"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "support",
+    "supportWhen": [
+      "重点是 Web UI、browser、E2E 或用户流程验证，而不是 testing 主路由时。"
     ]
+  },
+  {
+    "id": "when-stuck",
+    "title": "When Stuck - Problem-Solving Dispatch",
+    "summary": "Dispatch to the right problem-solving technique based on how you're stuck",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "writing-plans",
@@ -1127,6 +2396,29 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "product-manager",
+      "solution-architect"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "product-manager",
+      "solution-architect"
+    ],
+    "recommendedByStack": [
+      "product",
+      "architecture",
+      "release",
+      "workflow-automation"
+    ],
+    "overlapGroup": "planning",
+    "clusterRole": "support",
+    "supportWhen": [
+      "问题已经澄清，需要把结论写成多步骤、可执行、可验证的 implementation plan 时。",
+      "需要承接 brainstorming 的输出，而不是替代前置思考时。"
     ]
   },
   {
@@ -1137,16 +2429,36 @@ export const forgeSkillOptions = [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByRole": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "architecture"
+    ],
+    "overlapGroup": "skill-authoring",
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "xlsx",
     "title": "xlsx",
-    "summary": "Use this skill any time a spreadsheet file is the primary input or output. This means any task where the user wants to: open, read, edit, or fix an existing .xlsx, .xlsm, .csv, or .tsv file (e.g., adding columns, computi",
+    "summary": "Use this skill any time a spreadsheet file is the primary input or output. This means any task where the user wants to: open, read, edit, or fix an existing .xlsx, .xlsm, .csv, or .tsv file (e.g., adding columns, computing formulas, formatt",
     "clients": [
       "claude",
       "codex",
       "gemini"
-    ]
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   }
 ] as const;
