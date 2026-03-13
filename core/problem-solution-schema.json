@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1.0",
+  "description": "Canonical Forge problem-solution memory record for Claude, Codex, and Gemini.",
+  "required": [
+    "schemaVersion",
+    "createdAt",
+    "workspaceSlug",
+    "sessionId",
+    "source",
+    "status",
+    "problem",
+    "rootCause",
+    "chosenFix",
+    "verification",
+    "reuseTags",
+    "upgradeTarget"
+  ],
+  "fields": {
+    "schemaVersion": "Schema version string.",
+    "createdAt": "ISO 8601 creation timestamp.",
+    "workspaceSlug": "Normalized workspace identifier.",
+    "sessionId": "Short session identifier or equivalent local id.",
+    "source": "Origin of the record, for example forge-hooks or codex-learning.",
+    "status": "scaffold | reviewed | promoted",
+    "transcriptPath": "Optional source transcript path.",
+    "userMessageCount": "Optional count of user messages seen in the source session.",
+    "problem": "Human-readable problem statement.",
+    "rootCause": "Identified technical or process root cause.",
+    "chosenFix": "Selected fix or mitigation.",
+    "verification": "Evidence or checks proving the fix.",
+    "reuseTags": "Array of reusable keywords.",
+    "upgradeTarget": "memory | instinct | learned-skill | role-pack | stack-pack",
+    "candidateSkillIds": "Optional list of skills likely involved.",
+    "candidateRolePacks": "Optional list of related role-packs.",
+    "candidateStackPacks": "Optional list of related stack-packs."
+  }
+}

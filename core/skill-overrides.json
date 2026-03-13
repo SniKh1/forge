@@ -1,0 +1,723 @@
+{
+  "aesthetic": {
+    "layer": "core",
+    "primaryFor": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design",
+      "video-creation",
+      "image-generation"
+    ],
+    "overlapGroup": "ui",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "默认用于视觉层级、审美判断、设计质量提升，并与 frontend-design 组成 UI 主组合。",
+      "需要做 inspiration analysis、aesthetic review 或视觉 refinement 时。"
+    ],
+    "preferred": true
+  },
+  "backend-development": {
+    "layer": "core",
+    "primaryFor": [
+      "developer",
+      "solution-architect"
+    ],
+    "recommendedByStack": [
+      "java",
+      "python",
+      "architecture",
+      "ecommerce",
+      "workflow-automation"
+    ],
+    "overlapGroup": "backend",
+    "preferred": true
+  },
+  "better-auth": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python",
+      "ecommerce"
+    ],
+    "overlapGroup": "auth",
+    "preferred": true
+  },
+  "brainstorming": {
+    "layer": "core",
+    "primaryFor": [
+      "developer",
+      "product-manager",
+      "solution-architect"
+    ],
+    "recommendedByStack": [
+      "product",
+      "architecture",
+      "release",
+      "ecommerce",
+      "video-creation",
+      "image-generation",
+      "workflow-automation"
+    ],
+    "overlapGroup": "planning",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "默认用于前置问题建模、需求拆解、范围澄清和进入实现前的思考主流程。",
+      "需要决定是否进一步进入 writing-plans、planner agent 或其它执行路径时。"
+    ],
+    "preferred": true
+  },
+  "browser": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "ui-designer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design"
+    ],
+    "overlapGroup": "browser-automation",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要直接附着或控制 CDP / remote debugging",
+      "需要在页面上下文里执行临时 JavaScript",
+      "需要轻量脚本式浏览器操作，而不是完整用户流程"
+    ],
+    "preferred": false
+  },
+  "browser-use": {
+    "layer": "core",
+    "primaryFor": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design",
+      "ecommerce",
+      "workflow-automation"
+    ],
+    "overlapGroup": "browser-automation",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "需要真实浏览器、真实 profile、cookies、cache、登录态",
+      "需要表单填写、页面流程验证、截图、信息提取",
+      "需要更接近真实用户路径的浏览器自动化"
+    ],
+    "preferred": true
+  },
+  "chrome-devtools": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "ui-designer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design"
+    ],
+    "overlapGroup": "browser-automation",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要 network / performance / console / DOM 调试",
+      "需要更接近 DevTools 面板能力的排查",
+      "需要对页面加载、请求、性能问题做低层分析"
+    ],
+    "preferred": false
+  },
+  "changelog-generator": {
+    "layer": "extended",
+    "primaryFor": [
+      "release-devex"
+    ],
+    "recommendedByStack": [
+      "release"
+    ],
+    "overlapGroup": "release"
+  },
+  "code-review": {
+    "layer": "core",
+    "primaryFor": [
+      "developer",
+      "qa-strategist",
+      "release-devex"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python",
+      "qa",
+      "release"
+    ],
+    "overlapGroup": "review",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "默认用于代码审查、完成前复核、提交前确认以及处理 review 语义主流程。",
+      "需要统一调度 code-reviewer agent、自审和 verification 规则时。"
+    ],
+    "preferred": true
+  },
+  "context-engineering": {
+    "layer": "extended",
+    "primaryFor": [
+      "solution-architect"
+    ],
+    "recommendedByStack": [
+      "architecture",
+      "workflow-automation"
+    ],
+    "overlapGroup": "agent-design",
+    "preferred": true
+  },
+  "context7": {
+    "layer": "extended",
+    "primaryFor": [
+      "solution-architect",
+      "developer",
+      "release-devex"
+    ],
+    "recommendedByStack": [
+      "architecture",
+      "release",
+      "java",
+      "python"
+    ],
+    "overlapGroup": "docs-research",
+    "preferred": true
+  },
+  "continuous-learning": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python"
+    ],
+    "overlapGroup": "learning",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要在 session 结束后快速提取可复用模式，而不是做完整的 problem-solution 复盘时。",
+      "需要沿用 legacy end-of-session learning 流程补充 observation 时。"
+    ],
+    "preferred": false
+  },
+  "continuous-learning-v2": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python"
+    ],
+    "overlapGroup": "learning",
+    "clusterRole": "support",
+    "supportWhen": [
+      "重点是 hooks / observation / instinct 候选采集，而不是用户可见的学习主流程时。",
+      "需要补充行为层自动观察与 session instrumentation 时。"
+    ],
+    "preferred": false
+  },
+  "devops": {
+    "layer": "core",
+    "primaryFor": [
+      "release-devex",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "release",
+      "workflow-automation"
+    ],
+    "overlapGroup": "release",
+    "preferred": true
+  },
+  "doc-coauthoring": {
+    "layer": "core",
+    "primaryFor": [
+      "product-manager",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "product",
+      "release",
+      "video-creation",
+      "image-generation"
+    ],
+    "overlapGroup": "documentation",
+    "preferred": true
+  },
+  "docs-seeker": {
+    "layer": "extended",
+    "primaryFor": [
+      "solution-architect",
+      "product-manager"
+    ],
+    "recommendedByStack": [
+      "product",
+      "architecture"
+    ],
+    "overlapGroup": "docs-research",
+    "preferred": true
+  },
+  "django-tdd": {
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "python",
+      "qa"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "support",
+    "supportWhen": [
+      "任务明确落在 Django 上下文，需要使用 pytest-django 或 Django/DRF 专用测试模式时。"
+    ],
+    "preferred": false
+  },
+  "frontend-design": {
+    "layer": "core",
+    "primaryFor": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design",
+      "ecommerce"
+    ],
+    "overlapGroup": "ui",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "默认用于页面、组件、应用界面的真实实现，是 UI 执行路径的主入口之一。",
+      "需要产出 production-grade 可运行界面时。"
+    ],
+    "preferred": true
+  },
+  "golang-testing": {
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "qa"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "support",
+    "supportWhen": [
+      "任务明确落在 Go 上下文，需要 table-driven tests、benchmarks、fuzzing 等 Go testing 模式时。"
+    ],
+    "preferred": false
+  },
+  "internal-comms": {
+    "layer": "extended",
+    "primaryFor": [
+      "product-manager"
+    ],
+    "recommendedByStack": [
+      "product",
+      "release",
+      "ecommerce",
+      "video-creation"
+    ],
+    "overlapGroup": "communication",
+    "preferred": true
+  },
+  "java-coding-standards": {
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "java"
+    ]
+  },
+  "jpa-patterns": {
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "java"
+    ]
+  },
+  "mcp-builder": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "architecture",
+      "release",
+      "workflow-automation"
+    ],
+    "overlapGroup": "mcp",
+    "preferred": true
+  },
+  "mcp-management": {
+    "layer": "core",
+    "primaryFor": [
+      "product-manager",
+      "developer",
+      "ui-designer"
+    ],
+    "recommendedByStack": [
+      "product",
+      "design",
+      "release",
+      "ecommerce",
+      "workflow-automation"
+    ],
+    "overlapGroup": "mcp",
+    "preferred": true
+  },
+  "python-patterns": {
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "python"
+    ]
+  },
+  "python-testing": {
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "python",
+      "qa"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "support",
+    "supportWhen": [
+      "任务明确落在 Python 上下文，需要 pytest、fixtures、mocking、coverage 等 Python testing 模式时。"
+    ],
+    "preferred": false
+  },
+  "requesting-code-review": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python"
+    ],
+    "overlapGroup": "review",
+    "clusterRole": "support",
+    "supportWhen": [
+      "重点是组织 review 输入、准备 diff、调用 code-reviewer agent 等发起 review 的子流程时。"
+    ],
+    "preferred": false
+  },
+  "receiving-code-review": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python"
+    ],
+    "overlapGroup": "review",
+    "clusterRole": "support",
+    "supportWhen": [
+      "重点是处理 review feedback、判断反馈是否成立、避免机械接受建议时。"
+    ],
+    "preferred": false
+  },
+  "security-review": {
+    "layer": "core",
+    "primaryFor": [
+      "developer",
+      "release-devex"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python",
+      "release",
+      "ecommerce"
+    ],
+    "overlapGroup": "security",
+    "preferred": true
+  },
+  "self-improving-agent": {
+    "layer": "core",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python"
+    ],
+    "overlapGroup": "learning",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "默认用于学习、复盘、沉淀经验以及决定是否升级到 instinct、learned skill、role-pack 或 stack-pack。",
+      "需要把 durable output 写回 Forge 统一 memory targets 时。"
+    ],
+    "preferred": true
+  },
+  "springboot-patterns": {
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "java"
+    ]
+  },
+  "springboot-security": {
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "java"
+    ]
+  },
+  "springboot-tdd": {
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "java",
+      "qa"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "support",
+    "supportWhen": [
+      "任务明确落在 Spring Boot 上下文，需要 JUnit、Mockito、MockMvc、Testcontainers 等 Java testing 模式时。"
+    ],
+    "preferred": false
+  },
+  "springboot-verification": {
+    "layer": "specialized",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "java",
+      "release"
+    ]
+  },
+  "systematic-debugging": {
+    "layer": "core",
+    "primaryFor": [
+      "developer",
+      "qa-strategist",
+      "release-devex"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python",
+      "qa",
+      "release",
+      "workflow-automation"
+    ],
+    "overlapGroup": "debugging",
+    "preferred": true
+  },
+  "test-driven-development": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "qa-strategist"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python",
+      "qa"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要强调严格的 TDD 方法论或沿用既有 test-driven-development skill 语义时。"
+    ],
+    "preferred": false
+  },
+  "tdd-workflow": {
+    "layer": "core",
+    "primaryFor": [
+      "developer",
+      "qa-strategist"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "java",
+      "python",
+      "qa"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "默认用于测试驱动开发、先写测试再实现以及统一 testing 主流程。",
+      "需要把 developer 与 qa-strategist 的测试路径收敛到同一入口时。"
+    ],
+    "preferred": true
+  },
+  "ui-styling": {
+    "layer": "extended",
+    "primaryFor": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design"
+    ],
+    "overlapGroup": "ui",
+    "clusterRole": "support",
+    "supportWhen": [
+      "重点是样式系统、组件库、Tailwind/shadcn/ui 落地，而不是 UI 主路径设计时。"
+    ],
+    "preferred": false
+  },
+  "ui-ux-pro-max": {
+    "layer": "experimental",
+    "primaryFor": [
+      "ui-designer"
+    ],
+    "recommendedByStack": [
+      "design",
+      "image-generation"
+    ],
+    "overlapGroup": "ui",
+    "clusterRole": "experimental",
+    "supportWhen": [
+      "明确需要大量风格探索、参考枚举或实验性 UI/UX 工作流时。"
+    ],
+    "preferred": false
+  },
+  "web-design-guidelines": {
+    "layer": "extended",
+    "primaryFor": [
+      "ui-designer",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "design",
+      "qa"
+    ],
+    "overlapGroup": "ui",
+    "clusterRole": "support",
+    "supportWhen": [
+      "重点是 UI 规范检查、可访问性审查、UX audit，而不是默认生成新界面时。"
+    ],
+    "preferred": false
+  },
+  "web-frameworks": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend"
+    ],
+    "overlapGroup": "frontend-frameworks",
+    "preferred": true
+  },
+  "webapp-testing": {
+    "layer": "extended",
+    "primaryFor": [
+      "qa-strategist",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "qa",
+      "ecommerce"
+    ],
+    "overlapGroup": "testing",
+    "clusterRole": "support",
+    "supportWhen": [
+      "重点是 Web UI、browser、E2E 或用户流程验证，而不是 testing 主路由时。"
+    ],
+    "preferred": true
+  },
+  "writing-plans": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "product-manager",
+      "solution-architect"
+    ],
+    "recommendedByStack": [
+      "product",
+      "architecture",
+      "release",
+      "workflow-automation"
+    ],
+    "overlapGroup": "planning",
+    "clusterRole": "support",
+    "supportWhen": [
+      "问题已经澄清，需要把结论写成多步骤、可执行、可验证的 implementation plan 时。",
+      "需要承接 brainstorming 的输出，而不是替代前置思考时。"
+    ],
+    "preferred": true
+  },
+  "writing-skills": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "architecture"
+    ],
+    "overlapGroup": "skill-authoring",
+    "preferred": true
+  },
+  "skill-creator": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer"
+    ],
+    "recommendedByStack": [
+      "architecture"
+    ],
+    "overlapGroup": "skill-authoring",
+    "preferred": true
+  },
+  "shopify": {
+    "recommendedByStack": [
+      "ecommerce"
+    ]
+  },
+  "media-processing": {
+    "recommendedByStack": [
+      "video-creation",
+      "image-generation"
+    ]
+  },
+  "ai-multimodal": {
+    "recommendedByStack": [
+      "video-creation",
+      "image-generation"
+    ]
+  },
+  "canvas-design": {
+    "recommendedByStack": [
+      "image-generation"
+    ]
+  }
+}

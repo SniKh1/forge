@@ -1,0 +1,27 @@
+{
+  "browserAutomation": {
+    "preferredTool": "browser-use",
+    "defaultBrowser": "real",
+    "defaultProfile": "Default",
+    "headed": true,
+    "reuseCookiesAndCache": true,
+    "appliesToRoles": [
+      "developer",
+      "ui-designer"
+    ],
+    "appliesToStacks": [
+      "frontend",
+      "design"
+    ],
+    "fallbackTools": [
+      "browser",
+      "chrome-devtools"
+    ],
+    "isolationModes": [
+      "incognito",
+      "headless",
+      "fresh-profile"
+    ],
+    "note": "Use a real browser/profile by default for developer and UI workflows. Only switch to isolation when the task explicitly requires it."
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0",
+  "targets": {
+    "memory": {
+      "description": "Default destination for one-off but durable fixes, facts, and reviewed problem-solution records.",
+      "default": true
+    },
+    "instinct": {
+      "description": "Promote when a workflow or decision pattern repeats with clear evidence across sessions.",
+      "requires": {
+        "minOccurrences": 3,
+        "evidence": [
+          "repeated workflow",
+          "same tool choice",
+          "same debugging sequence"
+        ]
+      }
+    },
+    "learned-skill": {
+      "description": "Promote when the solution is reusable, multi-step, and broadly applicable beyond one project incident.",
+      "requires": {
+        "minOccurrences": 2,
+        "mustInclude": [
+          "rootCause",
+          "chosenFix",
+          "verification"
+        ],
+        "evidence": [
+          "reused in another task",
+          "stable implementation pattern",
+          "clear task trigger"
+        ]
+      }
+    },
+    "role-pack": {
+      "description": "Promote when the pattern is role-specific and changes how a role should operate by default.",
+      "requires": {
+        "roleSpecific": true,
+        "minOccurrences": 2
+      }
+    },
+    "stack-pack": {
+      "description": "Promote when the pattern is stack-specific and should become part of a stack constraint package.",
+      "requires": {
+        "stackSpecific": true,
+        "minOccurrences": 2
+      }
+    }
+  },
+  "decisionOrder": [
+    "stack-pack",
+    "role-pack",
+    "learned-skill",
+    "instinct",
+    "memory"
+  ],
+  "reviewPolicy": {
+    "humanReviewRequired": true,
+    "allowAutoSuggestion": true,
+    "allowAutoPromotion": false
+  }
+}

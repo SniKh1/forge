@@ -1,318 +1,245 @@
-# Java 后端开发规范
+# Java / Spring Stack Pack
 
-**版本**：v2.0
-**更新日期**：2026-02-02
-**适用范围**：Java 后端服务、Spring Boot 应用、微服务架构
-
----
-
-## 一、技术栈选择
-
-### 1.1 Java 版本
-
-| 版本 | 状态 | 说明 |
-|------|------|------|
-| Java 21 LTS | **首选** | 长期支持至 2031 年 |
-| Java 17 LTS | 维护中 | 遗留项目可用 |
-| Java 24+ | 前沿 | 新特性预览 |
-
-### 1.2 框架选择
-
-| 框架 | 场景 | 版本要求 |
-|------|------|----------|
-| Spring Boot 3.3+ | 首选框架 | Java 21+ |
-| Spring Cloud 2024.x | 微服务架构 | 配合 Boot 3.3+ |
-| Quarkus 3.x | 云原生/GraalVM | 高性能需求 |
-| Micronaut 4.x | 轻量级微服务 | 启动速度优先 |
-
-### 1.3 构建工具
-
-| 工具 | 场景 |
-|------|------|
-| Gradle 8.x (Kotlin DSL) | 首选，灵活性高 |
-| Maven 3.9+ | 传统项目，生态成熟 |
-
-### 1.4 数据库访问
-
-| 技术 | 场景 |
-|------|------|
-| Spring Data JPA 3.x | ORM 首选 |
-| MyBatis-Plus 3.5+ | 复杂 SQL |
-| JOOQ 3.19+ | 类型安全 SQL |
+**Version**: v3.0  
+**Updated**: 2026-03-12  
+**Scope**: Spring Boot services, Java backends, service APIs, integration-heavy systems
 
 ---
 
-## 二、Java 21 新特性（必用）
+## 1. Purpose
 
-### 2.1 虚拟线程 (Virtual Threads)
+当任务核心是下面这些内容时，加载这个 stack：
+- Java backend service
+- Spring Boot API
+- domain / service 分层
+- 基于 JPA 的 relational persistence 或 SQL-first 工作流
+- 对测试和验证要求较高的关键业务系统
 
-轻量级线程，解决传统线程的扩展性问题：
+这个 stack 主要与下面这些 role-pack 配对：
+- `developer`
+- `solution-architect`
+- `qa-strategist`
+- `release-devex`
 
-```java
-// 创建虚拟线程
-Thread.startVirtualThread(() -> {
-    System.out.println("Running in virtual thread");
-});
+当这个 stack 生效时，推荐优先使用的 core skills：
+- `backend-development`
+- `springboot-patterns`
+- `jpa-patterns`
+- `springboot-security`
+- `springboot-tdd`
+- `springboot-verification`
+- `systematic-debugging`
+- `code-review`
 
-// 使用 ExecutorService
-try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-    IntStream.range(0, 10_000).forEach(i -> {
-        executor.submit(() -> {
-            Thread.sleep(Duration.ofSeconds(1));
-            return i;
-        });
-    });
-}
-
-// Spring Boot 配置启用虚拟线程
-// application.yml
-spring:
-  threads:
-    virtual:
-      enabled: true
-```
-
-### 2.2 模式匹配 for switch (Pattern Matching)
-
-```java
-// 类型模式匹配
-static String format(Object obj) {
-    return switch (obj) {
-        case Integer i -> String.format("int %d", i);
-        case Long l    -> String.format("long %d", l);
-        case Double d  -> String.format("double %f", d);
-        case String s  -> String.format("String %s", s);
-        case null      -> "null";
-        default        -> obj.toString();
-    };
-}
-
-// 带守卫条件的模式匹配
-static String classify(Number n) {
-    return switch (n) {
-        case Integer i when i > 0 -> "positive integer";
-        case Integer i when i < 0 -> "negative integer";
-        case Integer i            -> "zero";
-        case Double d when d > 0  -> "positive double";
-        default                   -> "other number";
-    };
-}
-```
-
-### 2.3 记录模式 (Record Patterns)
-
-```java
-record Point(int x, int y) {}
-record Rectangle(Point topLeft, Point bottomRight) {}
-
-// 解构记录
-static void printSum(Object obj) {
-    if (obj instanceof Point(int x, int y)) {
-        System.out.println(x + y);
-    }
-}
-
-// 嵌套记录模式
-static void printArea(Object obj) {
-    if (obj instanceof Rectangle(
-            Point(int x1, int y1),
-            Point(int x2, int y2))) {
-        System.out.println(Math.abs((x2 - x1) * (y2 - y1)));
-    }
-}
-
-// 在 switch 中使用
-static String describe(Object obj) {
-    return switch (obj) {
-        case Point(int x, int y) -> "Point at (%d, %d)".formatted(x, y);
-        case Rectangle(Point tl, Point br) -> "Rectangle from %s to %s".formatted(tl, br);
-        default -> "Unknown shape";
-    };
-}
-```
-
-### 2.4 序列集合 (Sequenced Collections)
-
-```java
-// 新接口：SequencedCollection, SequencedSet, SequencedMap
-List<String> list = new ArrayList<>();
-list.addFirst("first");  // 新方法
-list.addLast("last");    // 新方法
-String first = list.getFirst();
-String last = list.getLast();
-List<String> reversed = list.reversed();  // 反转视图
-
-// SequencedMap
-LinkedHashMap<String, Integer> map = new LinkedHashMap<>();
-map.putFirst("a", 1);
-map.putLast("z", 26);
-Map.Entry<String, Integer> firstEntry = map.firstEntry();
-Map.Entry<String, Integer> lastEntry = map.lastEntry();
-```
+research / reference 优先级：
+1. `context7`：Spring / Java 官方文档
+2. `deepwiki`：开源实现参考
+3. `GitHub MCP`：repo 范围的代码、PR 和上下文
 
 ---
 
-## 三、项目结构
+## 2. Default Technology Choices
 
-### 3.1 分层架构
+### 2.1 Runtime and Build
 
-```
-src/main/java/com/example/
-├── controller/     # API 层
-├── service/        # 业务逻辑
-├── repository/     # 数据访问
-├── entity/         # 实体类
-├── dto/            # 数据传输对象
-├── config/         # 配置类
-├── exception/      # 异常处理
-└── util/           # 工具类
-```
+默认优先级：
+- Java `21 LTS`
+- Spring Boot `3.3+`
+- Gradle `8.x` + Kotlin DSL
+- Maven `3.9+` 只在 repo 已经标准化使用时继续沿用
 
-### 3.2 命名规范
+避免：
+- 没有明确批准就把 preview Java feature 放进稳定生产路径
+- 在同一个 service 里混用 Gradle 和 Maven 习惯
+- 明明应该用 configuration properties class，却仍用 untyped map 配置
 
-| 类型 | 规范 | 示例 |
-|------|------|------|
-| 类名 | PascalCase | `UserService` |
-| 方法 | camelCase | `getUserById` |
-| 常量 | UPPER_SNAKE | `MAX_RETRY` |
-| 包名 | 全小写 | `com.example` |
+### 2.2 Service Architecture
 
----
+推荐的 service 结构：
+- `controller` / `api`
+- `application` / `service`
+- `domain`
+- `repository`
+- `infrastructure`
+- `config`
+- `exception`
 
-## 四、API 设计规范
+规则：
+- controller 只处理 HTTP boundary
+- service 负责业务编排和 transaction boundary
+- repository 只专注 persistence，不吞掉 business rule
+- infrastructure adapter 尽量与 domain contract 隔离
 
-### 4.1 RESTful 规范
-
-| 方法 | 用途 | 示例 |
-|------|------|------|
-| GET | 查询 | `/users/{id}` |
-| POST | 创建 | `/users` |
-| PUT | 全量更新 | `/users/{id}` |
-| PATCH | 部分更新 | `/users/{id}` |
-| DELETE | 删除 | `/users/{id}` |
-
-### 4.2 统一响应格式
-
-```java
-public record ApiResponse<T>(
-    boolean success,
-    T data,
-    String message,
-    String code
-) {
-    public static <T> ApiResponse<T> ok(T data) {
-        return new ApiResponse<>(true, data, null, "200");
-    }
-
-    public static <T> ApiResponse<T> error(String message, String code) {
-        return new ApiResponse<>(false, null, message, code);
-    }
-}
-```
+不要：
+- 把 orchestration logic 写进 controller
+- 直接把 JPA entity 当公开 API contract 暴露出去
+- 把 persistence concern 混进 DTO mapper 或 validator
 
 ---
 
-## 五、异常处理
+## 3. API and Domain Rules
 
-### 5.1 全局异常处理
+### 3.1 API Defaults
 
-```java
-@RestControllerAdvice
-public class GlobalExceptionHandler {
+除非明确需要 GraphQL 或 event-driven 设计，否则默认使用 REST。
 
-    @ExceptionHandler(BusinessException.class)
-    public ApiResponse<?> handleBusiness(BusinessException e) {
-        return ApiResponse.error(e.getMessage(), e.getCode());
-    }
-}
-```
+必须遵守：
+- request / response DTO 明确建模
+- validation 放在 boundary
+- error response shape 稳定可预测
+- list endpoint 需要考虑 pagination
+- 对 retry 或 external callback 要考虑 idempotency
 
-### 5.2 自定义异常
+推荐 response model：
+- 业务 payload + machine-readable error code
+- 不要把原始 exception message 直接暴露给客户端
 
-```java
-public class BusinessException extends RuntimeException {
-    private final String code;
+### 3.2 Domain Modeling
 
-    public BusinessException(String code, String message) {
-        super(message);
-    }
-}
-```
+优先：
+- 可行时尽量使用 immutable DTO / record
+- aggregate 和 boundary 要清楚
+- 用 enum / value object 代替 stringly typed state
+- 复杂度上升时，区分 write-model 和 read-model
 
----
+适合使用 record 的地方：
+- response model
+- request DTO
+- internal value carrier
 
-## 六、数据校验
-
-### 6.1 参数校验
-
-```java
-public record CreateUserRequest(
-    @NotBlank String username,
-    @Email String email,
-    @Size(min = 8) String password
-) {}
-```
+避免：
+- 巨大的 “service util” 类
+- anemic domain，导致所有规则散落在 controller 和 repository
+- 生命周期分支过多、字段高度可变的 god entity
 
 ---
 
-## 七、安全规范
+## 4. Persistence and Data Access
 
-### 7.1 SQL 注入防护
+默认选择：
+- `Spring Data JPA`：标准 CRUD 和 domain persistence
+- `JOOQ` 或显式 SQL：当 query correctness 和 SQL 控制力更重要时
+- `MyBatis`：只有 repo 已经标准化时继续使用
 
-- 使用参数化查询
-- 禁止字符串拼接 SQL
+### 4.1 JPA Rules
 
-### 7.2 密码安全
+优先：
+- 显式决定 fetch strategy
+- transaction method 保持边界清楚
+- repository method 与真实 use-case 对齐
+- query-heavy 改动要同时考虑 index 与说明
 
-- 使用 BCrypt 加密
-- 禁止明文存储
+避免：
+- controller serialization 阶段才暴露 lazy loading 惊喜
+- 留下没验证过的 N+1 query
+- 用大而泛的 repository inheritance 隐藏行为复杂度
 
----
+### 4.2 Schema and Migration Rules
 
-## 八、测试规范
+所有 schema 变更都应使用 versioned migration。
 
-### 8.1 测试分层
-
-| 类型 | 覆盖率 |
-|------|--------|
-| 单元测试 | 80%+ |
-| 集成测试 | 关键路径 |
-| E2E 测试 | 核心流程 |
-
-### 8.2 测试工具
-
-| 工具 | 用途 |
-|------|------|
-| JUnit 5 | 单元测试 |
-| Mockito | Mock 框架 |
-| Testcontainers | 集成测试 |
+对于 data migration，至少要补齐：
+- forward plan
+- rollback 或 mitigation plan
+- rerun 时的 idempotency 判断
+- 涉及大表时的 production safety note
 
 ---
 
-## 九、相关 Skill
+## 5. Security Defaults
 
-| Skill | 用途 |
-|-------|------|
-| backend-development | 后端 API 开发 |
-| databases | 数据库操作 |
-| better-auth | 认证授权 |
+这个 stack 默认必须高标准对待 security。
+
+始终强制：
+- 用 Bean Validation 做输入校验
+- 在正确边界处理 authentication / authorization
+- secret 必须走 env / vault / config，禁止 hardcode
+- cookie-based flow 要明确说明 CSRF posture
+- SQL injection 通过参数化查询或 ORM binding 规避
+- 对 user-visible field 做安全输出与错误处理
+
+当任务涉及下面这些区域时，优先使用 `springboot-security`：
+- login
+- roles / permissions
+- token flow
+- filter / interceptor
+- session policy
+- headers / CORS / rate limits
 
 ---
 
-## 更新记录
+## 6. Testing and Verification
 
-- **v2.0** (2026-02-02) - Java 21 LTS 更新
-  - 升级到 Java 21 LTS 作为首选版本
-  - 新增虚拟线程 (Virtual Threads) 规范
-  - 新增模式匹配 for switch 规范
-  - 新增记录模式 (Record Patterns) 规范
-  - 新增序列集合 (Sequenced Collections) 规范
-  - 更新 Spring Boot 到 3.3+
-  - 更新构建工具版本要求
+### 6.1 Test Strategy
 
-- **v1.0** (2026-02-02) - 初始版本
-  - Spring Boot 3.x 技术栈
-  - API 设计规范
-  - 异常处理规范
-  - 安全规范
-  - 测试规范
+默认 testing pyramid：
+- unit test：业务逻辑
+- slice test：controller / repository boundary
+- integration test：真实 wiring 与 persistence
+- Testcontainers：对基础设施行为敏感的路径
+
+对任何有意义的 feature work，至少要补：
+- happy path
+- 关键 failure path
+- validation / auth path（如适用）
+- bugfix 对应的 regression test
+
+推荐同时使用：
+- `springboot-tdd`
+- `springboot-verification`
+- `code-review`
+
+### 6.2 Verification Before Completion
+
+在声称完成前，至少运行 repo 适用子集：
+- `./gradlew test`
+- `./gradlew build`
+- `./gradlew check`
+- 如已配置则补 static analysis
+- 对 logging、secret、debug residue 做 focused manual diff review
+
+如果改动触及 schema、auth、cache 或 async processing，完成说明里必须显式提到这些区域的验证结果。
+
+---
+
+## 7. Observability and Operations
+
+优先：
+- structured log
+- 清晰的 error code 与 correlation identifier
+- actuator / health endpoint（如适用）
+- 高风险路径的 metrics
+- 对 external call 的 retry / timeout policy 做显式说明
+
+避免：
+- 在 hot path 留大量 noisy info log
+- 记录 secret、token 或 PII
+- 吞掉 integration error 却返回模糊成功结果
+
+---
+
+## 8. Delivery Checklist
+
+对 Java / Spring 任务来说，真正的“完成”至少能回答：
+- 哪一层被修改了，以及为什么
+- validation / auth / data boundary 怎么处理的
+- 新增或更新了哪些 test
+- query / transaction 行为有没有验证
+- 是否存在 migration 或 rollout 风险
+- 哪个经验值得进入 memory / instinct / learned skill
+
+---
+
+## 9. Role Pairing Notes
+
+### `developer + java`
+重点关注 correctness、test、repository boundary 和 transaction scope。
+
+### `solution-architect + java`
+重点关注 module boundary、domain ownership、sync vs async 设计和 persistence tradeoff。
+
+### `qa-strategist + java`
+重点推动 regression coverage、integration realism 以及 auth / validation / migration 风险验证。
+
+### `release-devex + java`
+重点关注 build reproducibility、migration safety、config drift、health check 和 rollback note。

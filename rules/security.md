@@ -2,15 +2,15 @@
 
 ## Mandatory Security Checks
 
-Before ANY commit:
-- [ ] No hardcoded secrets (API keys, passwords, tokens)
-- [ ] All user inputs validated
-- [ ] SQL injection prevention (parameterized queries)
-- [ ] XSS prevention (sanitized HTML)
-- [ ] CSRF protection enabled
-- [ ] Authentication/authorization verified
-- [ ] Rate limiting on all endpoints
-- [ ] Error messages don't leak sensitive data
+任何准备提交的改动，至少都要过一遍这份清单：
+- [ ] 没有 hardcoded secrets（API key、password、token）
+- [ ] 所有 user input 都做了 validation
+- [ ] SQL injection 有参数化保护
+- [ ] XSS 风险点做了 sanitized HTML / safe rendering
+- [ ] CSRF protection 已启用或已说明边界
+- [ ] authentication / authorization 已验证
+- [ ] 关键 endpoint 有 rate limiting 策略
+- [ ] error message 不泄漏敏感信息
 
 ## Secret Management
 
@@ -28,9 +28,9 @@ if (!apiKey) {
 
 ## Security Response Protocol
 
-If security issue found:
-1. STOP immediately
-2. Use **security-reviewer** agent
-3. Fix CRITICAL issues before continuing
-4. Rotate any exposed secrets
-5. Review entire codebase for similar issues
+一旦发现 security issue：
+1. 先停止继续扩散问题
+2. 进入 **security-reviewer** 视角
+3. 先修 CRITICAL 问题，再继续其他工作
+4. 如有泄漏，立刻 rotate 暴露的 secret
+5. 回看整个 codebase，确认没有同类问题残留

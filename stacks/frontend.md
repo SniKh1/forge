@@ -1,432 +1,282 @@
-# 前端/桌面端/UI 开发规范
+# Frontend / UI / Desktop Stack Pack
 
-**版本**：v2.0
-**更新日期**：2026-02-02
-**适用范围**：Web 前端、桌面端应用、UI/UX 设计
-
----
-
-## 一、Web 前端技术栈
-
-### 1.1 框架选择
-
-| 框架 | 场景 | 特点 |
-|------|------|------|
-| Next.js 15+ | Web 应用首选 | App Router, RSC, PPR, Turbopack |
-| React 19+ | SPA/组件库 | Actions, use hook, Server Components |
-| Vue 3.5+ | 轻量项目 | Vapor Mode, Composition API |
-| Astro 5+ | 静态站点 | 零 JS 默认, View Transitions |
-| Svelte 5+ | 高性能需求 | Runes, 编译时优化 |
-
-### 1.2 样式方案
-
-| 方案 | 场景 | 优先级 |
-|------|------|--------|
-| Tailwind CSS | 首选方案 | 1 |
-| CSS Modules | 需要样式隔离 | 2 |
-| styled-components | 动态样式需求 | 3 |
-
-### 1.3 UI 组件库
-
-| 库 | 用途 |
-|-----|------|
-| shadcn/ui | 首选，高度可定制 |
-| Radix UI | 无样式原语组件 |
-| Headless UI | 无样式交互组件 |
-
-### 1.4 状态管理优先级
-
-1. `useState/useReducer` - 组件内状态
-2. `Context` - 跨组件共享
-3. `Zustand` - 全局状态
-4. `TanStack Query` - 服务端状态
-5. `Jotai/Recoil` - 原子化状态
+**Version**: v3.0  
+**Updated**: 2026-03-12  
+**Scope**: web frontends, design-system work, dashboards, landing pages, desktop shells, UI-heavy product flows
 
 ---
 
-## 二、React 19 新特性（必用）
+## 1. Purpose
 
-### 2.1 Actions 与表单处理
+当任务核心是下面这些内容时，加载这个 stack：
+- React / Next.js / 现代 web UI
+- page、component、design-system 的实现
+- dashboard 和 product console 界面
+- Tauri / Electron desktop frontend
+- UI polish、交互质量和浏览器验证
 
-```tsx
-// useActionState - 管理表单提交状态
-import { useActionState } from 'react'
+这个 stack 主要与下面这些 role-pack 配对：
+- `developer`
+- `ui-designer`
+- `qa-strategist`
+- `release-devex`
 
-async function submitForm(prevState: State, formData: FormData) {
-  'use server'
-  const name = formData.get('name')
-  // 服务端处理逻辑
-  return { success: true, message: `Hello ${name}` }
-}
+当这个 stack 生效时，推荐优先使用的 core skills：
+- `frontend-design`
+- `aesthetic`
+- `web-frameworks`
+- `ui-styling`
+- `browser-use`
+- `webapp-testing`
+- `code-review`
+- `security-review`
 
-function Form() {
-  const [state, formAction, isPending] = useActionState(submitForm, null)
-
-  return (
-    <form action={formAction}>
-      <input name="name" disabled={isPending} />
-      <button type="submit" disabled={isPending}>
-        {isPending ? 'Submitting...' : 'Submit'}
-      </button>
-      {state?.message && <p>{state.message}</p>}
-    </form>
-  )
-}
-```
-
-### 2.2 useOptimistic - 乐观更新
-
-```tsx
-import { useOptimistic, useState } from 'react'
-
-function LikeButton({ initialLikes }: { initialLikes: number }) {
-  const [likes, setLikes] = useState(initialLikes)
-  const [optimisticLikes, addOptimisticLike] = useOptimistic(
-    likes,
-    (state, _) => state + 1
-  )
-
-  async function handleLike() {
-    addOptimisticLike(null)
-    try {
-      const newLikes = await likePost()
-      setLikes(newLikes)
-    } catch (error) {
-      // 乐观状态自动回滚
-    }
-  }
-
-  return <button onClick={handleLike}>{optimisticLikes} Likes</button>
-}
-```
-
-### 2.3 use Hook - 资源读取
-
-```tsx
-import { use, Suspense } from 'react'
-
-// 读取 Promise
-function Comments({ commentsPromise }: { commentsPromise: Promise<Comment[]> }) {
-  const comments = use(commentsPromise)
-  return comments.map(c => <p key={c.id}>{c.text}</p>)
-}
-
-// 读取 Context（可在条件语句中使用）
-function Theme({ isEnabled }: { isEnabled: boolean }) {
-  if (isEnabled) {
-    const theme = use(ThemeContext)
-    return <div className={theme}>Themed content</div>
-  }
-  return <div>Default content</div>
-}
-```
-
-### 2.4 Server Components 与 Server Actions
-
-```tsx
-// Server Component (默认)
-async function ProductList() {
-  const products = await db.products.findMany()
-  return (
-    <ul>
-      {products.map(p => <li key={p.id}>{p.name}</li>)}
-    </ul>
-  )
-}
-
-// Server Action
-async function addToCart(productId: string) {
-  'use server'
-  await db.cart.add({ productId, userId: getCurrentUser() })
-  revalidatePath('/cart')
-}
-
-// Client Component 调用 Server Action
-'use client'
-function AddButton({ productId }: { productId: string }) {
-  return (
-    <button onClick={() => addToCart(productId)}>
-      Add to Cart
-    </button>
-  )
-}
-```
+research / reference 优先级：
+1. `context7`：framework 和 library 官方文档
+2. `browser-use`：真实 session 的产品验证
+3. `playwright` / `webapp-testing`：可重复的 UI 检查
+4. `deepwiki`：开源 UI 和架构参考
 
 ---
 
-## 三、组件设计规范
+## 2. Default Technology Choices
 
-### 3.1 Props 结构
+### 2.1 Framework Defaults
 
-```typescript
-// 顺序：必需 → 可选 → 事件
-interface ButtonProps {
-  // 必需属性
-  children: React.ReactNode
+默认优先级：
+- `Next.js 15+`：full-stack web product
+- `React 19+`：SPA、component system、desktop shell
+- `Vue 3.5+`：仅在 repo 已经是 Vue 主栈时继续使用
+- `Astro`：静态优先的 marketing page
+- `Svelte`：只有在性能或既有技术栈明确支持时才采用
 
-  // 可选属性
-  variant?: 'primary' | 'secondary' | 'ghost'
-  size?: 'sm' | 'md' | 'lg'
-  disabled?: boolean
-  className?: string
+规则：
+- 除非 migration 本身就是任务目标，否则优先尊重现有 repo framework
+- 不要轻易引入第二套路由 / 状态管理 / 表单体系
+- 优先使用 framework-native pattern，而不是延续过时习惯
 
-  // 事件处理
-  onClick?: () => void
-  onFocus?: () => void
-}
-```
+### 2.2 Styling Defaults
 
-### 3.2 命名规范
+样式方案默认优先级：
+1. `Tailwind CSS`
+2. `CSS Modules`
+3. CSS-in-JS 只在确实需要 runtime dynamic styling 时使用
 
-| 类型 | 规范 | 示例 |
-|------|------|------|
-| 组件 | PascalCase | `UserProfile` |
-| Hooks | use 前缀 | `useDebounce` |
-| 工具函数 | camelCase | `formatDate` |
-| 常量 | UPPER_SNAKE | `MAX_RETRY_COUNT` |
-| 类型 | PascalCase | `UserData` |
+component primitive 优先：
+- 有 `shadcn/ui` 就优先用它
+- `Radix UI` 用于 headless behavior primitive
+- custom component 只在现有 system component 无法自然覆盖时再写
 
-### 3.3 文件组织
+避免：
+- 在同一块界面里混入多套 styling system
+- 生产 UI 中出现 ad hoc inline style 蔓延
+- 直接复制视觉样式却不适配当前 repo 的 design language
 
-```
-src/
-├── components/
-│   ├── ui/           # 基础 UI 组件
-│   └── features/     # 业务组件
-├── hooks/            # 自定义 Hooks
-├── lib/              # 工具函数
-├── types/            # 类型定义
-└── styles/           # 全局样式
-```
+### 2.3 State and Data Defaults
 
----
+默认优先：
+1. local component state 处理局部问题
+2. context 只处理窄范围跨树共享
+3. `Zustand` 处理务实的 client global state
+4. `TanStack Query` 处理 server-state 与 async cache
 
-## 四、桌面端开发规范
-
-### 4.1 框架选择
-
-| 框架 | 场景 | 特点 |
-|------|------|------|
-| Tauri 2.0 | **首选** | Rust 后端，移动端支持，体积小 |
-| Electron 33+ | 功能完整 | 生态成熟，体积较大 |
-| Neutralino 5+ | 超轻量 | 简单应用 |
-
-### 4.2 Tauri 2.0 最佳实践（首选）
-
-**核心特性**：
-- 移动端支持（iOS/Android）
-- 插件系统重构
-- Swift/Kotlin 原生绑定
-- 更强的安全模型
-
-**架构**：
-```
-前端（React/Vue/Svelte）
-        ↓ invoke
-Rust 后端（Commands）
-        ↓
-原生 API / 插件
-```
-
-**Rust 命令示例**：
-```rust
-#[tauri::command]
-async fn greet(name: &str) -> Result<String, String> {
-    Ok(format!("Hello, {}!", name))
-}
-
-// 注册命令
-fn main() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
-}
-```
-
-**前端调用**：
-```typescript
-import { invoke } from '@tauri-apps/api/core'
-
-const greeting = await invoke<string>('greet', { name: 'World' })
-```
-
-**移动端初始化**：
-```bash
-# 初始化移动端支持
-tauri android init
-tauri ios init
-
-# 开发运行
-tauri android dev
-tauri ios dev
-```
-
-### 4.3 Electron 最佳实践
-
-**进程架构**：
-```
-主进程 (main) ←IPC→ 渲染进程 (renderer)
-       ↑
-    preload（安全桥接）
-```
-
-**安全配置**：
-```javascript
-const win = new BrowserWindow({
-  webPreferences: {
-    nodeIntegration: false,
-    contextIsolation: true,
-    preload: path.join(__dirname, 'preload.js')
-  }
-})
-```
-
-### 4.4 跨平台注意事项
-
-| 平台 | 注意事项 |
-|------|----------|
-| Windows | 路径用 `\\`，注册表操作，UAC 权限 |
-| macOS | 签名公证，沙盒权限，.app 打包 |
-| Linux | 多发行版测试，依赖管理 |
+规则：
+- server-state 和 client-state 要分开建模
+- 不要用 global store 处理 form-local 或 widget-local state
+- 当 route/layout 可以统一拥有数据加载时，不要让许多 sibling component 各自 fetch
 
 ---
 
-## 五、UI 设计规范
+## 3. Architecture and Component Rules
 
-### 5.1 视觉层次
+### 3.1 Component Architecture
 
-| 原则 | 说明 |
-|------|------|
-| 大小 | 大元素优先吸引注意力 |
-| 对比 | 高对比度提升可读性 |
-| 排版 | 用字重、大小、样式建立层次 |
-| 布局 | F 型（网页）、Z 型（落地页） |
-| 留白 | 减少认知负担 |
+必须遵守的约定：
+- 当 component 同时承担太多职责时，要拆开 presentation 与 orchestration
+- 一个 component 尽量只服务一个清晰的视觉责任
+- 优先 composition，而不是不断扩大 prop surface
+- 用 design token / reusable variant 替代重复 style branch
 
-### 5.2 排版规范
+避免：
+- 把数据加载、业务规则、布局、展示全部塞进一个 “god component”
+- 明明可以 composition/context/局部重构，却还保留很深的 prop drilling
+- 写一次性视觉 hack，却不说明为什么它是例外
 
-**字体选择**：
-- 最多 2-3 种字体
-- 禁止：Inter、Roboto、Arial（过于通用）
-- 推荐：特色字体配合正文字体
+### 3.2 File and Feature Structure
 
-**字号层次**：
-```css
---text-xs: 0.75rem;   /* 12px */
---text-sm: 0.875rem;  /* 14px */
---text-base: 1rem;    /* 16px */
---text-lg: 1.125rem;  /* 18px */
---text-xl: 1.25rem;   /* 20px */
---text-2xl: 1.5rem;   /* 24px */
-```
+推荐结构：
+- `components/ui`：primitive reusable UI
+- `components/features` 或 `features/*`：面向产品的模块
+- `hooks`：可复用的 client logic
+- `lib`：helper、client adapter、formatter、utility contract
+- `types` 或 colocated type module：责任明确即可
 
-### 5.3 颜色规范
-
-**颜色心理学**：
-| 颜色 | 含义 |
-|------|------|
-| 蓝色 | 信任、安全、冷静 |
-| 红色 | 紧迫、激情、兴奋 |
-| 绿色 | 成功、自然、成长 |
-| 橙色 | 活力、友好、创意 |
-
-**对比度要求**（WCAG AA）：
-- 正文文字：4.5:1
-- 大号文字：3:1
-
-### 5.4 微交互规范
-
-**时长指南**：
-| 类型 | 时长 |
-|------|------|
-| 微交互 | 150-300ms |
-| 按钮响应 | < 16ms |
-| 标准动画 | 200-500ms |
-| UI 动效 | 0.5-2s |
-
-**缓动曲线**：
-| 曲线 | 用途 |
-|------|------|
-| ease-out | 元素进入（首选） |
-| ease-in | 元素离开 |
-| spring | 强调效果（慎用） |
-
-### 5.5 美学原则
-
-**禁止**：
-- Inter/Roboto/Arial 等通用字体
-- 紫色渐变白底（AI 风格）
-- 千篇一律的布局
-
-**推荐**：
-- 特色字体搭配
-- 独特配色方案
-- CSS 变量主题系统
+规则：
+- feature boundary 稳定时，优先按 feature colocate
+- 通用 utility 一旦被跨域复用，就移出 feature folder
+- generated asset / config 与 authored UI logic 尽量分开
 
 ---
 
-## 六、无障碍规范
+## 4. UX and Visual Quality Rules
 
-### 6.1 基本要求
+### 4.1 Interaction and Visual Standards
 
-- WCAG 2.1 AA 标准
-- 语义化 HTML 优先
-- 键盘导航支持
-- 屏幕阅读器兼容
+任何有意义的 UI 工作，都要追求：
+- 清晰 hierarchy
+- 有节奏的 spacing
+- 明确 primary action
+- 足够的 accessible contrast
+- 可感知的 loading / success / error / empty state
 
-### 6.2 检查清单
+下面这些状态对前端任务来说属于必查项：
+- empty state
+- loading state
+- error state
+- focus / keyboard behavior
+- 响应式表现是否覆盖目标范围
 
-- [ ] 图片有 alt 文本
-- [ ] 表单有 label 关联
-- [ ] 焦点状态可见
-- [ ] 色盲友好配色
-- [ ] 动画可关闭
+如果任务是用户真正会看到的 product UI，优先这样处理：
+- 少做噪音装饰，多做表意清晰的 surface
+- 先拉开 typography hierarchy，再考虑视觉效果
+- 先保证 layout clarity，再加 animation
+- 用有意义的 motion，避免通用模板化 micro-interaction
 
----
+### 4.2 Browser Validation Defaults
 
-## 七、性能优化
+在 product validation、登录态 admin page、dashboard、CMS、control panel 等场景：
+- 默认优先用 `browser-use`，并读取 `core/tool-defaults.json` 中的共享默认值
+- 默认复用真实浏览器 profile / cookies / cache
+- 只有任务明确要求 isolation 时，才切到 `incognito`、`headless` 等模式
 
-### 7.1 核心指标
-
-| 指标 | 目标 |
-|------|------|
-| LCP | < 2.5s |
-| FID | < 100ms |
-| CLS | < 0.1 |
-
-### 7.2 优化策略
-
-- 图片懒加载
-- 代码分割
-- 预加载关键资源
-- 动画使用 transform/opacity
-
----
-
-## 八、相关 Skill
-
-| Skill | 用途 |
-|-------|------|
-| frontend-design | 前端界面开发 |
-| aesthetic | UI/UX 美学设计 |
-| web-frameworks | Next.js/React 开发 |
-| ui-styling | shadcn/ui + Tailwind |
+在下面这些情况，优先考虑 `playwright` / `webapp-testing`：
+- 可重复性比真实 session 更重要
+- 需要确定性的 screenshot 或 regression step
+- 需要适配 CI 的 browser assertion
 
 ---
 
-## 更新记录
+## 5. Desktop Frontend Rules
 
-- **v2.0** (2026-02-02) - React 19 & Tauri 2.0 更新
-  - 升级 React 到 19+，新增 Actions、useOptimistic、use hook
-  - 升级 Tauri 到 2.0，新增移动端支持
-  - 新增 Server Components 与 Server Actions 规范
-  - 更新 Next.js 到 15+，新增 PPR、Turbopack
-  - 更新框架版本要求
+### 5.1 Desktop Shell Choice
 
-- **v1.0** (2026-02-02) - 初始版本
-  - Web 前端技术栈规范
-  - 桌面端开发规范
-  - UI 设计规范
-  - 无障碍规范
-  - 性能优化指南
+默认优先级：
+- `Tauri 2.x`：产品型 desktop shell
+- `Electron`：只有当生态约束或 OS API 明确要求时才选
+
+规则：
+- 在 Tauri 中，保持 Rust / backend boundary 足够薄且明确
+- 不要把大量 app logic 泄漏到 shell glue 中
+- 只要可能，尽量保持 frontend code 可移植
+
+做 Tauri 相关任务时：
+- command 要尽量窄、可解释
+- file/system action 要返回明确的 result / error
+- asset / icon / config path 要考虑 packaging 场景
+- desktop UI 仍然必须遵循和 web UI 一样的 component 与 verification discipline
+
+### 5.2 Packaging and Release Awareness
+
+只要动到 desktop UI 或 app metadata，就要显式考虑：
+- icon chain
+- build output per platform
+- config path 假设是否成立
+- 平台特定 UI 限制
+
+如果改动触及 shell / config / packaging 敏感文件，就不能在不检查构建链路的情况下声称任务完成。
+
+---
+
+## 6. Security Defaults
+
+始终强制：
+- 不允许 client-side secret 暴露
+- token、local storage、session data 要安全处理
+- form 和 user input 要有 validation
+- 渲染 HTML / markdown / user content 时保持谨慎
+- auth state 与 permission gate 必须显式处理
+
+当任务涉及下面这些内容时，优先进入 `security-review` 视角：
+- authentication
+- 嵌入式 HTML / markdown rendering
+- upload flow
+- privileged admin surface
+- desktop file / local system access
+
+---
+
+## 7. Testing and Verification
+
+### 7.1 Verification Strategy
+
+对任何有意义的 frontend 工作，至少要覆盖：
+- 改动界面的 visual/state review
+- 变更路径的至少一条 regression check
+- 有交互变化时的 keyboard / focus 检查
+- 布局变化时的 responsive sanity check
+
+按 repo 支持情况，优先使用：
+- lint
+- typecheck
+- unit / component tests
+- `playwright` / `webapp-testing`
+- 对 packaging 敏感改动做 build verification
+
+### 7.2 Verification Before Completion
+
+在声称完成之前，至少运行 repo 里适用的子集：
+- `npm run lint`
+- `npm run typecheck`
+- `npm run test`
+- `npm run build`
+- 有针对性的浏览器验证
+
+如果是 desktop surface，还需要额外验证：
+- 当 shell / config / icon / bridge 文件改动时，检查 Tauri / Electron 的构建路径
+
+如果是视觉类任务，完成说明里应至少提到：
+- 检查了哪些 states
+- 检查了哪些 breakpoints
+- 检查了哪个 browser / runtime path
+
+---
+
+## 8. Delivery Checklist
+
+对 frontend 任务来说，真正的“完成”至少能回答：
+- 哪个 user surface 被改了
+- 采用了什么 framework / state / data 方案，以及为什么
+- loading / empty / error / responsive state 怎么处理的
+- accessibility / keyboard / focus 怎么考虑的
+- 做了哪些 visual validation
+- 哪个经验值得进入 memory / instinct / learned skill
+
+## 8.5 Collaboration Contract
+
+- 与 `product-manager + product` 配合时，先把 acceptance criteria 映射成用户可见状态和交互。
+- 与 `ui-designer + design` 配合时，先落实 hierarchy、state 和 handoff note，再谈视觉润色。
+- 与 `qa-strategist + qa` 配合时，优先把 regression path 和 deterministic browser checks 跑通。
+- 与 `release-devex + release` 配合时，显式检查 build、asset pipeline、desktop packaging sensitivity。
+
+## 8.6 Do Not
+
+- 不用多套 styling / state / form 体系把同一块 UI 做散。
+- 不跳过 empty / loading / error / success state 就宣称界面完成。
+- 不为了“更酷”牺牲可读性、响应式和 component consistency。
+- 不在没跑 visual / runtime check 的情况下对用户界面改动给出完成结论。
+
+---
+
+## 9. Role Pairing Notes
+
+### `developer + frontend`
+重点看实现质量、component maintainability 和 framework-appropriate architecture。
+
+### `ui-designer + frontend`
+重点看 hierarchy、交互细节、真实 session 验证和 design-system consistency。
+
+### `qa-strategist + frontend`
+重点推动 deterministic UI verification、regression 场景和 state coverage。
+
+### `release-devex + frontend`
+重点关注 build stability、asset pipeline、packaging sensitivity 和 environment-specific runtime behavior。

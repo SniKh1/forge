@@ -1,257 +1,250 @@
-# Python 开发规范
+# Python Stack Pack
 
-**版本**：v2.0
-**更新日期**：2026-02-02
-**适用范围**：Python 后端服务、数据处理、自动化脚本
-
----
-
-## 一、技术栈选择
-
-### 1.1 Python 版本
-
-| 版本 | 状态 | 说明 |
-|------|------|------|
-| Python 3.13 | **首选** | 最新稳定版，JIT 编译器 |
-| Python 3.12 | 推荐 | 类型参数语法、性能提升 |
-| Python 3.11 | 维护中 | 遗留项目可用 |
-
-### 1.2 Web 框架
-
-| 框架 | 场景 | 特点 |
-|------|------|------|
-| FastAPI 0.115+ | API 首选 | 异步、类型提示、自动文档 |
-| Django 5.1+ | 全栈应用 | ORM、Admin、生态完整 |
-| Litestar | 高性能 API | 类型安全、插件系统 |
-| Flask 3.x | 轻量服务 | 灵活、简单 |
-
-### 1.3 包管理
-
-| 工具 | 场景 |
-|------|------|
-| uv | **首选**，极速，Rust 实现 |
-| Poetry 2.x | 依赖管理，锁文件 |
-| pip + venv | 传统方式 |
-
-### 1.4 数据库访问
-
-| 工具 | 场景 |
-|------|------|
-| SQLAlchemy 2.x | ORM 首选，异步支持 |
-| Tortoise ORM | 异步 ORM |
-| Prisma | 类型安全 |
+**Version**: v3.0  
+**Updated**: 2026-03-12  
+**Scope**: FastAPI services, Django apps, Python backends, automation and data-heavy service work
 
 ---
 
-## 二、Python 3.12+ 新特性（必用）
+## 1. Purpose
 
-### 2.1 类型参数语法 (PEP 695)
+当任务核心是下面这些内容时，加载这个 stack：
+- Python backend API
+- FastAPI 或 Django service
+- async IO 与 service orchestration
+- 仍需生产纪律的数据处理 pipeline
+- Python-first automation 或 internal service
 
-```python
-# 新语法：type 语句定义类型别名
-type Point = tuple[float, float]
-type ConnectionOptions = dict[str, str]
-type Address = tuple[str, int]
+这个 stack 主要与下面这些 role-pack 配对：
+- `developer`
+- `solution-architect`
+- `qa-strategist`
+- `release-devex`
 
-# 泛型类（新语法）
-class Stack[T]:
-    def __init__(self) -> None:
-        self._items: list[T] = []
+当这个 stack 生效时，推荐优先使用的 core skills：
+- `backend-development`
+- `python-patterns`
+- `python-testing`
+- 如果是 Django，则补 `django-patterns` / `django-tdd` / `django-security` / `django-verification`
+- `systematic-debugging`
+- `code-review`
 
-    def push(self, item: T) -> None:
-        self._items.append(item)
-
-    def pop(self) -> T:
-        return self._items.pop()
-
-# 泛型函数（新语法）
-def first[T](items: list[T]) -> T:
-    return items[0]
-
-# 带约束的类型参数
-from collections.abc import Hashable, Sequence
-
-type HashableSequence[T: Hashable] = Sequence[T]
-type IntOrStrSequence[T: (int, str)] = Sequence[T]
-```
-
-### 2.2 改进的 F-string (Python 3.12)
-
-```python
-# 可以在 f-string 中重用相同引号
-songs = ['Take me back to Eden', 'Alkaline']
-result = f"Playlist: {", ".join(songs)}"
-
-# 支持多行表达式
-data = f"Result: {
-    some_long_function_call(
-        arg1, arg2, arg3
-    )
-}"
-
-# 嵌套 f-string
-matrix = [[1, 2], [3, 4]]
-result = f"Matrix: {[f"[{', '.join(map(str, row))}]" for row in matrix]}"
-```
-
-### 2.3 Python 3.13 新特性
-
-```python
-# 改进的错误消息
-# Python 3.13 提供更精确的错误位置指示
-
-# 实验性 JIT 编译器（需启用）
-# python -X jit script.py
-
-# 改进的 REPL
-# 支持多行编辑、彩色输出、更好的历史记录
-
-# 移除 GIL（实验性，需特殊构建）
-# 自由线程 Python 构建支持真正的多线程并行
-```
+research / reference 优先级：
+1. `context7`：framework 和 dependency 官方文档
+2. `deepwiki`：开源实现参考
+3. `GitHub MCP`：repository 和 PR 上下文
 
 ---
 
-## 三、项目结构
+## 2. Default Technology Choices
 
-### 3.1 FastAPI 项目
+### 2.1 Runtime and Package Management
 
-```
-src/
-├── api/
-│   └── v1/
-├── core/
-├── models/
-├── schemas/
-├── services/
-└── utils/
-```
+默认优先级：
+- Python `3.12+`
+- `uv`：环境与依赖管理
+- `ruff`：lint / format
+- `pytest`：默认 test runner
 
-### 3.2 命名规范
+避免：
+- 不更新 lockfile 的临时 package install
+- 在同一 repo 无理由混用多套 dependency manager
+- 在核心 service path 中放任弱类型而不写 type hint
 
-| 类型 | 规范 | 示例 |
-|------|------|------|
-| 模块 | snake_case | `user_service` |
-| 类名 | PascalCase | `UserService` |
-| 函数 | snake_case | `get_user` |
-| 常量 | UPPER_SNAKE | `MAX_RETRY` |
+### 2.2 Framework Split
 
----
+下面这些场景优先使用 `FastAPI`：
+- 项目以 API 为主
+- async IO 重要
+- request / response contract 强依赖 typed schema
+- OpenAPI generation 有价值
 
-## 四、类型提示
+下面这些场景优先使用 `Django`：
+- admin、ORM、auth、batteries-included workflow 很重要
+- 应用偏 content-heavy 或 back-office
+- 一体化 web stack 比分散拼装更合适
 
-### 4.1 强制使用类型
-
-```python
-def get_user(user_id: int) -> User | None:
-    ...
-```
-
-### 4.2 Pydantic 模型
-
-```python
-from pydantic import BaseModel
-
-class UserCreate(BaseModel):
-    username: str
-    email: str
-```
+除非 repo 既有依赖就用 Flask，否则不建议把 Flask 作为新的 production 默认选择。
 
 ---
 
-## 五、异步编程
+## 3. Service Architecture
 
-### 5.1 async/await
+推荐结构：
+- `api` / router
+- `schemas`
+- `services`
+- `repositories` 或 data access layer
+- `models`
+- `core` / settings / shared infra
+- `tasks`：async / background workflow
 
-```python
-async def fetch_data() -> dict:
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url)
-        return response.json()
-```
+规则：
+- route handler 保持足够薄
+- service layer 负责编排和业务规则
+- persistence concern 要显式可见
+- external integration 应拆成独立 adapter
 
----
-
-## 六、错误处理
-
-### 6.1 自定义异常
-
-```python
-class BusinessError(Exception):
-    def __init__(self, code: str, message: str):
-        self.code = code
-        self.message = message
-```
-
-### 6.2 FastAPI 异常处理
-
-```python
-@app.exception_handler(BusinessError)
-async def handle_error(request, exc):
-    return JSONResponse(
-        status_code=400,
-        content={"code": exc.code, "message": exc.message}
-    )
-```
+不要：
+- 把 business rule 隐进 route handler
+- 默认把 ORM model 当公开 API contract
+- 把 settings、IO、domain logic 混进 utility module
 
 ---
 
-## 七、测试规范
+## 4. API, Validation, and Typing
 
-### 7.1 测试框架
+### 4.1 Boundary Rules
 
-| 工具 | 用途 |
-|------|------|
-| pytest | 首选测试框架 |
-| pytest-asyncio | 异步测试 |
-| httpx | API 测试 |
+始终优先：
+- 明确的 request / response schema
+- 在 boundary 做 input validation
+- service function 使用 typed return value
+- 对外错误使用 machine-readable response
 
-### 7.2 测试示例
+FastAPI 默认：
+- 用 Pydantic model 定义 request / response contract
+- 用 dependency injection 管理 auth、DB session 和 cross-cutting concern
+- 只有当下游栈真正是 async 时，才把 handler 做成 async
 
-```python
-@pytest.mark.asyncio
-async def test_get_user():
-    async with AsyncClient(app=app) as client:
-        response = await client.get("/users/1")
-        assert response.status_code == 200
-```
+Django 默认：
+- serializer / form 负责 validation
+- model method 不是无关 orchestration 的垃圾桶
+- 当 API 工作量明显上升时，优先用 DRF
 
----
+### 4.2 Typing Rules
 
-## 八、代码质量
-
-### 8.1 工具链
-
-| 工具 | 用途 |
-|------|------|
-| ruff | 代码检查 + 格式化 |
-| mypy | 类型检查 |
-| pre-commit | Git 钩子 |
+对非 trivial code，至少做到：
+- function signature typed
+- public service contract typed
+- 核心路径尽量避免 `Any`
+- 尽量用 typed alias / dataclass / pydantic model，少用 loose dict contract
 
 ---
 
-## 九、相关 Skill
+## 5. Persistence, IO, and Background Work
 
-| Skill | 用途 |
-|-------|------|
-| backend-development | 后端 API 开发 |
-| databases | 数据库操作 |
+默认选择：
+- `SQLAlchemy 2.x`：FastAPI / service-oriented persistence
+- Django ORM：Django-native project
+- query 复杂后，再引入显式 repository / data-access helper
+
+规则：
+- transaction 必须足够显式，能让人推理它的边界
+- 长任务应按需要移到 background execution
+- retry、timeout、external IO policy 必须在代码中可见
+
+避免：
+- 在 async handler 里偷偷做 blocking IO
+- 使用隐式 global session 或不可见的跨层 DB access
+- data pipeline 没有 validation 或 schema boundary
+
+如果存在 background work，至少说明：
+- trigger condition
+- retry policy
+- idempotency expectation
+- failure visibility
 
 ---
 
-## 更新记录
+## 6. Security Defaults
 
-- **v2.0** (2026-02-02) - Python 3.12/3.13 更新
-  - 升级到 Python 3.13 作为首选版本
-  - 新增类型参数语法 (PEP 695) 规范
-  - 新增改进的 F-string 规范
-  - 新增 Python 3.13 新特性（JIT、Free-threading）
-  - 更新 Web 框架版本要求
-  - 新增 Litestar 框架推荐
+始终强制：
+- 所有 external input 做 validation
+- secret 通过 env / secret store 管理
+- authn / authz 放在正确边界处理
+- SQL injection 通过 ORM binding 或安全参数化规避
+- automation script 的 file/path handling 要安全
+- 日志和 trace 要过滤敏感输出
 
-- **v1.0** (2026-02-02) - 初始版本
-  - FastAPI 技术栈
-  - 类型提示规范
-  - 异步编程规范
-  - 测试规范
-  - 代码质量工具
+当任务触及下面这些区域时，要进入 security-oriented review：
+- login / token
+- file upload / parsing
+- webhook
+- background task 与 external system 交互
+- dynamic execution 或 shell interaction
+
+---
+
+## 7. Testing and Verification
+
+### 7.1 Test Strategy
+
+默认 testing pyramid：
+- unit test：业务逻辑
+- integration test：persistence 与 API boundary
+- async test：只有 async code 真有意义时才补
+- end-to-end check：关键用户流程
+
+任何有意义的 feature work 至少要补：
+- happy path
+- 关键 failure path
+- validation / auth path（如适用）
+- bugfix 的 regression coverage
+
+推荐工具：
+- `pytest`
+- `pytest-asyncio`
+- `httpx`
+- framework-native test client
+- 在 infra 行为敏感时用 `Testcontainers` 或足够真实的 service fixture
+
+### 7.2 Verification Before Completion
+
+在声称完成前，至少运行 repo 适用子集：
+- `uv run pytest`
+- `pytest`
+- `ruff check .`
+- `ruff format --check .`
+- 当 typing 有要求时跑 `mypy .`
+- 如 repo 已配置，则补 framework-specific verification
+
+如果是 Django 任务，还应额外确认：
+- migration
+- settings correctness
+- auth / permission regression
+
+---
+
+## 8. Observability and Runtime Discipline
+
+优先：
+- structured logging
+- 明确的 exception mapping
+- request-heavy service 的 correlation ID
+- deployable service 的 health / readiness check
+- 对 external call 的 timeout / retry 行为保持可见
+
+避免：
+- 裸 `except Exception` 却不做重分类
+- 在 hot path 留下 noisy debug log
+- 默默吞掉 task failure
+- 让 data script 在没有 traceability 的情况下修改状态
+
+---
+
+## 9. Delivery Checklist
+
+对 Python 任务来说，真正的“完成”至少能回答：
+- 为什么选这个 framework path
+- validation / auth / IO boundary 怎么处理的
+- sync vs async 行为是否正确
+- 新增或更新了哪些 test
+- 还剩哪些 release / runtime 风险
+- 哪个经验值得进入 memory / instinct / learned skill
+
+---
+
+## 10. Role Pairing Notes
+
+### `developer + python`
+重点关注 explicit contract、framework-appropriate structure 和 testability。
+
+### `solution-architect + python`
+重点关注 service boundary、async realism、workflow orchestration 和 dependency clarity。
+
+### `qa-strategist + python`
+重点推动 regression coverage、validation/auth testing 和真实 integration check。
+
+### `release-devex + python`
+重点关注 environment reproducibility、lockfile、startup behavior、migration 和 operational visibility。
