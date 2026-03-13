@@ -6,23 +6,34 @@ on:
       - 'v0.*.*'
 
 jobs:
-  build-and-release:
+  build-desktop:
     permissions:
-      contents: write
+      contents: read
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: macos-latest
-            args: '--target aarch64-apple-darwin --bundles app'
+            target: 'aarch64-apple-darwin'
+            bundles: 'app'
+            artifact_name: 'forge-desktop-macos-arm64-app'
+            artifact_glob: 'apps/forge-desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Forge Desktop.app.tar.gz'
           - os: macos-latest
-            args: '--target x86_64-apple-darwin --bundles dmg'
+            target: 'x86_64-apple-darwin'
+            bundles: 'dmg'
+            artifact_name: 'forge-desktop-macos-x64-dmg'
+            artifact_glob: 'apps/forge-desktop/src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg'
           - os: windows-latest
-            args: ''
+            target: ''
+            bundles: 'msi'
+            artifact_name: 'forge-desktop-windows-msi'
+            artifact_glob: 'apps/forge-desktop/src-tauri/target/release/bundle/msi/*.msi'
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -38,19 +49,56 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Build and publish desktop artifacts
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build desktop artifact
+        working-directory: apps/forge-desktop
+        run: |
+          if [ -n "${{ matrix.target }}" ]; then
+            npm run tauri:build -- --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
+          else
+            npm run tauri:build -- --bundles ${{ matrix.bundles }}
+          fi
+        shell: bash
+
+      - name: Pack macOS app bundle
+        if: matrix.os == 'macos-latest' && matrix.bundles == 'app'
+        run: |
+          APP_PATH="apps/forge-desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Forge Desktop.app"
+          TAR_PATH="apps/forge-desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Forge Desktop.app.tar.gz"
+          rm -f "$TAR_PATH"
+          tar -C "$(dirname "$APP_PATH")" -czf "$TAR_PATH" "$(basename "$APP_PATH")"
+        shell: bash
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
-          projectPath: apps/forge-desktop
-          tagName: ${{ github.ref_name }}
-          releaseName: Forge ${{ github.ref_name }}
-          releaseBody: |
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_glob }}
+          if-no-files-found: error
+
+  publish-release:
+    needs: build-desktop
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Forge ${{ github.ref_name }}
+          body: |
             Download the installer or bundle asset for your platform from the list below.
 
             Full release details are tracked in CHANGELOG.md.
-          generateReleaseNotes: true
-          releaseDraft: false
+          generate_release_notes: true
+          draft: false
           prerelease: false
-          args: ${{ matrix.args }}
+          files: |
+            release-assets/**/*.dmg
+            release-assets/**/*.msi
+            release-assets/**/*.tar.gz

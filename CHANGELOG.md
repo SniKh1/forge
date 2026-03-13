@@ -9,6 +9,15 @@ The format follows a Keep a Changelog style, adapted for Forge.
 ### Added
 - Placeholder for upcoming changes.
 
+## [0.3.5] - 2026-03-13
+
+### Changed
+- Replaced the GitHub release pipeline with a two-stage flow: matrix builds upload artifacts first, then a dedicated release job publishes them to GitHub Releases.
+
+### Fixed
+- Removed the previous `tauri-action` release coupling that was failing with `git` exit code `128` during tagged release builds.
+- Standardized release assets to `macOS arm64 app.tar.gz`, `macOS x64 dmg`, and `Windows msi`.
+
 ## [0.3.4] - 2026-03-13
 
 ### Added
