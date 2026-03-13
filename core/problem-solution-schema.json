@@ -32,6 +32,7 @@
     "upgradeTarget": "memory | instinct | learned-skill | role-pack | stack-pack",
     "candidateSkillIds": "Optional list of skills likely involved.",
     "candidateRolePacks": "Optional list of related role-packs.",
-    "candidateStackPacks": "Optional list of related stack-packs."
+    "candidateStackPacks": "Optional list of related stack-packs.",
+    "extraction": "Optional heuristic extraction metadata including mode, noSemanticMessages, field confidence, and source signal counts."
   }
 }

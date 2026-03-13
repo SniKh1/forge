@@ -20,6 +20,8 @@ hooks 是自动检查点，不是承载大段业务逻辑的地方。
 - 判断当前 session 是否值得进入 learning promotion review
 - 保存基于 observation 的 instincts
 - 创建或更新 problem-solution memory scaffold
+- 刷新 problem-solution review queue
+- 对 reviewed records 生成 promotion suggestion 的 Markdown + JSON sidecar
 
 ### PreCompact
 - 在 context compaction 前保存状态

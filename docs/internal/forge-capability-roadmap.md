@@ -81,7 +81,14 @@ Forge 最终应稳定在四层结构：
 - problem-solution record structure
 - machine-readable promotion rules
 - hook checkpoints for observation + session learning
-- 统一 `self-improving-agent`、project memory、instincts、learned outputs
+- 已完成 `self-improving-agent`、project memory、instincts、learned outputs 的 canonical target 对齐
+- 已补齐 reviewed record -> promotion suggestion 的 Claude / Codex 运行时入口
+- 已补齐 transcript-aware heuristic extraction v2（优先自动提炼 `problem / rootCause / chosenFix / verification`，并识别空语义 transcript）
+- 已补齐 role / stack update proposal generation（输出 `md + json` 草案，不自动改 pack）
+- 已补齐 role / stack patch draft v1（按 `Default Skills / Trigger Cues / Validation Checklist / Collaboration Contract` 等 section 生成可 review 的插入片段）
+- 已补齐 file-aware patch hint：能识别目标 pack 文件中的真实 section 变体（例如 `Verification Before Completion`、`Delivery Checklist`、带编号 heading），并输出更贴近文件现状的插入提示
+- 已补齐更高语义贴合度的 patch draft：`Default Skills / Preferred Skills / Collaboration Contract` 现在会附带更贴近具体 role-pack / stack-pack 的用途说明与协同语义。
+- 下一步集中在更高质量的 semantic extraction，以及让 domain pack 也输出更细的专属 patch 建议。
 
 ### P4 — Desktop / Catalog Alignment
 - 先选 role-pack，再选 stack-pack
@@ -110,6 +117,17 @@ Forge 最终应稳定在四层结构：
 - `workflow-automation`
 - 推荐映射见 `docs/internal/domain-pack-skill-map-v1.md`
 - 后续再补 role-aware MCP / skill recommendation 与 Desktop 集成
+
+### P5.5 — External Registry Integration
+- 已接入 `skills.sh` 作为 external skill discovery source（第一版）
+- 已接入 Official MCP Registry 作为 external MCP discovery source（第一版）
+- 已落地 `registry-sources.json`、CLI searchable integration、Desktop searchable integration
+- 已落地 external catalog cache（repo-local `.cache/external-registry`）
+- 已按当前 `role-pack / stack-pack / domain pack` 增强 external 搜索排序
+- 已补齐 external MCP 安装前二次确认（展示 `command / args / env / requiredSecrets`）
+- 保持 `built-in / curated-external / browse-only` 三层来源边界
+- 不自动信任或静默执行第三方 install command
+- 方案文档见 `docs/internal/external-registry-integration-v1.md`
 
 ## Deferred: Release / Windows Packaging
 

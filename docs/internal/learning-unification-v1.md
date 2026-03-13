@@ -43,6 +43,9 @@
   - 判断当前 session 是否值得进入 learning review
 - `problem-solution-memory.js`
   - 在 problem-solution memory 下创建 durable scaffold
+- `promotion-suggestion.js`
+  - 刷新 scaffold review queue
+  - 对 reviewed records 生成 Markdown + JSON promotion suggestion
 
 ### Codex
 - `scripts/codex-learning/codex-learning.js ensure`
@@ -70,12 +73,20 @@
 已经实现：
 - shared schema file
 - durable problem-solution markdown + json scaffold
+- transcript-aware heuristic extraction v2 for `problem` / `rootCause` / `chosenFix` / `verification`
+- empty transcript detection（例如只有 `file-history-snapshot` 的 transcript 会显式标记为 `heuristic-v2-empty`）
 - Codex manual record command
-- Codex promotion suggestion command
+- Codex promotion suggestion command（Markdown + JSON）
+- role / stack update proposal generation（Markdown + JSON 草案）
+- role / stack patch draft generation v1（为 pack 文档生成更接近可 merge 的 section insertion 片段）
+- file-aware patch hint（能识别目标 pack 文件中的真实 section 变体，并给出更贴近现状的插入提示）
+- semantic-aware patch draft（为 `Default Skills / Preferred Skills / Collaboration Contract` 等 section 补充更贴近具体 role-pack / stack-pack 的用途说明与协同语义）
 - Claude hooks-driven scaffold creation
+- Claude hook-driven review queue + promotion suggestion
 - machine-readable promotion rules
 
 仍待完成：
-- 从 transcript 自动提取 root cause / chosen fix / verification
+- 更高质量的 transcript semantic extraction（减少噪音、提升 root cause / fix 精度）
 - automatic promotion application
 - Gemini 的等价自动捕获
+- 让 domain pack 也具备同等级别的专属 patch 建议能力

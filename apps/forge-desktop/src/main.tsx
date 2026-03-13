@@ -104,6 +104,68 @@ type CommunityEntry = {
   note: string;
 };
 
+type ExternalSkillResult = {
+  id: string;
+  source: string;
+  skill: string;
+  title: string;
+  installs?: string;
+  url?: string;
+  description: string;
+  sourceLabel: string;
+  trust: string;
+  kind: 'skills';
+  installable: boolean;
+};
+
+type ExternalMcpInstallSpec = {
+  name: string;
+  transport: 'stdio';
+  command: string;
+  args: string[];
+  env?: Record<string, string>;
+  requiredSecrets?: string[];
+  packageIdentifier?: string;
+};
+
+type ExternalMcpResult = {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  url?: string;
+  sourceLabel: string;
+  kind: 'mcp';
+  trust: string;
+  officialStatus?: string;
+  installable: boolean;
+  installReason?: string;
+  requiredSecrets?: string[];
+  installSpec?: ExternalMcpInstallSpec | null;
+};
+
+type ExternalMcpConfirmData = {
+  entry: ExternalMcpResult;
+  busyKey: string;
+};
+
+type ExternalRegistrySource = {
+  id: string;
+  name: string;
+  kind: CommunityKind;
+  type: string;
+  url: string;
+  trust: string;
+  note: string;
+};
+
+type ExternalSearchPayload = {
+  kind: CommunityKind;
+  query: string;
+  sources: ExternalRegistrySource[];
+  results: Array<ExternalSkillResult | ExternalMcpResult>;
+};
+
 const clientOrder: Client[] = ['claude', 'codex', 'gemini'];
 const roleOrder: RolePack[] = ['product-manager', 'ui-designer', 'solution-architect', 'qa-strategist', 'release-devex'];
 const installRoleOrder: InstallRolePack[] = ['developer', 'product-manager', 'ui-designer', 'solution-architect', 'qa-strategist', 'release-devex'];
@@ -282,6 +344,84 @@ function groupSkillsByLayer(items: DetailOption[]) {
     .filter((group) => group.items.length > 0);
 }
 
+function tokenizeSearchTerms(...values: Array<string | null | undefined>) {
+  return Array.from(new Set(
+    values
+      .flatMap((value) => String(value || '').toLowerCase().split(/[^a-z0-9-]+/))
+      .map((item) => item.trim())
+      .filter((item) => item.length >= 3),
+  ));
+}
+
+function joinExternalSkillText(entry: ExternalSkillResult) {
+  return [
+    entry.id,
+    entry.source,
+    entry.skill,
+    entry.title,
+    entry.description,
+    entry.url,
+    entry.sourceLabel,
+  ].join(' ').toLowerCase();
+}
+
+function joinExternalMcpText(entry: ExternalMcpResult) {
+  return [
+    entry.id,
+    entry.name,
+    entry.title,
+    entry.description,
+    entry.url,
+    entry.sourceLabel,
+    entry.installReason,
+  ].join(' ').toLowerCase();
+}
+
+function scoreExternalSkill(entry: ExternalSkillResult, query: string, preferredIds: Set<string>, preferredTerms: readonly string[]) {
+  const text = joinExternalSkillText(entry);
+  let score = 0;
+  if (preferredIds.has(entry.skill) || preferredIds.has(entry.id)) score += 120;
+  for (const term of preferredTerms) {
+    if (entry.skill.toLowerCase() === term || entry.id.toLowerCase() === term) {
+      score += 45;
+      continue;
+    }
+    if (text.includes(term)) score += 14;
+  }
+  const normalizedQuery = query.trim().toLowerCase();
+  if (normalizedQuery) {
+    if (entry.skill.toLowerCase() === normalizedQuery || entry.title.toLowerCase() === normalizedQuery) {
+      score += 24;
+    } else if (text.includes(normalizedQuery)) {
+      score += 10;
+    }
+  }
+  return score;
+}
+
+function scoreExternalMcp(entry: ExternalMcpResult, query: string, preferredIds: Set<string>, preferredTerms: readonly string[]) {
+  const text = joinExternalMcpText(entry);
+  let score = Number(entry.installable) * 90;
+  if (preferredIds.has(entry.name) || preferredIds.has(entry.id)) score += 120;
+  for (const term of preferredTerms) {
+    if (entry.name.toLowerCase() === term || entry.id.toLowerCase() === term) {
+      score += 45;
+      continue;
+    }
+    if (text.includes(term)) score += 14;
+  }
+  const normalizedQuery = query.trim().toLowerCase();
+  if (normalizedQuery) {
+    if (entry.name.toLowerCase() === normalizedQuery || entry.title.toLowerCase() === normalizedQuery) {
+      score += 24;
+    } else if (text.includes(normalizedQuery)) {
+      score += 10;
+    }
+  }
+  if (entry.officialStatus === 'active') score += 4;
+  return score;
+}
+
 const messages: Record<Lang, Messages> = {
   zh: {
     productName: 'Forge Desktop',
@@ -404,6 +544,33 @@ const messages: Record<Lang, Messages> = {
     builtInSkillsHint: '这里是当前平台可直接加入安装清单的内置 skill，会按角色和栈优先级排序。',
     communityReposSection: '社区仓库',
     communityReposHint: '这些是外部技能仓库入口，适合继续扩展，但默认不会直接写入当前平台。',
+    externalSearchSection: '外部搜索',
+    externalSearchHintSkills: '从 skills.sh 搜索第三方 skill，确认后可直接安装到当前客户端配置。',
+    externalSearchHintMcp: '从 Official MCP Registry 搜索可用条目。只有能安全映射到当前客户端配置的项才提供直接安装。',
+    searchingExternal: '正在搜索外部来源...',
+    externalSearchError: '外部搜索失败，请检查网络或 CLI 输出。',
+    externalSourceLabel: '搜索来源',
+    installToCurrentPlatform: '安装到当前平台',
+    installToCurrentPlatformBusy: '正在安装...',
+    requiresSecrets: '需要配置',
+    browseOnlyReason: '当前只提供浏览入口',
+    searchFromSkillsSh: '当前使用 skills.sh 作为外部 skill 来源。',
+    searchFromOfficialMcp: '当前使用 Official MCP Registry 作为外部 MCP 来源。',
+    externalInstallDone: '已安装到当前平台配置。',
+    externalInstallFailed: '安装失败，请查看命令日志。',
+    officialStatus: '官方状态',
+    installableNow: '可直接安装',
+    browseOnlyTag: '仅浏览',
+    externalMcpConfirmTitle: '确认安装 external MCP',
+    externalMcpConfirmHint: '会把下面这组 command / args / env 写入当前客户端配置。涉及 secrets 的项会按变量名展示，不会直接展开真实值。',
+    targetClientLabel: '目标客户端',
+    commandLabel: 'command',
+    argsLabel: 'args',
+    envLabel: 'env',
+    noArgs: '当前没有额外 args。',
+    noEnv: '当前没有额外 env。',
+    noSecrets: '当前没有额外 secrets。',
+    installSourceLabel: '安装来源',
     zh: '中文',
     en: 'English',
     ja: '日本語',
@@ -529,6 +696,33 @@ const messages: Record<Lang, Messages> = {
     builtInSkillsHint: 'Built-in skills that can be added directly to the current install list, sorted by role and stack priority.',
     communityReposSection: 'Community repositories',
     communityReposHint: 'External skill repositories for further expansion. They remain browse-only by default.',
+    externalSearchSection: 'External search',
+    externalSearchHintSkills: 'Search third-party skills from skills.sh and install them directly into the current client after confirmation.',
+    externalSearchHintMcp: 'Search the Official MCP Registry. Only entries that map safely into the current client config expose direct install.',
+    searchingExternal: 'Searching external sources...',
+    externalSearchError: 'External search failed. Check network access or CLI output.',
+    externalSourceLabel: 'Search source',
+    installToCurrentPlatform: 'Install to current client',
+    installToCurrentPlatformBusy: 'Installing...',
+    requiresSecrets: 'Requires secrets',
+    browseOnlyReason: 'Browse-only entry',
+    searchFromSkillsSh: 'Using skills.sh as the external skill source.',
+    searchFromOfficialMcp: 'Using the Official MCP Registry as the external MCP source.',
+    externalInstallDone: 'Installed into the current client config.',
+    externalInstallFailed: 'Install failed. Check the command log.',
+    officialStatus: 'Official status',
+    installableNow: 'Installable now',
+    browseOnlyTag: 'Browse only',
+    externalMcpConfirmTitle: 'Confirm external MCP install',
+    externalMcpConfirmHint: 'Forge will write the command / args / env below into the current client config. Secret-backed entries are shown by variable name only.',
+    targetClientLabel: 'Target client',
+    commandLabel: 'command',
+    argsLabel: 'args',
+    envLabel: 'env',
+    noArgs: 'No additional args.',
+    noEnv: 'No extra env entries.',
+    noSecrets: 'No extra secrets.',
+    installSourceLabel: 'Install source',
     zh: '中文',
     en: 'English',
     ja: '日本語',
@@ -654,6 +848,33 @@ const messages: Record<Lang, Messages> = {
     builtInSkillsHint: '現在のプラットフォームへ直接追加できる内蔵 skill です。役割とスタックの優先度で並び替えます。',
     communityReposSection: 'コミュニティリポジトリ',
     communityReposHint: 'さらに拡張するための外部 skill リポジトリ入口です。既定では閲覧のみです。',
+    externalSearchSection: '外部検索',
+    externalSearchHintSkills: 'skills.sh から第三者 skill を検索し、確認後に現在のクライアントへ直接導入できます。',
+    externalSearchHintMcp: 'Official MCP Registry を検索します。現在のクライアント設定へ安全に写せる項目だけ直接導入を表示します。',
+    searchingExternal: '外部ソースを検索中...',
+    externalSearchError: '外部検索に失敗しました。ネットワークまたは CLI 出力を確認してください。',
+    externalSourceLabel: '検索ソース',
+    installToCurrentPlatform: '現在のクライアントへ導入',
+    installToCurrentPlatformBusy: '導入中...',
+    requiresSecrets: '必要な secrets',
+    browseOnlyReason: '閲覧のみの項目',
+    searchFromSkillsSh: '外部 skill ソースとして skills.sh を使用します。',
+    searchFromOfficialMcp: '外部 MCP ソースとして Official MCP Registry を使用します。',
+    externalInstallDone: '現在のクライアント設定へ導入しました。',
+    externalInstallFailed: '導入に失敗しました。コマンドログを確認してください。',
+    officialStatus: '公式ステータス',
+    installableNow: '直接導入可',
+    browseOnlyTag: '閲覧のみ',
+    externalMcpConfirmTitle: 'external MCP 導入の確認',
+    externalMcpConfirmHint: '下の command / args / env を現在のクライアント設定へ書き込みます。secret が必要な項目は変数名だけを表示します。',
+    targetClientLabel: '対象クライアント',
+    commandLabel: 'command',
+    argsLabel: 'args',
+    envLabel: 'env',
+    noArgs: '追加の args はありません。',
+    noEnv: '追加の env はありません。',
+    noSecrets: '追加の secrets はありません。',
+    installSourceLabel: '導入ソース',
     zh: '中文',
     en: 'English',
     ja: '日本語',
@@ -905,6 +1126,16 @@ async function openTarget(target: string) {
   }
 }
 
+function encodeBase64Json(value: unknown) {
+  const payload = JSON.stringify(value);
+  const bytes = new TextEncoder().encode(payload);
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary);
+}
+
 function App() {
   const [section, setSection] = React.useState<Section>('platform');
   const [communityKind, setCommunityKind] = React.useState<CommunityKind>('skills');
@@ -927,6 +1158,7 @@ function App() {
   const [secretExpanded, setSecretExpanded] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [confirmMode, setConfirmMode] = React.useState<'install' | 'repair'>('install');
+  const [pendingExternalMcp, setPendingExternalMcp] = React.useState<ExternalMcpConfirmData | null>(null);
   const [resultLog, setResultLog] = React.useState('Ready.');
   const [copiedKey, setCopiedKey] = React.useState('');
   const [search, setSearch] = React.useState('');
@@ -941,6 +1173,12 @@ function App() {
   const [selectedSkillDetails, setSelectedSkillDetails] = React.useState<Record<string, boolean>>(() =>
     Object.fromEntries(skillDetailOptions.map((item) => [item.id, true])),
   );
+  const [externalSearchLoading, setExternalSearchLoading] = React.useState(false);
+  const [externalSearchError, setExternalSearchError] = React.useState('');
+  const [externalSkillResults, setExternalSkillResults] = React.useState<ExternalSkillResult[]>([]);
+  const [externalMcpResults, setExternalMcpResults] = React.useState<ExternalMcpResult[]>([]);
+  const [externalSources, setExternalSources] = React.useState<ExternalRegistrySource[]>([]);
+  const [externalInstallBusy, setExternalInstallBusy] = React.useState('');
 
   const t = messages[lang];
 
@@ -958,7 +1196,7 @@ function App() {
   React.useEffect(() => {
     if (typeof document === 'undefined') return undefined;
     const previous = document.body.style.overflow;
-    if (confirmOpen) {
+    if (confirmOpen || pendingExternalMcp) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = previous || '';
@@ -966,7 +1204,58 @@ function App() {
     return () => {
       document.body.style.overflow = previous || '';
     };
-  }, [confirmOpen]);
+  }, [confirmOpen, pendingExternalMcp]);
+
+  React.useEffect(() => {
+    if (section !== 'community') return undefined;
+    const q = search.trim();
+    if (!q) {
+      setExternalSearchError('');
+      setExternalSearchLoading(false);
+      setExternalSources([]);
+      setExternalSkillResults([]);
+      setExternalMcpResults([]);
+      return undefined;
+    }
+
+    let active = true;
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        setExternalSearchLoading(true);
+        setExternalSearchError('');
+        const payload = await runForgeJson<ExternalSearchPayload>(
+          ['external-search', '--kind', communityKind, '--query', q],
+          workspace,
+        );
+        if (!active) return;
+        if (!payload) {
+          setExternalSources([]);
+          if (communityKind === 'skills') {
+            setExternalSkillResults([]);
+          } else {
+            setExternalMcpResults([]);
+          }
+          setExternalSearchError(t.externalSearchError);
+          setExternalSearchLoading(false);
+          return;
+        }
+        setExternalSources(payload.sources || []);
+        if (communityKind === 'skills') {
+          setExternalSkillResults((payload.results || []) as ExternalSkillResult[]);
+          setExternalMcpResults([]);
+        } else {
+          setExternalMcpResults((payload.results || []) as ExternalMcpResult[]);
+          setExternalSkillResults([]);
+        }
+        setExternalSearchLoading(false);
+      })();
+    }, 350);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [communityKind, search, section, t.externalSearchError, workspace]);
 
   const loadState = React.useCallback(async () => {
     setIsLoading(true);
@@ -1033,6 +1322,7 @@ function App() {
     () => (isDomainStackPack(installStackPack) ? forgeDomainMcpMatrix.stacks[installStackPack] : null),
     [installStackPack],
   );
+  const activeRoleGuide = React.useMemo(() => forgeRoleMcpMatrix.roles[activeRolePack], [activeRolePack]);
   const recommendedMcpIdSet = React.useMemo<Set<string>>(() => new Set([
     ...installGuide.recommendedMcp.map((entry) => String(entry.id)),
     ...(activeDomainGuide?.recommendedMcp?.map((entry) => String(entry.id)) || []),
@@ -1054,6 +1344,31 @@ function App() {
       .filter((item) => item.clients.includes(activeClient))
       .sort((a, b) => Number(recommendedSkillIdSet.has(b.id)) - Number(recommendedSkillIdSet.has(a.id)) || a.title.localeCompare(b.title)),
     [activeClient, recommendedSkillIdSet],
+  );
+  const preferredExternalSkillTerms = React.useMemo(
+    () => tokenizeSearchTerms(
+      ...Array.from(recommendedSkillIdSet),
+      installRolePack,
+      installStackPack,
+      roleLabel(installRolePack, lang),
+      stackLabel(installStackPack, lang),
+    ),
+    [installRolePack, installStackPack, lang, recommendedSkillIdSet],
+  );
+  const preferredExternalMcpTerms = React.useMemo(
+    () => tokenizeSearchTerms(
+      ...Array.from(recommendedMcpIdSet),
+      ...installGuide.recommendedMcp.map((entry) => entry.label),
+      ...activeRoleGuide.recommendedMcp.map((entry) => entry.label),
+      ...roleGuideExtraTools(activeRoleGuide).map((entry) => entry.label),
+      ...(activeDomainGuide?.recommendedMcp?.map((entry) => entry.label) || []),
+      ...(activeDomainGuide ? domainGuideExtraTools(activeDomainGuide).map((entry) => entry.label) : []),
+      installRolePack,
+      installStackPack,
+      roleLabel(installRolePack, lang),
+      stackLabel(installStackPack, lang),
+    ),
+    [activeDomainGuide, activeRoleGuide, installGuide, installRolePack, installStackPack, lang, recommendedMcpIdSet],
   );
   const selectedMcpServerIds = React.useMemo(
     () => mcpDetailList.filter((item) => selectedMcpDetails[item.id]).map((item) => item.id),
@@ -1131,8 +1446,24 @@ function App() {
     () => searchResults.filter((entry) => entry.kind === 'skills'),
     [searchResults],
   );
-
-  const activeRoleGuide = React.useMemo(() => forgeRoleMcpMatrix.roles[activeRolePack], [activeRolePack]);
+  const externalSkillResultsSorted = React.useMemo(
+    () => [...externalSkillResults].sort((a, b) => {
+      const scoreDiff = scoreExternalSkill(b, search, recommendedSkillIdSet, preferredExternalSkillTerms)
+        - scoreExternalSkill(a, search, recommendedSkillIdSet, preferredExternalSkillTerms);
+      if (scoreDiff !== 0) return scoreDiff;
+      return a.title.localeCompare(b.title);
+    }),
+    [externalSkillResults, preferredExternalSkillTerms, recommendedSkillIdSet, search],
+  );
+  const externalMcpResultsSorted = React.useMemo(
+    () => [...externalMcpResults].sort((a, b) => {
+      const scoreDiff = scoreExternalMcp(b, search, recommendedMcpIdSet, preferredExternalMcpTerms)
+        - scoreExternalMcp(a, search, recommendedMcpIdSet, preferredExternalMcpTerms);
+      if (scoreDiff !== 0) return scoreDiff;
+      return a.title.localeCompare(b.title);
+    }),
+    [externalMcpResults, preferredExternalMcpTerms, recommendedMcpIdSet, search],
+  );
   const roleRecommendedSkills = React.useMemo(
     () => {
       const ids = new Set<string>(activeRoleGuide.recommendedSkills as readonly string[]);
@@ -1185,6 +1516,66 @@ function App() {
     setSelectedMcpDetails((current) => ({ ...current, [id]: true }));
     setSection('platform');
     setResultLog(`Added MCP to install list: ${id}`);
+  }, []);
+
+  const installExternalSkillToCurrent = React.useCallback(async (entry: ExternalSkillResult) => {
+    const busyKey = `skill:${entry.id}`;
+    setExternalInstallBusy(busyKey);
+    const result = await runForgeJson<{ ok: boolean; installed?: { targetDir?: string } }>(
+      ['external-install-skill', '--client', activeClient, '--source', entry.source, '--skill', entry.skill],
+      workspace,
+    );
+    if (!result?.ok) {
+      setResultLog(`${t.externalInstallFailed}\n${entry.skill}`);
+      setLogExpanded(true);
+      setExternalInstallBusy('');
+      return;
+    }
+    setResultLog(`${t.externalInstallDone}\n${entry.skill}\n${result.installed?.targetDir || ''}`.trim());
+    setSection('platform');
+    setSelectedOptional((current) => ({ ...current, skills: true }));
+    setSelectedSkillDetails((current) => ({ ...current, [entry.skill]: true }));
+    setLogExpanded(true);
+    setExternalInstallBusy('');
+    await loadState();
+  }, [activeClient, loadState, t.externalInstallDone, t.externalInstallFailed, workspace]);
+
+  const confirmExternalMcpInstall = React.useCallback(async () => {
+    if (!pendingExternalMcp) return;
+    const { entry, busyKey } = pendingExternalMcp;
+    setPendingExternalMcp(null);
+    setExternalInstallBusy(busyKey);
+    const specBase64 = encodeBase64Json(entry);
+    const result = await runForgeJson<{ ok: boolean }>(
+      ['external-install-mcp', '--client', activeClient, '--name', entry.installSpec?.name || entry.name, '--spec-base64', specBase64],
+      workspace,
+    );
+    if (!result?.ok) {
+      setResultLog(`${t.externalInstallFailed}\n${entry.title}`);
+      setLogExpanded(true);
+      setExternalInstallBusy('');
+      return;
+    }
+    setResultLog(`${t.externalInstallDone}\n${entry.title}`);
+    setSection('platform');
+    setSelectedOptional((current) => ({ ...current, mcp: true }));
+    if (entry.installSpec?.name) {
+      setSelectedMcpDetails((current) => ({ ...current, [entry.installSpec?.name || entry.name]: true }));
+    }
+    setLogExpanded(true);
+    setExternalInstallBusy('');
+    await loadState();
+  }, [activeClient, loadState, pendingExternalMcp, t.externalInstallDone, t.externalInstallFailed, workspace]);
+
+  const requestExternalMcpInstall = React.useCallback(async (entry: ExternalMcpResult) => {
+    if (!entry.installable || !entry.installSpec) {
+      if (entry.url) {
+        await openTarget(entry.url);
+      }
+      return;
+    }
+    const busyKey = `mcp:${entry.id}`;
+    setPendingExternalMcp({ entry, busyKey });
   }, []);
 
   const openConfirm = React.useCallback((mode: 'install' | 'repair') => {
@@ -1467,6 +1858,16 @@ function App() {
                   onApplyRecommended={applyRecommendedPreset}
                 />
               )}
+              {pendingExternalMcp && (
+                <ExternalMcpConfirmModal
+                  entry={pendingExternalMcp.entry}
+                  activeClient={activeClient}
+                  lang={lang}
+                  t={t}
+                  onCancel={() => setPendingExternalMcp(null)}
+                  onConfirm={() => void confirmExternalMcpInstall()}
+                />
+              )}
             </div>
           )}
           {section === 'community' && (
@@ -1702,6 +2103,73 @@ function App() {
                   <section className="rounded-[14px] border border-slate-200 bg-white px-4 py-4 shadow-[0_20px_45px_rgba(15,23,42,0.06)]">
                     <div className="flex items-start justify-between gap-4">
                       <div>
+                        <div className="text-[16px] font-semibold tracking-[-0.02em] text-slate-950">{t.externalSearchSection}</div>
+                        <div className="mt-1 text-[13px] text-slate-500">{t.externalSearchHintSkills}</div>
+                        <div className="mt-2 text-[12px] text-slate-400">
+                          {t.externalSourceLabel}: {externalSources[0]?.name || 'skills.sh'} · {t.searchFromSkillsSh}
+                        </div>
+                      </div>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                        {externalSkillResultsSorted.length}
+                      </span>
+                    </div>
+                    <div className="mt-4">
+                      {externalSearchLoading ? (
+                        <div className="rounded-[12px] border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center text-slate-500">
+                          {t.searchingExternal}
+                        </div>
+                      ) : externalSearchError ? (
+                        <div className="rounded-[12px] border border-rose-200 bg-rose-50 px-4 py-4 text-[13px] text-rose-700">
+                          {externalSearchError}
+                        </div>
+                      ) : search.trim() && externalSkillResultsSorted.length === 0 ? (
+                        <div className="rounded-[12px] border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center text-slate-500">
+                          {t.noItems}
+                        </div>
+                      ) : (
+                        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                          {externalSkillResultsSorted.map((entry) => (
+                            <article key={entry.id} className="flex flex-col rounded-[12px] border border-slate-200 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <div className="text-[15px] font-semibold text-slate-950">{entry.title}</div>
+                                  <div className="mt-1 text-[13px] text-slate-500">{entry.description}</div>
+                                </div>
+                                <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-200">
+                                  {entry.sourceLabel}
+                                </span>
+                              </div>
+                              <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-slate-500">
+                                <span className="rounded-full bg-slate-100 px-2.5 py-1 ring-1 ring-slate-200">{entry.source}</span>
+                                {entry.installs && <span className="rounded-full bg-slate-100 px-2.5 py-1 ring-1 ring-slate-200">{entry.installs} installs</span>}
+                              </div>
+                              <div className="mt-auto flex items-center justify-end gap-2 pt-4">
+                                {entry.url && (
+                                  <button type="button" onClick={() => void openTarget(entry.url!)} className="inline-flex items-center gap-2 rounded-[10px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700">
+                                    <ExternalLink className="h-4 w-4" />
+                                    {t.openRepo}
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => void installExternalSkillToCurrent(entry)}
+                                  disabled={externalInstallBusy === `skill:${entry.id}`}
+                                  className="inline-flex items-center gap-2 rounded-[10px] bg-slate-900 px-3 py-2 text-[12px] font-medium text-white disabled:opacity-50"
+                                >
+                                  <PlusIcon className="h-3.5 w-3.5" />
+                                  {externalInstallBusy === `skill:${entry.id}` ? t.installToCurrentPlatformBusy : t.installToCurrentPlatform}
+                                </button>
+                              </div>
+                            </article>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </section>
+
+                  <section className="rounded-[14px] border border-slate-200 bg-white px-4 py-4 shadow-[0_20px_45px_rgba(15,23,42,0.06)]">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
                         <div className="text-[16px] font-semibold tracking-[-0.02em] text-slate-950">{t.builtInSkillsSection}</div>
                         <div className="mt-1 text-[13px] text-slate-500">{t.builtInSkillsHint}</div>
                       </div>
@@ -1834,6 +2302,76 @@ function App() {
                   </section>
                 </div>
               ) : (
+                <div className="space-y-4">
+                  <section className="rounded-[14px] border border-slate-200 bg-white px-4 py-4 shadow-[0_20px_45px_rgba(15,23,42,0.06)]">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="text-[16px] font-semibold tracking-[-0.02em] text-slate-950">{t.externalSearchSection}</div>
+                        <div className="mt-1 text-[13px] text-slate-500">{t.externalSearchHintMcp}</div>
+                        <div className="mt-2 text-[12px] text-slate-400">
+                          {t.externalSourceLabel}: {externalSources[0]?.name || 'Official MCP Registry'} · {t.searchFromOfficialMcp}
+                        </div>
+                      </div>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                        {externalMcpResultsSorted.length}
+                      </span>
+                    </div>
+                    <div className="mt-4">
+                      {externalSearchLoading ? (
+                        <div className="rounded-[12px] border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center text-slate-500">
+                          {t.searchingExternal}
+                        </div>
+                      ) : externalSearchError ? (
+                        <div className="rounded-[12px] border border-rose-200 bg-rose-50 px-4 py-4 text-[13px] text-rose-700">
+                          {externalSearchError}
+                        </div>
+                      ) : search.trim() && externalMcpResultsSorted.length === 0 ? (
+                        <div className="rounded-[12px] border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center text-slate-500">
+                          {t.noItems}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+                          {externalMcpResultsSorted.map((entry) => (
+                            <article key={entry.id} className="flex flex-col rounded-[14px] border border-slate-200 bg-white p-5 shadow-[0_16px_36px_rgba(15,23,42,0.05)]">
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <div className="text-[17px] font-semibold tracking-[-0.02em] text-slate-950">{entry.title}</div>
+                                  <div className="mt-1 text-[13px] text-slate-500">{entry.description}</div>
+                                </div>
+                                <span className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ${entry.installable ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-slate-100 text-slate-600 ring-slate-200'}`}>
+                                  {entry.installable ? t.installableNow : t.browseOnlyTag}
+                                </span>
+                              </div>
+                              <div className="mt-4 rounded-[12px] bg-slate-50 px-4 py-4 text-[13px] text-slate-600">
+                                <div className="font-medium text-slate-900">{entry.sourceLabel}</div>
+                                {entry.officialStatus && <div className="mt-1">{t.officialStatus}: {entry.officialStatus}</div>}
+                                {entry.requiredSecrets && entry.requiredSecrets.length > 0 && (
+                                  <div className="mt-3 text-slate-500">{t.requiresSecrets}: {entry.requiredSecrets.join(', ')}</div>
+                                )}
+                                {!entry.installable && <div className="mt-3 text-slate-500">{entry.installReason || t.browseOnlyReason}</div>}
+                              </div>
+                              <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-5">
+                                <button type="button" onClick={() => void openTarget(entry.url || 'https://registry.modelcontextprotocol.io/')} className="inline-flex items-center gap-2 rounded-[14px] border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-700">
+                                  <ExternalLink className="h-4 w-4" />
+                                  {t.openRepo}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => void requestExternalMcpInstall(entry)}
+                                  disabled={externalInstallBusy === `mcp:${entry.id}`}
+                                  className={`inline-flex items-center gap-2 rounded-[14px] px-3 py-2 text-[13px] ${entry.installable ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-700'} disabled:opacity-50`}
+                                >
+                                  <PlusIcon className="h-4 w-4" />
+                                  {externalInstallBusy === `mcp:${entry.id}` ? t.installToCurrentPlatformBusy : entry.installable ? t.installToCurrentPlatform : t.browseOnlyTag}
+                                </button>
+                              </div>
+                            </article>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </section>
+
                 <section className="grid grid-cols-2 gap-4 xl:grid-cols-3">
                   {searchResults.length === 0 && (
                     <div className="col-span-full rounded-[14px] border border-dashed border-slate-300 bg-white px-6 py-16 text-center text-slate-500">
@@ -1894,6 +2432,7 @@ function App() {
                     </article>
                   ))}
                 </section>
+                </div>
               )}
             </div>
           )}
@@ -2341,6 +2880,106 @@ function ConfirmRow({ option }: { option: InstallOption }) {
     <div className="rounded-[10px] border border-slate-200 bg-slate-50 px-3 py-3">
       <div className="flex items-center gap-2 text-[13px] font-medium text-slate-900"><Icon className="h-4 w-4 text-slate-600" />{option.title}</div>
       <div className="mt-1 text-[12px] text-slate-500">{option.effect}</div>
+    </div>
+  );
+}
+
+function ExternalMcpConfirmModal({
+  entry,
+  activeClient,
+  lang,
+  t,
+  onCancel,
+  onConfirm,
+}: {
+  entry: ExternalMcpResult;
+  activeClient: Client;
+  lang: Lang;
+  t: Messages;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const spec = entry.installSpec;
+  if (!spec) return null;
+  const envEntries = Object.entries(spec.env || {});
+  const secrets = entry.requiredSecrets || spec.requiredSecrets || [];
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-[2px]">
+      <div className="flex max-h-[calc(100vh-32px)] w-full max-w-[760px] flex-col overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.2)]">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-4 py-4">
+          <div>
+            <div className="text-[18px] font-semibold tracking-[-0.02em] text-slate-950">{t.externalMcpConfirmTitle}</div>
+            <div className="mt-1 text-[13px] text-slate-500">{t.externalMcpConfirmHint}</div>
+          </div>
+          <button type="button" onClick={onCancel} className="rounded-[10px] border border-slate-200 bg-white p-2 text-slate-500"><X className="h-4 w-4" /></button>
+        </div>
+        <div className="space-y-4 overflow-y-auto px-4 py-4">
+          <div className="grid gap-3 md:grid-cols-2">
+            <SummaryCard label={t.targetClientLabel} value={clientMeta(activeClient).label} />
+            <SummaryCard label={t.installSourceLabel} value={entry.sourceLabel} />
+            <SummaryCard label={t.officialStatus} value={entry.officialStatus || t.unknown} />
+            <SummaryCard label={t.requiresSecrets} value={secrets.length > 0 ? secrets.join(', ') : t.noSecrets} />
+          </div>
+
+          <SpecBlock label={t.commandLabel} mono>
+            {spec.command}
+          </SpecBlock>
+
+          <SpecBlock label={t.argsLabel} mono>
+            {spec.args.length > 0 ? spec.args.join('\n') : t.noArgs}
+          </SpecBlock>
+
+          <SpecBlock label={t.envLabel} mono>
+            {envEntries.length > 0 ? envEntries.map(([key, value]) => `${key}=${value || '<from secret>'}`).join('\n') : t.noEnv}
+          </SpecBlock>
+
+          {entry.description && (
+            <div className="rounded-[10px] border border-slate-200 bg-slate-50 px-3 py-3">
+              <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">
+                {lang === 'zh' ? '说明' : lang === 'ja' ? '説明' : 'Description'}
+              </div>
+              <div className="mt-2 text-[13px] text-slate-600">{entry.description}</div>
+            </div>
+          )}
+
+          {entry.installReason && (
+            <div className="rounded-[10px] border border-amber-200 bg-amber-50 px-3 py-3 text-[12px] text-amber-800">
+              {entry.installReason}
+            </div>
+          )}
+        </div>
+        <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-4 py-4">
+          <button type="button" onClick={onCancel} className="rounded-[10px] border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-700">{t.cancel}</button>
+          <button type="button" onClick={onConfirm} className="rounded-[10px] bg-slate-900 px-3 py-2 text-[13px] text-white">{t.installToCurrentPlatform}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SummaryCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[10px] border border-slate-200 bg-slate-50 px-3 py-3">
+      <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{label}</div>
+      <div className="mt-2 text-[13px] font-medium text-slate-900">{value}</div>
+    </div>
+  );
+}
+
+function SpecBlock({
+  label,
+  children,
+  mono,
+}: {
+  label: string;
+  children: React.ReactNode;
+  mono?: boolean;
+}) {
+  return (
+    <div className="rounded-[10px] border border-slate-200 bg-slate-50 px-3 py-3">
+      <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{label}</div>
+      <pre className={`mt-2 whitespace-pre-wrap break-all rounded-[8px] border border-slate-200 bg-white px-3 py-3 text-[12px] text-slate-700 ${mono ? 'font-mono' : ''}`}>{children}</pre>
     </div>
   );
 }

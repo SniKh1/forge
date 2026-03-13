@@ -6,6 +6,14 @@ const { installClients, printInstallSummary } = require('./commands/install');
 const { verifyClients } = require('./commands/verify');
 const { doctor } = require('./commands/doctor');
 const { adapters } = require('./lib/adapters');
+const {
+  loadRegistrySources,
+  searchExternalSkills,
+  installExternalSkill,
+  searchExternalMcp,
+} = require('./lib/external-registry');
+const { run } = require('./lib/process');
+const path = require('path');
 
 function parseArgs(argv) {
   const [command = 'setup', ...rest] = argv;
@@ -23,6 +31,12 @@ function parseArgs(argv) {
     components: [],
     mcpServers: [],
     skillNames: [],
+    kind: '',
+    query: '',
+    source: '',
+    skill: '',
+    specBase64: '',
+    name: '',
   };
 
   const positional = [];
@@ -52,6 +66,18 @@ function parseArgs(argv) {
       options.mcpServers = (rest[++i] || '').split(',').map((item) => item.trim()).filter(Boolean);
     } else if (token === '--skills-list' || token === '--skills') {
       options.skillNames = (rest[++i] || '').split(',').map((item) => item.trim()).filter(Boolean);
+    } else if (token === '--kind') {
+      options.kind = rest[++i] || '';
+    } else if (token === '--query') {
+      options.query = rest[++i] || '';
+    } else if (token === '--source') {
+      options.source = rest[++i] || '';
+    } else if (token === '--skill') {
+      options.skill = rest[++i] || '';
+    } else if (token === '--spec-base64') {
+      options.specBase64 = rest[++i] || '';
+    } else if (token === '--name') {
+      options.name = rest[++i] || '';
     } else {
       positional.push(token);
     }
@@ -155,6 +181,91 @@ async function runRepair(positional, options) {
   runVerify([], { ...options, clients });
 }
 
+function decodeSpec(specBase64) {
+  return JSON.parse(Buffer.from(specBase64, 'base64').toString('utf8'));
+}
+
+function runExternalSearch(options) {
+  if (!options.kind || !['skills', 'mcp'].includes(options.kind)) {
+    throw new Error('Usage: forge external-search --kind skills|mcp --query <text>');
+  }
+  const sources = loadRegistrySources();
+  const results = options.kind === 'skills'
+    ? searchExternalSkills(options.query)
+    : [];
+  const output = {
+    kind: options.kind,
+    query: options.query,
+    sources: sources[options.kind] || [],
+    results,
+  };
+  if (options.kind === 'mcp') {
+    return searchExternalMcp(options.query).then((mcpResults) => {
+      output.results = mcpResults;
+      console.log(JSON.stringify(output, null, 2));
+    });
+  }
+  console.log(JSON.stringify(output, null, 2));
+}
+
+function runExternalInstallSkill(options) {
+  const client = options.clients[0];
+  if (!client || !adapters[client]) {
+    throw new Error('Usage: forge external-install-skill --client claude|codex|gemini --source <owner/repo> --skill <skill>');
+  }
+  if (!options.source || !options.skill) {
+    throw new Error('Missing required arguments: --source and --skill');
+  }
+  const result = installExternalSkill({
+    client,
+    source: options.source,
+    skill: options.skill,
+  });
+  console.log(JSON.stringify({
+    ok: true,
+    kind: 'skills',
+    client,
+    installed: result,
+  }, null, 2));
+}
+
+function runExternalInstallMcp(options) {
+  const client = options.clients[0];
+  if (!client || !adapters[client]) {
+    throw new Error('Usage: forge external-install-mcp --client claude|codex|gemini --spec-base64 <base64-json>');
+  }
+  if (!options.specBase64) {
+    throw new Error('Missing required argument: --spec-base64');
+  }
+  const spec = decodeSpec(options.specBase64);
+  if (!spec.installSpec || !spec.installSpec.command || !Array.isArray(spec.installSpec.args)) {
+    throw new Error('Unsupported MCP install spec');
+  }
+  const script = path.join(__dirname, '../../../scripts/install-external-mcp.py');
+  const result = run('python3', [
+    script,
+    '--client', client,
+    '--name', options.name || spec.installSpec.name || spec.name,
+    '--command', spec.installSpec.command,
+    '--args-json', JSON.stringify(spec.installSpec.args),
+    '--env-json', JSON.stringify(spec.installSpec.env || {}),
+  ], { capture: true, allowFailure: true });
+  const output = `${result.stdout || ''}${result.stderr || ''}`.trim();
+  if (result.status !== 0) {
+    throw new Error(output || 'external MCP install failed');
+  }
+  console.log(JSON.stringify({
+    ok: true,
+    kind: 'mcp',
+    client,
+    installed: {
+      name: options.name || spec.installSpec.name || spec.name,
+      output,
+      requiredSecrets: spec.installSpec.requiredSecrets || [],
+    },
+  }, null, 2));
+}
+
 async function main() {
   const { command, positional, options } = parseArgs(process.argv.slice(2));
   if (!commandExists('node')) {
@@ -178,6 +289,18 @@ async function main() {
   }
   if (command === 'repair') {
     await runRepair(positional, options);
+    return;
+  }
+  if (command === 'external-search') {
+    await runExternalSearch(options);
+    return;
+  }
+  if (command === 'external-install-skill') {
+    runExternalInstallSkill(options);
+    return;
+  }
+  if (command === 'external-install-mcp') {
+    runExternalInstallMcp(options);
     return;
   }
   throw new Error(`Unknown command: ${command}`);

@@ -1,0 +1,56 @@
+{
+  "skills": [
+    {
+      "id": "skills-sh",
+      "name": "skills.sh",
+      "kind": "skills",
+      "type": "search-install",
+      "url": "https://skills.sh/",
+      "cli": {
+        "command": "npx",
+        "args": ["-y", "skills"]
+      },
+      "trust": "curated-external",
+      "note": "通过 skills CLI 搜索并显式安装第三方 skill。"
+    },
+    {
+      "id": "anthropics-skills",
+      "name": "anthropics/skills",
+      "kind": "skills",
+      "type": "browse",
+      "url": "https://github.com/anthropics/skills",
+      "trust": "browse-only",
+      "note": "官方参考仓库，适合浏览与手动挑选。"
+    },
+    {
+      "id": "awesome-claude-skills",
+      "name": "ComposioHQ/awesome-claude-skills",
+      "kind": "skills",
+      "type": "browse",
+      "url": "https://github.com/ComposioHQ/awesome-claude-skills",
+      "trust": "browse-only",
+      "note": "聚合型社区技能仓库，作为浏览入口保留。"
+    }
+  ],
+  "mcp": [
+    {
+      "id": "official-mcp-registry",
+      "name": "Official MCP Registry",
+      "kind": "mcp",
+      "type": "search-install",
+      "url": "https://registry.modelcontextprotocol.io/",
+      "api": "https://registry.modelcontextprotocol.io/v0/servers",
+      "trust": "curated-external",
+      "note": "优先搜索官方 MCP Registry，仅对可安全映射到当前客户端配置的条目提供安装。"
+    },
+    {
+      "id": "modelcontextprotocol-servers",
+      "name": "modelcontextprotocol/servers",
+      "kind": "mcp",
+      "type": "browse",
+      "url": "https://github.com/modelcontextprotocol/servers",
+      "trust": "browse-only",
+      "note": "官方示例仓库，适合浏览与参考。"
+    }
+  ]
+}

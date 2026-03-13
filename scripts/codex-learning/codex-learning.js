@@ -29,11 +29,19 @@ function ensureDir(dir) {
 
 function readJson(file) {
   try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
+    return JSON.parse(fs.readFileSync(file, "utf8"));
   } catch {
     return null;
   }
 }
+
+const {
+  createSuggestions,
+  renderPromotionMarkdown,
+  loadProblemSolutionRecords,
+  createUpdateProposals,
+  renderUpdateProposalsMarkdown
+} = require("../lib/promotion");
 
 function writeFileIfMissing(file, content) {
   if (!fs.existsSync(file)) {
@@ -218,155 +226,54 @@ ${skillIds.length ? skillIds.map(x => `- ${x}`).join('\n') : '- '}
   }, null, 2));
 }
 
-function normalizeText(value) {
-  return String(value || '')
-    .toLowerCase()
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function loadPromotionRules(repoRoot) {
-  return readJson(path.join(repoRoot, 'core', 'learning-promotion-rules.json')) || {
-    targets: {},
-    decisionOrder: ['stack-pack', 'role-pack', 'learned-skill', 'instinct', 'memory']
-  };
-}
-
-function loadProblemSolutionRecords(dir) {
-  if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir)
-    .filter(file => file.endsWith('.json'))
-    .map(file => {
-      const fullPath = path.join(dir, file);
-      const data = readJson(fullPath);
-      return data ? { ...data, _file: fullPath } : null;
-    })
-    .filter(Boolean);
-}
-
-function incrementCount(map, key) {
-  if (!key) return;
-  map.set(key, (map.get(key) || 0) + 1);
-}
-
-function buildRecordStats(records) {
-  const stackCounts = new Map();
-  const roleCounts = new Map();
-  const skillCounts = new Map();
-  const tagCounts = new Map();
-  const fixCounts = new Map();
-
-  for (const record of records) {
-    for (const item of record.candidateStackPacks || []) incrementCount(stackCounts, item);
-    for (const item of record.candidateRolePacks || []) incrementCount(roleCounts, item);
-    for (const item of record.candidateSkillIds || []) incrementCount(skillCounts, item);
-    for (const item of record.reuseTags || []) incrementCount(tagCounts, item);
-    incrementCount(fixCounts, normalizeText(record.chosenFix));
-  }
-
-  return { stackCounts, roleCounts, skillCounts, tagCounts, fixCounts };
-}
-
-function requiredFieldsPresent(record, fields) {
-  return (fields || []).every(field => normalizeText(record[field]).length > 0);
-}
-
-function suggestTarget(record, stats, rules) {
-  const targets = rules.targets || {};
-  const stackReq = targets['stack-pack']?.requires || {};
-  const roleReq = targets['role-pack']?.requires || {};
-  const skillReq = targets['learned-skill']?.requires || {};
-  const instinctReq = targets.instinct?.requires || {};
-
-  for (const stack of record.candidateStackPacks || []) {
-    const count = stats.stackCounts.get(stack) || 0;
-    if (count >= Number(stackReq.minOccurrences || 2)) {
-      return { target: 'stack-pack', confidence: 'high', reason: `Stack pack '${stack}' appears in ${count} reviewed records.` };
-    }
-  }
-
-  for (const role of record.candidateRolePacks || []) {
-    const count = stats.roleCounts.get(role) || 0;
-    if (count >= Number(roleReq.minOccurrences || 2)) {
-      return { target: 'role-pack', confidence: 'high', reason: `Role pack '${role}' appears in ${count} reviewed records.` };
-    }
-  }
-
-  if (requiredFieldsPresent(record, skillReq.mustInclude)) {
-    for (const skill of record.candidateSkillIds || []) {
-      const count = stats.skillCounts.get(skill) || 0;
-      if (count >= Number(skillReq.minOccurrences || 2)) {
-        return { target: 'learned-skill', confidence: 'medium', reason: `Skill '${skill}' appears in ${count} reviewed records with required fields present.` };
-      }
-    }
-  }
-
-  for (const tag of record.reuseTags || []) {
-    const count = stats.tagCounts.get(tag) || 0;
-    if (count >= Number(instinctReq.minOccurrences || 3)) {
-      return { target: 'instinct', confidence: 'medium', reason: `Reuse tag '${tag}' appears in ${count} reviewed records.` };
-    }
-  }
-
-  const normalizedFix = normalizeText(record.chosenFix);
-  const fixCount = normalizedFix ? (stats.fixCounts.get(normalizedFix) || 0) : 0;
-  if (fixCount >= Number(instinctReq.minOccurrences || 3)) {
-    return { target: 'instinct', confidence: 'medium', reason: `A similar chosen fix appears in ${fixCount} reviewed records.` };
-  }
-
-  return { target: 'memory', confidence: 'default', reason: 'Not enough repeated evidence yet; keep as durable memory.' };
-}
-
 function cmdSuggest(args) {
   const cwd = args.cwd || process.cwd();
   const p = ensureStructure(cwd);
   const repoRoot = path.resolve(__dirname, '..', '..');
-  const rules = loadPromotionRules(repoRoot);
   const records = loadProblemSolutionRecords(p.problemSolutionsDir)
     .filter(record => (record.status || 'scaffold') !== 'scaffold');
-
-  const stats = buildRecordStats(records);
-  const suggestions = records.map(record => {
-    const suggestion = suggestTarget(record, stats, rules);
-    return {
-      file: record._file,
-      title: path.basename(record._file, '.json'),
-      currentTarget: record.upgradeTarget || 'memory',
-      suggestedTarget: suggestion.target,
-      confidence: suggestion.confidence,
-      reason: suggestion.reason
-    };
-  });
-
-  const reportLines = [
-    `# Promotion Suggestions (${nowDate()})`,
-    '',
-    `- Workspace: ${p.workspaceSlug}`,
-    `- Reviewed records: ${records.length}`,
-    ''
-  ];
-
-  if (!suggestions.length) {
-    reportLines.push('No reviewed problem-solution records available.');
-  } else {
-    for (const item of suggestions) {
-      reportLines.push(`## ${item.title}`);
-      reportLines.push(`- Current target: ${item.currentTarget}`);
-      reportLines.push(`- Suggested target: ${item.suggestedTarget}`);
-      reportLines.push(`- Confidence: ${item.confidence}`);
-      reportLines.push(`- Reason: ${item.reason}`);
-      reportLines.push(`- File: ${item.file}`);
-      reportLines.push('');
-    }
-  }
-
-  const outFile = path.join(p.evolvedDir, `promotion-suggestions-${Date.now()}.md`);
-  fs.writeFileSync(outFile, reportLines.join('\n'), 'utf8');
+  const suggestions = createSuggestions(records, repoRoot);
+  const stamp = Date.now();
+  const createdAt = new Date().toISOString();
+  const outFile = path.join(p.evolvedDir, `promotion-suggestions-${stamp}.md`);
+  const jsonFile = path.join(p.evolvedDir, `promotion-suggestions-${stamp}.json`);
+  const proposalMdFile = path.join(p.evolvedDir, `role-stack-update-proposals-${stamp}.md`);
+  const proposalJsonFile = path.join(p.evolvedDir, `role-stack-update-proposals-${stamp}.json`);
+  const updateProposals = createUpdateProposals(records, suggestions, repoRoot);
+  const payload = {
+    schemaVersion: '1.0',
+    createdAt,
+    workspaceSlug: p.workspaceSlug,
+    reviewedRecordCount: records.length,
+    suggestions
+  };
+  fs.writeFileSync(outFile, renderPromotionMarkdown({
+    workspaceSlug: p.workspaceSlug,
+    reviewedCount: records.length,
+    suggestions,
+    createdAt
+  }), 'utf8');
+  fs.writeFileSync(jsonFile, JSON.stringify(payload, null, 2) + '\n', 'utf8');
+  fs.writeFileSync(proposalMdFile, renderUpdateProposalsMarkdown({
+    workspaceSlug: p.workspaceSlug,
+    proposals: updateProposals,
+    createdAt
+  }), 'utf8');
+  fs.writeFileSync(proposalJsonFile, JSON.stringify({
+    schemaVersion: '1.0',
+    createdAt,
+    workspaceSlug: p.workspaceSlug,
+    proposalCount: updateProposals.length,
+    proposals: updateProposals
+  }, null, 2) + '\n', 'utf8');
 
   console.log(JSON.stringify({
     ok: true,
     action: 'suggest',
     report: outFile,
+    json: jsonFile,
+    proposalsReport: proposalMdFile,
+    proposalsJson: proposalJsonFile,
     suggestions
   }, null, 2));
 }

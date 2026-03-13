@@ -8,6 +8,7 @@ apps/forge-desktop/src-tauri/target/
 sessions/
 homunculus/
 .tmp/
+.cache/
 scripts/__pycache__/
 image.png
 

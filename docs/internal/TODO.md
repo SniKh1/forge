@@ -29,12 +29,30 @@
 - [x] release
 
 ## P1 — Learning and Memory
-- [ ] 真正把 `self-improving-agent` 完整并入 Forge memory layout
+- [x] 真正把 `self-improving-agent` 完整并入 Forge memory layout
 - [x] 定义 problem-solution log schema
 - [x] 明确 promotion rules：memory -> instinct -> learned skill -> role/stack update
 - [x] 基于 reviewed records 实现 promotion suggestion tooling
+- [x] 增加 transcript-aware extraction（自动提炼 `rootCause / chosenFix / verification`）
+- [x] 提升 transcript-aware extraction 质量（更强语义抽取与去噪）
+- [ ] 继续提升 transcript semantic extraction（更强根因/验证精度与更多 transcript 结构兼容）
+- [x] 为 role-pack / stack-pack 生成更自动的 update proposal 草案
+- [x] 让 update proposal 草案输出更接近可直接合并的 role / stack patch
+- [x] 继续提升 patch draft 质量（更精准的 section 映射与更少噪音）
+- [x] 继续提升 patch draft 的语义贴合度（减少泛化 bullet，增强 role/stack 特异性）
+- [ ] 继续提升 patch draft 的领域适配度（让 domain pack 也输出更细的专属建议）
 
 ## P2 — Desktop / Catalog
+## P2.5 — External Registry Integration
+- [x] 将 `skills.sh` 作为外部 skill discovery source 接入第一版实现
+- [x] 将 Official MCP Registry 作为外部 MCP discovery source 接入第一版实现
+- [x] 新增 `core/registry-sources.json` 并实现第一版 source registry
+- [x] 在 Forge Desktop `community` 页加入 external skill / MCP 搜索入口
+- [x] 明确 third-party skill / MCP 的 trust boundary 与显式安装流程
+- [x] 增加 external catalog cache，降低每次搜索都走远端 CLI / registry API 的开销
+- [x] 为 external search 增加 role-pack / stack-pack / domain pack 排序增强
+- [x] 为 external MCP 安装补强二次确认 UI（展示 `command / args / env / requiredSecrets`）
+
 - [x] 从 skill registry 生成 desktop skill catalog
 - [x] 在 Forge Desktop 中加入 role-pack 与 stack-pack 选择
 - [x] 定义 role-aware MCP recommendation matrix

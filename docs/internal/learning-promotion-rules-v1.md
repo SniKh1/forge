@@ -63,8 +63,12 @@
 - Codex manual record flow
 - machine-readable promotion rules
 - promotion suggestion script
+- Claude review queue / promotion suggestion hook
+- role / stack patch draft v1（按 section 生成 reviewable insertion block）
+- file-aware patch hint（能识别目标 pack 文件中的真实 section 变体，并给出更贴近现状的插入提示）
+- semantic-aware patch draft（减少泛化 bullet，增强 role / stack 特异性）
 
 仍待实现：
 - transcript-aware extraction
-- role / stack update proposal generator
+- domain-aware patch draft
 - 更自动化但仍可审查的升级路径

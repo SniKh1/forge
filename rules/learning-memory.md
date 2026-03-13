@@ -25,6 +25,8 @@ Forge 的学习系统同时要记住两类东西：
 ## Unified Learning Policy
 - `self-improving-agent` 的职责是增强 Forge 记忆体系，不是另起一套平行 memory tree。
 - hooks 可以自动采集 observation，但只有形成可复核结构后，才适合进入 promotion 流程。
+- Claude `problem-solution-memory` hook 默认先做 transcript-aware heuristic extraction v2；证据不足时仍保留为 `scaffold`，证据较完整时可直接写成 `reviewed`。
+- 如果 transcript 里没有可提取的语义消息（例如只有 file-history snapshot），应显式标记为空语义 transcript，而不是伪造 problem / fix。
 
 ## Problem-Solution Record Format
 每条 durable record 尽量记录：
@@ -47,6 +49,7 @@ promotion 决策顺序，以 `core/learning-promotion-rules.json` 为准。
 ## Implementation Direction
 - `self-improving-agent` 应统一写入 Forge memory targets。
 - hook 生成的记录默认先标记为 `status = scaffold`。
+- `promotion-suggestion` 应产出 Markdown + JSON sidecar，供人工 review。
 - v1 阶段不做完全自动晋级，必须保留可复核证据。
 
 ## Learning Cluster Governance

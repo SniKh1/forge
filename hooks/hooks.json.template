@@ -53,6 +53,16 @@
           }
         ],
         "description": "Create problem-solution memory scaffold for meaningful sessions"
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{CLAUDE_HOME}}/scripts/hooks/promotion-suggestion.js\""
+          }
+        ],
+        "description": "Refresh review queue and promotion suggestions from reviewed records"
       }
     ],
     "PreCompact": [

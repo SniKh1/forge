@@ -4,22 +4,14 @@ A universal self-improvement system that learns from skill experience and enrich
 
 ## Overview
 
-This agent learns from **every skill interaction** and feeds that evidence into Forge's canonical memory targets instead of maintaining a competing memory tree.
+这个 skill 的定位已经固定：
+- 它是 Forge 的学习语义入口
+- 它不再维护平行的 durable memory tree
+- 它负责把经验整理到 Forge 的 canonical memory targets
 
-## Key Features
+## Canonical Memory Targets
 
-- **Forge Memory Alignment**: project memory + problem-solution memory + instincts + learned outputs
-- **Universal Learning**: Learns from ALL skills, not just PRDs
-- **Pattern Extraction**: Converts experiences into reusable patterns
-- **Self-Correction**: Fixes skill guidance when errors occur
-- **Self-Validation**: Periodically verifies skill accuracy
-- **Automatic Updates**: Updates related skills based on learned patterns
-- **Confidence Tracking**: Measures pattern reliability over time
-- **Human-in-the-Loop**: Collects feedback to validate improvements
-
-## Memory System
-
-```
+```text
 Forge shared targets
 ├── project memory
 ├── problem-solution memory
@@ -32,119 +24,50 @@ Canonical policy source:
 - `core/problem-solution-schema.json`
 - `core/learning-promotion-rules.json`
 
-This skill may still use semantic/episodic/working language as an analysis model, but durable writes should flow into Forge's shared targets above.
+## Reasoning Model
 
-## How It Works
+你仍然可以用这三种 memory 视角帮助分析：
+- semantic memory
+- episodic memory
+- working memory
 
-```
-Any Skill Completes
-        ↓
-Extract Experience → Identify Patterns → Suggest Promotion → Consolidate Forge Memory
-        ↓                     ↓                  ↓              ↓
-   What happened?    What can we reuse?   Which target?    Track evidence
-```
+但 durable output 的落点必须统一：
+- semantic insight -> `learned skills / evolved outputs` 或 `project memory`
+- episodic evidence -> `problem-solution memory`
+- working memory -> 只作为会话内分析，必要时再转写到上面几类
 
-## Installation
+## Runtime Integration
 
-```bash
-ln -s ~/path/to/agent-playbook/skills/self-improving-agent ~/.claude/skills/self-improving-agent
-```
+### Claude
+- `scripts/hooks/problem-solution-memory.js`
+- `scripts/hooks/promotion-suggestion.js`
 
-## Hooks (Optional)
+### Codex
+- `scripts/codex-learning/codex-learning.js record`
+- `scripts/codex-learning/codex-learning.js suggest`
 
-Wire hooks to capture errors and session-end signals:
+### Gemini
+- 与 Forge 统一 schema 对齐，逐步补齐自动化程度
 
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash|Write|Edit",
-        "hooks": [
-          { "type": "command", "command": "bash ${SKILLS_DIR}/self-improving-agent/hooks/pre-tool.sh \"$TOOL_NAME\" \"$TOOL_INPUT\"" }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          { "type": "command", "command": "bash ${SKILLS_DIR}/self-improving-agent/hooks/post-bash.sh \"$TOOL_OUTPUT\" \"$EXIT_CODE\"" }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          { "type": "command", "command": "bash ${SKILLS_DIR}/self-improving-agent/hooks/session-end.sh" }
-        ]
-      }
-    ]
-  }
-}
+## Standard Flow
+
+```text
+experience
+  -> problem-solution record
+  -> review
+  -> promotion suggestion
+  -> memory / instinct / learned-skill / role-pack / stack-pack decision
 ```
 
-## Triggering
+## Status
 
-### Automatic
-After ANY skill completes:
-- prd-planner
-- code-reviewer
-- debugger
-- refactoring-specialist
-- etc.
+当前已经完成：
+- shared schema
+- durable Markdown + JSON sidecar
+- reviewed-record suggestion tooling
+- Claude review queue / promotion suggestion hook
+- Forge canonical memory alignment
 
-### Manual
-```
-"自我进化"
-"self-improve"
-"分析今天的经验"
-"总结这次教训"
-```
-
-## Example Learning
-
-### Episode
-```yaml
-Skill: debugger
-Situation: Form submission doesn't refresh data
-Root Cause: Empty callback function
-Pattern: Always verify callbacks have implementations
-Confidence: 0.95 → Updates: debugger, prd-implementation-precheck
-```
-
-In Forge, that should first become a reviewed problem-solution record, then be considered for promotion into:
-- instinct
-- learned skill
-- role-pack update
-- stack-pack update
-
-### Skill Update
-```markdown
-## Auto-Update (2025-01-11)
-
-### Pattern Added
-**Callback Verification**: Always verify that callback functions
-passed as props are not empty and actually execute logic.
-
-**Source**: Episode ep-2025-01-11-003 (3 occurrences)
-**Action**: Added to debugger checklist
-```
-
-## Research Basis
-
-- [SimpleMem: Efficient Lifelong Memory](https://arxiv.org/html/2601.02553v1)
-- [ACM Memory Mechanisms Survey](https://dl.acm.org/doi/10.1145/3748302)
-- [Lifelong Learning of LLM Agents](https://arxiv.org/html/2501.07278v1)
-
-## Templates
-
-Reusable templates live in `skills/self-improving-agent/templates`:
-- `pattern-template.md`
-- `correction-template.md`
-- `validation-template.md`
-
-## License
-
-MIT
+仍在持续补的：
+- transcript-aware extraction
+- 更自动的 role/stack update proposals
