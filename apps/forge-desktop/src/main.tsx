@@ -1755,7 +1755,10 @@ function App() {
   const [communityStackPack, setCommunityStackPack] = React.useState<StackPack>('frontend-web');
   const [selectedInstallRole, setSelectedInstallRole] = React.useState<InstallRolePack>('frontend-engineer');
   const [selectedInstallStacks, setSelectedInstallStacks] = React.useState<StackPack[]>(['frontend-web']);
-  const [workspace, setWorkspace] = React.useState('/Users/uui6yee/Desktop/dev/forge');
+  const [workspace, setWorkspace] = React.useState(() => {
+    if (typeof window === 'undefined') return '';
+    return window.localStorage.getItem('forge.desktop.workspace') || '';
+  });
   const [lang, setLang] = React.useState<Lang>(() => {
     const saved = typeof window !== 'undefined' ? window.localStorage.getItem('forge.desktop.lang') : null;
     return (saved as Lang) || detectSystemLanguage();
@@ -1832,6 +1835,11 @@ function App() {
   React.useEffect(() => {
     window.localStorage.setItem('forge.desktop.lang', lang);
   }, [lang]);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('forge.desktop.workspace', workspace);
+  }, [workspace]);
 
   React.useEffect(() => {
     setActionFeedback(null);
@@ -2486,7 +2494,7 @@ function App() {
             <AppForgeMark className="h-10 w-10 rounded-[12px] shadow-[0_12px_24px_rgba(15,23,42,0.18)]" />
             <div>
               <div className="text-[16px] font-semibold tracking-[-0.02em]">{t.productName}</div>
-              <div className="text-[13px] text-slate-500">{t.currentWorkspace}: <span className="font-mono text-[11px] text-slate-600">{workspace}</span></div>
+              <div className="text-[13px] text-slate-500">{t.currentWorkspace}: <span className="font-mono text-[11px] text-slate-600">{workspace || '(auto)'}</span></div>
             </div>
           </div>
 
@@ -2641,7 +2649,7 @@ function App() {
                         compact
                       />
                       <ActionButton label={t.openConfig} onClick={() => void openTarget(detection.home)} disabled={!detection.home} icon={<FolderOpen className="h-3.5 w-3.5" />} compact />
-                      <ActionButton label={t.openTerminal} onClick={() => void openTerminal(workspace)} icon={<TerminalSquare className="h-3.5 w-3.5" />} compact />
+                      <ActionButton label={t.openTerminal} onClick={() => void openTerminal(workspace)} disabled={!workspace.trim()} icon={<TerminalSquare className="h-3.5 w-3.5" />} compact />
                     </div>
                     <div className="mt-3 text-[11px] text-slate-500">{t.restartHint}</div>
                   </div>

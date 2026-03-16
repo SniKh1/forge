@@ -7,6 +7,7 @@ function run(command, args, options = {}) {
     cwd: options.cwd,
     env: { ...process.env, ...(options.env || {}) },
     encoding: 'utf8',
+    windowsHide: true,
   });
   if (options.capture) {
     return result;

@@ -1,7 +1,9 @@
 const path = require('path');
 const os = require('os');
 
-const repoRoot = path.resolve(__dirname, '../../../../');
+const repoRoot = process.env.FORGE_REPO_ROOT
+  ? path.resolve(process.env.FORGE_REPO_ROOT)
+  : path.resolve(__dirname, '../../../../');
 const home = os.homedir();
 const isWindows = process.platform === 'win32';
 

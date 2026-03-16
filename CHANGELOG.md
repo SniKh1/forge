@@ -6,11 +6,16 @@ The format follows a Keep a Changelog style, adapted for Forge.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-03-16
+
 ### Changed
 - Expanded the desktop installer persona model with richer role packs and stack packs, while keeping role selection single-choice and stack selection multi-choice.
 - Refined the install surface so users can understand whether the selected role's baseline stacks are already present on the current client.
 
 ### Fixed
+- Fixed bundled desktop builds so Forge now reads its packaged CLI/resources instead of depending on the original source checkout path.
+- Fixed Windows desktop actions to stop inheriting a hard-coded macOS workspace path, which prevented status reads on fresh machines.
+- Hid Windows helper console windows during Forge desktop actions and moved bundled external-registry cache writes to an app cache directory.
 - Fixed Codex non-interactive installs so existing local configuration now auto-backs up instead of failing on an unattended `(y/n)` prompt.
 - Eliminated duplicate runtime-skill warnings caused by top-level skill sync colliding with `.system` built-ins such as `skill-creator`.
 - Backfilled missing default permission rules into Claude `settings.json` during incremental installs so verification no longer reports an empty permissions list.

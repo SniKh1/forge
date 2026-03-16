@@ -4,7 +4,10 @@ const path = require('path');
 const { repoRoot, clientHomes } = require('./constants');
 const { run } = require('./process');
 
-const EXTERNAL_CACHE_ROOT = path.join(repoRoot, '.cache', 'external-registry');
+const EXTERNAL_CACHE_BASE = process.env.FORGE_CACHE_ROOT
+  ? path.resolve(process.env.FORGE_CACHE_ROOT)
+  : path.join(repoRoot, '.cache');
+const EXTERNAL_CACHE_ROOT = path.join(EXTERNAL_CACHE_BASE, 'external-registry');
 const EXTERNAL_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 function loadRegistrySources() {

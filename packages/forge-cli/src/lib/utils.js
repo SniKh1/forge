@@ -12,7 +12,7 @@ function commandExists(command) {
   const args = isWindows ? [command] : ['-v', command];
   const shell = isWindows ? 'cmd.exe' : process.env.SHELL || 'bash';
   const shellArgs = isWindows ? ['/c', `${probe} ${command}`] : ['-lc', `${probe} ${args.join(' ')}`];
-  const result = spawnSync(shell, shellArgs, { stdio: 'ignore' });
+  const result = spawnSync(shell, shellArgs, { stdio: 'ignore', windowsHide: true });
   return result.status === 0;
 }
 
