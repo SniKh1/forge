@@ -9,6 +9,11 @@ The format follows a Keep a Changelog style, adapted for Forge.
 ### Added
 - Placeholder for upcoming changes.
 
+## [0.3.7] - 2026-03-16
+
+### Fixed
+- Removed the SVG icon from the Tauri desktop bundle configuration so macOS `.app` and `.dmg` packaging no longer fail during app icon generation in release builds.
+
 ## [0.3.6] - 2026-03-13
 
 ### Changed
