@@ -1,36 +1,75 @@
 # Forge
 
-**An open-source desktop installer and configuration distribution repo for Claude, Codex, and Gemini.**
-
-Forge exists to make one thing easy: install a consistent AI capability setup for `Claude`, `Codex`, and `Gemini` on `macOS` and `Windows`, while still keeping CLI and script entrypoints for advanced users.
-
 <p align="center">
-  <a href="README.md">简体中文</a> | English
+  <strong>A unified installer and capability distribution repo for Claude, Codex, and Gemini.</strong>
 </p>
 
-## Supported Scope
+<p align="center">
+  <a href="README.md">简体中文</a> ·
+  <a href="https://github.com/SniKh1/forge/releases">Releases</a> ·
+  <a href="https://github.com/SniKh1/forge/issues">Issues</a>
+</p>
 
-- Platforms: `macOS`, `Windows`
-- Clients: `Claude`, `Codex`, `Gemini`
-- Distribution: `Forge Desktop` app + CLI / compatibility scripts
+<p align="center">
+  <img alt="Release" src="https://img.shields.io/github/v/release/SniKh1/forge?display_name=tag">
+  <img alt="License" src="https://img.shields.io/github/license/SniKh1/forge">
+  <img alt="Platforms" src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows-111827">
+</p>
 
-## Download and Install
+Forge exists to collapse scattered AI client setup into one installable, verifiable, repairable distribution path.
 
-### Desktop app (recommended)
+For end users, Forge ships a graphical installer.  
+For advanced users, Forge keeps CLI and script entrypoints.  
+For maintainers, Forge centralizes rules, skills, memory, and workflow governance.
+
+## Quick Links
+
+| Goal | Entry |
+| --- | --- |
+| Install Forge | [GitHub Releases](https://github.com/SniKh1/forge/releases) |
+| Check changes | [CHANGELOG.md](CHANGELOG.md) |
+| Review branch strategy | [BRANCHING.md](BRANCHING.md) |
+| Open support issues | [GitHub Issues](https://github.com/SniKh1/forge/issues) |
+
+## Support Matrix
+
+| Dimension | Current Support |
+| --- | --- |
+| Platforms | `macOS`, `Windows` |
+| Clients | `Claude`, `Codex`, `Gemini` |
+| Product name | `Forge` |
+| Distribution | GUI app + CLI + compatibility scripts |
+| macOS release target | Apple Silicon `.dmg` |
+
+## What Forge Installs
+
+Forge writes a full capability layer tailored to the target client and platform:
+
+- `MCP`: web search, memory, docs lookup, browser automation, and related extensions
+- `Hooks`: enforced checkpoints around key actions
+- `Skills`: reusable task-specific capability bundles
+- `Rules`: behavior constraints and prompt-routing rules
+- `Stacks`: frontend / Java / Python stack guidance
+- `Memory / Learned`: project memory and learned patterns
+- `Commands / Playbooks`: common workflow entrypoints
+
+## Installation Paths
+
+### GUI installer
 
 Download the latest release from [GitHub Releases](https://github.com/SniKh1/forge/releases):
 
-- `macOS`: desktop installer / app archive
-- `Windows`: desktop installer
+- `macOS`: Apple Silicon `.dmg`
+- `Windows`: `.msi`
 
-The desktop app is the primary path for end users. It handles:
+The GUI installer is the default user path. It handles:
 
 - client detection
-- install selection
+- install scope selection
 - writing Forge configuration
-- post-install verification
+- post-install verification and repair
 
-### CLI / scripts (advanced)
+### CLI / script entrypoints
 
 ```bash
 node packages/forge-cli/bin/forge.js setup
@@ -38,7 +77,7 @@ node packages/forge-cli/bin/forge.js verify
 node packages/forge-cli/bin/forge.js doctor
 ```
 
-Compatibility wrappers are still available:
+Compatibility wrappers remain available:
 
 ```bash
 bash install.sh
@@ -52,38 +91,7 @@ bash gemini/install-gemini.sh
 .\gemini\install-gemini.ps1
 ```
 
-These entrypoints are intended for power users, automation, and troubleshooting workflows.
-
-## What Forge Installs
-
-Forge installs client-specific capability packs, including:
-
-- `MCP`: web search, memory, docs lookup, browser automation, and other extensions
-- `Hooks`: enforced checkpoints around key actions
-- `Skills`: reusable task-focused capability bundles
-- `Rules`: behavior constraints and prompt-routing rules
-- `Stacks`: frontend / Java / Python stack guidance
-- `Memory / Learned`: project memory and learned patterns
-- `Commands / Playbooks`: common workflow entrypoints
-
-The desktop app lets users choose components by platform; the CLI and scripts keep deeper control paths available.
-
-## Common Usage Paths
-
-### As an end user
-
-- download the desktop app
-- choose `Claude`, `Codex`, or `Gemini`
-- choose which components to install
-- run install or repair
-
-### As an advanced user
-
-- use the CLI for install, verify, and doctor flows
-- use compatibility scripts in existing shell workflows
-- run the desktop app from source for local development
-
-### Run the desktop app from source
+## Run From Source
 
 ```bash
 npm install
@@ -91,9 +99,27 @@ cd apps/forge-desktop
 npm run tauri:dev
 ```
 
+Notes:
+
+- The public product name is now `Forge`
+- The internal workspace path remains `apps/forge-desktop` to avoid breaking the existing build chain
+
+## Branch Model
+
+Forge uses a deliberately small branching model:
+
+| Branch | Purpose |
+| --- | --- |
+| `public` | External-facing stable line and the only branch allowed to produce release tags |
+| `dev` | Full internal integration line |
+| `feature/*` | Short-lived feature branches |
+| `hotfix/*` | Short-lived repair branches |
+
+Full details and recommended protection rules live in [BRANCHING.md](BRANCHING.md).
+
 ## Support and Feedback
 
-GitHub Issues is the public support channel:
+Public feedback goes through GitHub Issues:
 
 - [Bug Report](https://github.com/SniKh1/forge/issues/new/choose)
 - [Feature Request](https://github.com/SniKh1/forge/issues/new/choose)
@@ -106,32 +132,13 @@ When possible, include:
 - reproduction steps
 - logs or screenshots
 
-## Versioning and Compatibility
+## Versioning
 
-Forge now uses a unified repository version line: `0.x`.
+Forge uses a unified repository version line:
 
-That means:
-
-- the CLI and desktop app share the same version
-- Git tags and Release names stay aligned
-- `0.x` signals active iteration with public open-source release discipline
-
-See [CHANGELOG.md](CHANGELOG.md) for release history.
-
-## Commit Convention
-
-Recommended commit prefixes:
-
-- `feat`
-- `fix`
-- `docs`
-- `chore`
-- `ci`
-- `release`
-
-## Repository Surface
-
-Only `README.md`, `README.en.md`, `CHANGELOG.md`, and `LICENSE` are intended as the public entrypoint surface. The rest of the docs and implementation material remain in-repo for maintenance and internal evolution, but are intentionally not part of the primary user path.
+- the CLI and GUI app share the same version
+- Git tags and GitHub Releases stay aligned
+- `0.x` still signals active iteration, but under explicit public-repo governance
 
 ## License
 

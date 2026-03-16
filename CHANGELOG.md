@@ -9,6 +9,19 @@ The format follows a Keep a Changelog style, adapted for Forge.
 ### Added
 - Placeholder for upcoming changes.
 
+## [0.4.0] - 2026-03-16
+
+### Changed
+- Renamed the public desktop product surface from `Forge Desktop` to `Forge` while keeping the internal desktop workspace path stable.
+- Switched the macOS release line to publish Apple Silicon `.dmg` assets only.
+- Introduced a two-line branch model built around `public` for releases and `dev` for full internal development.
+
+### Added
+- Added `BRANCHING.md` and `CODEOWNERS` to document and support repository governance.
+
+### Fixed
+- Added a release preflight check so release tags only publish when they point to commits reachable from `public`.
+
 ## [0.3.9] - 2026-03-16
 
 ### Changed

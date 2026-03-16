@@ -1,4 +1,4 @@
-name: Release Desktop Builds
+name: Release Forge Builds
 
 on:
   push:
@@ -6,7 +6,24 @@ on:
       - 'v0.*.*'
 
 jobs:
+  verify-release-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify tag points to public branch
+        run: |
+          git fetch origin public:refs/remotes/origin/public
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" "origin/public"; then
+            echo "Release tags must point to commits reachable from origin/public."
+            exit 1
+          fi
+
   build-desktop:
+    needs: verify-release-source
     permissions:
       contents: read
     strategy:
@@ -16,12 +33,12 @@ jobs:
           - os: macos-14
             target: ''
             bundles: 'dmg'
-            artifact_name: 'forge-desktop-macos-arm64-dmg'
+            artifact_name: 'forge-macos-arm64-dmg'
             artifact_glob: 'apps/forge-desktop/src-tauri/target/release/bundle/dmg/*.dmg'
           - os: windows-latest
             target: ''
             bundles: 'msi'
-            artifact_name: 'forge-desktop-windows-msi'
+            artifact_name: 'forge-windows-msi'
             artifact_glob: 'apps/forge-desktop/src-tauri/target/release/bundle/msi/*.msi'
     runs-on: ${{ matrix.os }}
     steps:
@@ -52,15 +69,6 @@ jobs:
           fi
         shell: bash
 
-      - name: Pack macOS app bundle
-        if: startsWith(matrix.os, 'macos-') && matrix.bundles == 'app'
-        run: |
-          APP_PATH="apps/forge-desktop/src-tauri/target/release/bundle/macos/Forge Desktop.app"
-          TAR_PATH="apps/forge-desktop/src-tauri/target/release/bundle/macos/Forge Desktop.app.tar.gz"
-          rm -f "$TAR_PATH"
-          tar -C "$(dirname "$APP_PATH")" -czf "$TAR_PATH" "$(basename "$APP_PATH")"
-        shell: bash
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -85,7 +93,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: Forge ${{ github.ref_name }}
           body: |
-            Download the installer or bundle asset for your platform from the list below.
+            Download the latest Forge installer for your platform from the assets below.
 
             Full release details are tracked in CHANGELOG.md.
           generate_release_notes: true
@@ -94,4 +102,3 @@ jobs:
           files: |
             release-assets/**/*.dmg
             release-assets/**/*.msi
-            release-assets/**/*.tar.gz

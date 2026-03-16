@@ -424,7 +424,7 @@ function scoreExternalMcp(entry: ExternalMcpResult, query: string, preferredIds:
 
 const messages: Record<Lang, Messages> = {
   zh: {
-    productName: 'Forge Desktop',
+    productName: 'Forge',
     platform: '平台',
     community: '社区扩展',
     settings: '设置',
@@ -576,7 +576,7 @@ const messages: Record<Lang, Messages> = {
     ja: '日本語',
   },
   en: {
-    productName: 'Forge Desktop',
+    productName: 'Forge',
     platform: 'Platform',
     community: 'Community',
     settings: 'Settings',
@@ -728,7 +728,7 @@ const messages: Record<Lang, Messages> = {
     ja: '日本語',
   },
   ja: {
-    productName: 'Forge Desktop',
+    productName: 'Forge',
     platform: 'プラットフォーム',
     community: 'コミュニティ',
     settings: '設定',
@@ -1096,7 +1096,12 @@ function clientAccent(client: Client) {
 async function runForge(args: string[], cwd?: string) {
   try {
     return await invoke<string>('run_forge_cli', { args, cwd });
-  } catch {
+  } catch (error) {
+    if (typeof error === 'string' && error.trim()) return error;
+    if (error && typeof error === 'object') {
+      const message = 'message' in error && typeof error.message === 'string' ? error.message : '';
+      if (message.trim()) return message;
+    }
     return `Tauri bridge unavailable. Run manually:\nnode packages/forge-cli/bin/forge.js ${args.join(' ')}`;
   }
 }

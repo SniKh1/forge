@@ -1,6 +1,6 @@
 changelog:
   categories:
-    - title: Forge Desktop
+    - title: Forge App
       labels:
         - desktop
     - title: Adapters
