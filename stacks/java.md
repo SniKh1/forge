@@ -16,7 +16,7 @@
 - 对测试和验证要求较高的关键业务系统
 
 这个 stack 主要与下面这些 role-pack 配对：
-- `developer`
+- `java-backend-engineer`
 - `solution-architect`
 - `qa-strategist`
 - `release-devex`
@@ -218,6 +218,56 @@ research / reference 优先级：
 
 ---
 
+## 8. Integration and Resilience Defaults
+
+凡是涉及外部依赖或跨服务协作，至少补齐：
+- timeout policy
+- retry policy
+- idempotency expectation
+- 降级或 fallback 行为
+- failure visibility
+
+如果任务包含 MQ / event / async integration，必须显式说明：
+- producer / consumer boundary
+- ordering / deduplication 假设
+- poison message 或失败重试策略
+- replay / backfill 影响
+
+---
+
+## 9. Performance and Data Discipline
+
+优先检查：
+- query shape 是否与真实 use-case 对齐
+- 是否存在 N+1、全表扫描、过宽 DTO
+- 大对象序列化是否可控
+- cache 是否真的有命中价值，而不是徒增一致性复杂度
+
+涉及大表、重查询、批量任务时，完成说明里至少要提到：
+- index 假设
+- 数据量级
+- 最坏路径风险
+- 上线后要观察的指标
+
+---
+
+## 10. Role Mapping Notes
+
+这个 stack 默认最适合：
+- `java-backend-engineer`
+- `solution-architect`
+- `qa-strategist`
+- `release-devex`
+
+如果任务核心更偏平台治理、构建链路或发布系统，应叠加：
+- `release`
+- `architecture`
+
+如果任务核心更偏业务流程自动化，应额外叠加：
+- `workflow-automation`
+
+---
+
 ## 8. Delivery Checklist
 
 对 Java / Spring 任务来说，真正的“完成”至少能回答：
@@ -232,7 +282,7 @@ research / reference 优先级：
 
 ## 9. Role Pairing Notes
 
-### `developer + java`
+### `java-backend-engineer + java`
 重点关注 correctness、test、repository boundary 和 transaction scope。
 
 ### `solution-architect + java`

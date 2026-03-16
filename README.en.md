@@ -65,9 +65,18 @@ Download the latest release from [GitHub Releases](https://github.com/SniKh1/for
 The GUI installer is the default user path. It handles:
 
 - client detection
+- persona-based install guidance from role packs and stack packs
+- single-select roles, multi-select stacks, and one-click stack selection
 - install scope selection
 - writing Forge configuration
-- post-install verification and repair
+- post-install verification, repair, and state refresh
+
+The current installer surface already covers:
+
+- role packs for frontend, mobile, Java backend, Python backend, AI automation, data, security, product, design, architecture, QA, platform, and release
+- stack packs for web frontend, desktop frontend, mobile app, mobile UI, Java services, Python services, data platform, threat modeling, observability, release orchestration, and more
+
+In practice, that means one machine can layer multiple working stacks instead of being locked to a single persona.
 
 ### CLI / script entrypoints
 
@@ -75,6 +84,7 @@ The GUI installer is the default user path. It handles:
 node packages/forge-cli/bin/forge.js setup
 node packages/forge-cli/bin/forge.js verify
 node packages/forge-cli/bin/forge.js doctor
+node packages/forge-cli/bin/forge.js install codex --non-interactive
 ```
 
 Compatibility wrappers remain available:
@@ -103,6 +113,7 @@ Notes:
 
 - The public product name is now `Forge`
 - The internal workspace path remains `apps/forge-desktop` to avoid breaking the existing build chain
+- The current local release path is centered on the macOS Apple Silicon `.dmg`, while Windows `.msi` artifacts are produced by GitHub Actions
 
 ## Branch Model
 
@@ -138,6 +149,7 @@ Forge uses a unified repository version line:
 
 - the CLI and GUI app share the same version
 - Git tags and GitHub Releases stay aligned
+- the release workflow only accepts tags that point to commits reachable from `public`
 - `0.x` still signals active iteration, but under explicit public-repo governance
 
 ## License

@@ -174,6 +174,14 @@ function Backup-Existing {
     if ($SkipBackup) { return }
     if ((Test-Path $ForgeHome) -or (Test-Path (Join-Path $CodexHome "AGENTS.md"))) {
         Write-Step 2 7 (Get-Msg "backup")
+        if ($NonInteractive) {
+            New-Item -ItemType Directory -Path $BackupDir -Force | Out-Null
+            if (Test-Path $ForgeHome) { Copy-Item $ForgeHome -Destination (Join-Path $BackupDir "forge") -Recurse -Force }
+            if (Test-Path (Join-Path $CodexHome "AGENTS.md")) { Copy-Item (Join-Path $CodexHome "AGENTS.md") -Destination $BackupDir -Force }
+            Write-Ok "Backup: $BackupDir"
+            Write-Host ""
+            return
+        }
         Write-Host "(y/n)" -ForegroundColor Yellow
         $resp = Read-Host
         if ($resp -match "^[Yy]$") {

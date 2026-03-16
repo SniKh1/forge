@@ -16,7 +16,7 @@
 - Python-first automation 或 internal service
 
 这个 stack 主要与下面这些 role-pack 配对：
-- `developer`
+- `python-backend-engineer`
 - `solution-architect`
 - `qa-strategist`
 - `release-devex`
@@ -218,6 +218,54 @@ Django 默认：
 避免：
 - 裸 `except Exception` 却不做重分类
 - 在 hot path 留下 noisy debug log
+- 在异步路径里把失败吞掉却不留下可追踪证据
+
+---
+
+## 9. Automation and Background Work Defaults
+
+如果任务涉及 automation / agent / worker / cron / queue，至少补齐：
+- trigger source
+- state persistence
+- retry / backoff policy
+- idempotency
+- timeout / cancellation
+- human handoff 或 failure visibility
+
+默认优先：
+- 让 workflow state 可见
+- 把 side effect 边界收口在明确 adapter 中
+- 把 prompt / model / external tool 变化当成代码级风险来看待
+
+---
+
+## 10. Data and AI-Oriented Python Guidance
+
+当 Python 任务偏 data / AI / automation 时，优先检查：
+- schema 是否稳定
+- 中间产物是否可追踪
+- 长链路失败是否能定位到具体阶段
+- 模型输出是否有校验或 guardrail
+- 文件 / 文本 / API 输入是否有显式 boundary
+
+不要：
+- 把 agent / automation 流程写成一大段不可复用脚本
+- 把 prompt、解析、业务规则、外部 IO 混在一起
+- 在缺乏验证的情况下把 LLM 输出直接当最终事实
+
+---
+
+## 11. Role Mapping Notes
+
+这个 stack 默认最适合：
+- `python-backend-engineer`
+- `ai-automation-engineer`
+- `solution-architect`
+- `qa-strategist`
+
+如果任务更偏工作流编排、MCP、agent orchestration，建议叠加：
+- `workflow-automation`
+- `architecture`
 - 默默吞掉 task failure
 - 让 data script 在没有 traceability 的情况下修改状态
 
@@ -237,7 +285,7 @@ Django 默认：
 
 ## 10. Role Pairing Notes
 
-### `developer + python`
+### `python-backend-engineer + python`
 重点关注 explicit contract、framework-appropriate structure 和 testability。
 
 ### `solution-architect + python`

@@ -47,7 +47,9 @@
 - 不输出只有漂亮文字、没有执行价值的文档
 
 ## Role-to-Stack Mapping
-- `product-manager + product`
+- `product-manager + product-discovery`
+- `product-manager + product-delivery`
+- `product-manager + delivery-management`
 
 ## Auto-Trigger Guidance
 - 需求模糊时，优先补齐目标、成功标准和边界。

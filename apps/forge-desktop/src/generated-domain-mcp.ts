@@ -6,9 +6,13 @@ export const forgeDomainMcpMatrix = {
       "recommendedRoles": [
         "product-manager",
         "ui-designer",
-        "developer",
+        "frontend-engineer",
+        "java-backend-engineer",
+        "python-backend-engineer",
         "qa-strategist",
-        "release-devex"
+        "platform-engineer",
+        "release-devex",
+        "engineering-manager"
       ],
       "recommendedMcp": [
         {
@@ -43,7 +47,8 @@ export const forgeDomainMcpMatrix = {
       "recommendedRoles": [
         "product-manager",
         "ui-designer",
-        "developer"
+        "frontend-engineer",
+        "ai-automation-engineer"
       ],
       "recommendedMcp": [
         {
@@ -71,7 +76,8 @@ export const forgeDomainMcpMatrix = {
       "recommendedRoles": [
         "ui-designer",
         "product-manager",
-        "developer"
+        "frontend-engineer",
+        "ai-automation-engineer"
       ],
       "recommendedMcp": [
         {
@@ -105,7 +111,9 @@ export const forgeDomainMcpMatrix = {
     "workflow-automation": {
       "recommendedRoles": [
         "solution-architect",
-        "developer",
+        "python-backend-engineer",
+        "ai-automation-engineer",
+        "platform-engineer",
         "release-devex",
         "qa-strategist"
       ],

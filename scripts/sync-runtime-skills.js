@@ -41,9 +41,22 @@ function syncDir(src, dest) {
   fs.cpSync(src, dest, { recursive: true });
 }
 
+function listSystemSkillIds(skillsDir) {
+  const systemDir = path.join(skillsDir, '.system');
+  if (!fs.existsSync(systemDir)) return new Set();
+  const ids = new Set();
+  for (const entry of fs.readdirSync(systemDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const skillFile = path.join(systemDir, entry.name, 'SKILL.md');
+    if (fs.existsSync(skillFile)) ids.add(entry.name);
+  }
+  return ids;
+}
+
 const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
 const skills = Array.isArray(registry.skills) ? registry.skills : [];
 ensureDir(targetSkillsDir);
+const systemSkillIds = listSystemSkillIds(targetSkillsDir);
 
 let installed = 0;
 const allowedTopLevel = new Set(['learned']);
@@ -52,8 +65,12 @@ for (const skill of skills) {
   if (selected && !selected.has(skill.id)) continue;
   const src = path.join(repoRoot, skill.relativeSkillDir);
   const dest = path.join(targetSkillsDir, skill.id);
-  allowedTopLevel.add(skill.id);
   if (!fs.existsSync(src)) continue;
+  if (systemSkillIds.has(skill.id)) {
+    fs.rmSync(dest, { recursive: true, force: true });
+    continue;
+  }
+  allowedTopLevel.add(skill.id);
   if (mode === 'incremental' && fs.existsSync(dest)) continue;
   syncDir(src, dest);
   installed += 1;

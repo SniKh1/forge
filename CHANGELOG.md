@@ -6,8 +6,15 @@ The format follows a Keep a Changelog style, adapted for Forge.
 
 ## [Unreleased]
 
-### Added
-- Placeholder for upcoming changes.
+### Changed
+- Expanded the desktop installer persona model with richer role packs and stack packs, while keeping role selection single-choice and stack selection multi-choice.
+- Refined the install surface so users can understand whether the selected role's baseline stacks are already present on the current client.
+
+### Fixed
+- Fixed Codex non-interactive installs so existing local configuration now auto-backs up instead of failing on an unattended `(y/n)` prompt.
+- Eliminated duplicate runtime-skill warnings caused by top-level skill sync colliding with `.system` built-ins such as `skill-creator`.
+- Backfilled missing default permission rules into Claude `settings.json` during incremental installs so verification no longer reports an empty permissions list.
+- Added stack-level bulk selection and clearer current-persona emphasis in the desktop installer UI.
 
 ## [0.4.0] - 2026-03-16
 
@@ -18,9 +25,13 @@ The format follows a Keep a Changelog style, adapted for Forge.
 
 ### Added
 - Added `BRANCHING.md` and `CODEOWNERS` to document and support repository governance.
+- Added richer desktop installer persona coverage for frontend, mobile, backend, data, security, product, QA, architecture, platform, and release workflows.
 
 ### Fixed
 - Added a release preflight check so release tags only publish when they point to commits reachable from `public`.
+- Fixed unattended Codex repair/install flows that previously failed when backup confirmation was required in non-interactive mode.
+- Fixed runtime-skill deduplication so built-in `.system` skills do not surface as duplicate installed skills during verification.
+- Fixed incremental Claude installs so missing permission defaults are restored automatically instead of leaving a partially configured `settings.json`.
 
 ## [0.3.9] - 2026-03-16
 

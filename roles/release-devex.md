@@ -44,4 +44,6 @@
 - 不把 release note 写成只对开发者有意义的 commit 摘要
 
 ## Role-to-Stack Mapping
-- `release-devex + release`
+- `release-devex + release-orchestration`
+- `release-devex + delivery-management`
+- `release-devex + platform-infrastructure`

@@ -52,5 +52,6 @@
 - 不只画边界，不说明实现落点和风险。
 
 ## Role-to-Stack Mapping
-- `solution-architect + architecture`
-- 可按需要叠加 implementation stack
+- `solution-architect + system-architecture`
+- `solution-architect + service-integration`
+- `solution-architect + security-engineering`

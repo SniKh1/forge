@@ -1,13 +1,262 @@
 export const forgeRoleMcpMatrix = {
-  "version": "1.0",
-  "updated": "2026-03-12",
+  "version": "2.1",
+  "updated": "2026-03-16",
   "roles": {
+    "frontend-engineer": {
+      "recommendedStacks": [
+        "frontend-web",
+        "frontend-desktop",
+        "design-system"
+      ],
+      "recommendedSkills": [
+        "frontend-design",
+        "web-frameworks",
+        "ui-styling",
+        "webapp-testing",
+        "code-review"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "figma-mcp",
+          "label": "Figma MCP Server",
+          "type": "official-remote-or-desktop",
+          "why": "让设计稿、组件规范和前端实现始终保持闭环。",
+          "source": "https://help.figma.com/hc/en-us/articles/32132100833559-Guide-to-the-Figma-MCP-server"
+        },
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "直接查看实现代码、PR、issue 和 design-system 变更。",
+          "source": "https://github.com/github/github-mcp-server"
+        }
+      ],
+      "recommendedLocalTools": [
+        {
+          "id": "browser-use",
+          "label": "browser-use",
+          "why": "优先使用真实登录态和真实产品流验证交互。"
+        },
+        {
+          "id": "playwright",
+          "label": "Playwright",
+          "why": "做可重复的 UI 回归、截图和关键路径验证。"
+        }
+      ]
+    },
+    "java-backend-engineer": {
+      "recommendedStacks": [
+        "java-service",
+        "service-integration",
+        "security-engineering"
+      ],
+      "recommendedSkills": [
+        "backend-development",
+        "springboot-patterns",
+        "jpa-patterns",
+        "systematic-debugging",
+        "code-review"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "服务边界、PR、issue 与发布链路都依赖 repo 级上下文。",
+          "source": "https://github.com/github/github-mcp-server"
+        }
+      ],
+      "recommendedToolMcp": [
+        {
+          "id": "context7",
+          "label": "Context7",
+          "type": "official-docs-tooling",
+          "why": "快速查 Spring、JDK、依赖版本与官方文档。"
+        },
+        {
+          "id": "deepwiki",
+          "label": "DeepWiki",
+          "type": "open-source-research-tooling",
+          "why": "进入陌生 Java 仓库时建立结构理解和实现参考。"
+        }
+      ]
+    },
+    "python-backend-engineer": {
+      "recommendedStacks": [
+        "python-service",
+        "data-pipeline",
+        "service-integration"
+      ],
+      "recommendedSkills": [
+        "backend-development",
+        "python-patterns",
+        "python-testing",
+        "systematic-debugging",
+        "code-review"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "服务实现、自动化任务、issue 和发布回归都需要 repo 级上下文。",
+          "source": "https://github.com/github/github-mcp-server"
+        }
+      ],
+      "recommendedToolMcp": [
+        {
+          "id": "context7",
+          "label": "Context7",
+          "type": "official-docs-tooling",
+          "why": "查 FastAPI、Django、Python 依赖和运行时文档。"
+        },
+        {
+          "id": "fetch",
+          "label": "fetch",
+          "type": "web-fetch-tooling",
+          "why": "抓取远端接口、文档和自动化场景依赖的外部说明。"
+        }
+      ]
+    },
+    "mobile-engineer": {
+      "recommendedStacks": [
+        "mobile-app",
+        "mobile-ui",
+        "design-system"
+      ],
+      "recommendedSkills": [
+        "swiftui-patterns",
+        "frontend-design",
+        "ui-styling",
+        "web-design-guidelines"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "figma-mcp",
+          "label": "Figma MCP Server",
+          "type": "official-remote-or-desktop",
+          "why": "移动界面实现仍需要和设计稿、组件规范以及视觉资产保持一致。",
+          "source": "https://help.figma.com/hc/en-us/articles/32132100833559-Guide-to-the-Figma-MCP-server"
+        },
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "移动端代码、PR、issue 与发布节奏都需要 repo 级上下文。",
+          "source": "https://github.com/github/github-mcp-server"
+        }
+      ],
+      "recommendedToolMcp": [
+        {
+          "id": "context7",
+          "label": "Context7",
+          "type": "official-docs-tooling",
+          "why": "查 SwiftUI、平台 API 和移动端框架官方文档。"
+        }
+      ]
+    },
+    "data-engineer": {
+      "recommendedStacks": [
+        "data-platform",
+        "data-pipeline",
+        "observability"
+      ],
+      "recommendedSkills": [
+        "databases",
+        "python-patterns",
+        "systematic-debugging",
+        "code-review"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "数据任务、schema、pipeline 和批处理逻辑需要 repo 级事实来源。",
+          "source": "https://github.com/github/github-mcp-server"
+        }
+      ],
+      "recommendedToolMcp": [
+        {
+          "id": "fetch",
+          "label": "fetch",
+          "type": "web-fetch-tooling",
+          "why": "抓取数据源文档、schema 定义和外部系统说明。"
+        }
+      ]
+    },
+    "security-engineer": {
+      "recommendedStacks": [
+        "security-engineering",
+        "threat-modeling",
+        "quality-governance"
+      ],
+      "recommendedSkills": [
+        "security-review",
+        "better-auth",
+        "systematic-debugging",
+        "code-review"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "安全 review、风险定位和修复验证都需要直接落回代码事实与历史变更。",
+          "source": "https://github.com/github/github-mcp-server"
+        }
+      ],
+      "recommendedToolMcp": [
+        {
+          "id": "context7",
+          "label": "Context7",
+          "type": "official-docs-tooling",
+          "why": "查安全配置、认证授权和框架官方加固文档。"
+        }
+      ]
+    },
+    "ai-automation-engineer": {
+      "recommendedStacks": [
+        "agent-automation",
+        "workflow-automation",
+        "python-service"
+      ],
+      "recommendedSkills": [
+        "backend-development",
+        "mcp-builder",
+        "mcp-management",
+        "context-engineering",
+        "systematic-debugging"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "自动化 agent、MCP 服务和任务编排仍然要围绕 repo 与 PR 上下文工作。",
+          "source": "https://github.com/github/github-mcp-server"
+        }
+      ],
+      "recommendedToolMcp": [
+        {
+          "id": "context7",
+          "label": "Context7",
+          "type": "official-docs-tooling",
+          "why": "查模型、框架、SDK 和协议文档。"
+        },
+        {
+          "id": "fetch",
+          "label": "fetch",
+          "type": "web-fetch-tooling",
+          "why": "补远端文档、API 和自动化流程里的网页步骤。"
+        }
+      ]
+    },
     "product-manager": {
       "recommendedStacks": [
-        "product",
-        "ecommerce",
-        "video-creation",
-        "image-generation"
+        "product-discovery",
+        "product-delivery",
+        "delivery-management"
       ],
       "recommendedSkills": [
         "brainstorming",
@@ -20,45 +269,37 @@ export const forgeRoleMcpMatrix = {
           "id": "notion-mcp",
           "label": "Notion MCP",
           "type": "official-hosted",
-          "why": "PRDs, specs, project docs, and workspace search.",
+          "why": "PRD、spec、决策记录和知识库检索的核心工作面。",
           "source": "https://developers.notion.com/docs/mcp"
         },
         {
           "id": "atlassian-rovo-mcp",
           "label": "Atlassian Rovo MCP",
           "type": "official-remote",
-          "why": "Jira and Confluence context for planning, dependencies, and team execution.",
+          "why": "Jira 和 Confluence 适合做需求拆分、依赖跟踪和执行对齐。",
           "source": "https://www.atlassian.com/platform/remote-mcp-server"
         },
         {
           "id": "linear-mcp",
           "label": "Linear MCP",
           "type": "official-remote",
-          "why": "Issue, project, and comment workflows for product planning and prioritization.",
+          "why": "问题流转、优先级和交付节奏适合放在线性 issue 体系里管理。",
           "source": "https://linear.app/docs/mcp"
         },
         {
           "id": "slack-mcp",
           "label": "Slack MCP",
           "type": "official-hosted",
-          "why": "Search workspace context, retrieve threads, and draft/send follow-up communication.",
+          "why": "同步跨团队讨论、复盘和发布沟通上下文。",
           "source": "https://slack.com/help/articles/48855576908307-Guide-to-the-Slack-MCP-server"
-        },
-        {
-          "id": "github-mcp",
-          "label": "GitHub MCP Server",
-          "type": "official-remote-or-local",
-          "why": "Trace issues, pull requests, and repository state alongside planning and delivery.",
-          "source": "https://github.com/github/github-mcp-server"
         }
       ]
     },
     "ui-designer": {
       "recommendedStacks": [
-        "design",
-        "image-generation",
-        "video-creation",
-        "ecommerce"
+        "visual-design",
+        "interaction-design",
+        "design-system"
       ],
       "recommendedSkills": [
         "frontend-design",
@@ -72,14 +313,14 @@ export const forgeRoleMcpMatrix = {
           "id": "figma-mcp",
           "label": "Figma MCP Server",
           "type": "official-remote-or-desktop",
-          "why": "Extract design context, map code to design, and capture live UI back into Figma.",
+          "why": "设计上下文、组件规范和实现回写都应以 Figma 为核心。",
           "source": "https://help.figma.com/hc/en-us/articles/32132100833559-Guide-to-the-Figma-MCP-server"
         },
         {
           "id": "github-mcp",
           "label": "GitHub MCP Server",
           "type": "official-remote-or-local",
-          "why": "Review implementation state, PR context, and design-system code references.",
+          "why": "设计 review 需要对照实现、PR 和组件系统代码。",
           "source": "https://github.com/github/github-mcp-server"
         }
       ],
@@ -87,20 +328,20 @@ export const forgeRoleMcpMatrix = {
         {
           "id": "browser-use",
           "label": "browser-use",
-          "why": "Use a real local browser profile for logged-in product validation and UI review."
+          "why": "在真实登录态和真实产品流里回看设计与交互。"
         },
         {
           "id": "playwright",
           "label": "Playwright",
-          "why": "Repeatable interaction checks, screenshots, and UI verification."
+          "why": "做可重复的视觉检查、截图和动线验证。"
         }
       ]
     },
     "solution-architect": {
       "recommendedStacks": [
-        "architecture",
-        "workflow-automation",
-        "ecommerce"
+        "system-architecture",
+        "service-integration",
+        "security-engineering"
       ],
       "recommendedSkills": [
         "brainstorming",
@@ -113,7 +354,7 @@ export const forgeRoleMcpMatrix = {
           "id": "github-mcp",
           "label": "GitHub MCP Server",
           "type": "official-remote-or-local",
-          "why": "Repository-wide context for boundaries, APIs, and architectural tradeoffs.",
+          "why": "架构决策离不开 repo 全局上下文、模块边界和既有实现约束。",
           "source": "https://github.com/github/github-mcp-server"
         }
       ],
@@ -122,21 +363,21 @@ export const forgeRoleMcpMatrix = {
           "id": "context7",
           "label": "Context7",
           "type": "official-docs-tooling",
-          "why": "Pull current official library and framework documentation into architecture decisions."
+          "why": "把当下有效的框架与基础设施文档拉进架构决策。"
         },
         {
           "id": "deepwiki",
           "label": "DeepWiki",
           "type": "open-source-research-tooling",
-          "why": "Explore open-source repo structure and implementation patterns before designing changes."
+          "why": "进入陌生系统时快速建立结构理解与对标样例。"
         }
       ]
     },
     "qa-strategist": {
       "recommendedStacks": [
-        "qa",
-        "workflow-automation",
-        "ecommerce"
+        "test-automation",
+        "quality-governance",
+        "observability"
       ],
       "recommendedSkills": [
         "tdd-workflow",
@@ -149,7 +390,7 @@ export const forgeRoleMcpMatrix = {
           "id": "github-mcp",
           "label": "GitHub MCP Server",
           "type": "official-remote-or-local",
-          "why": "Inspect PRs, issues, regressions, and code context while building a test strategy.",
+          "why": "测试策略需要和 PR、issue、回归历史以及实现上下文对齐。",
           "source": "https://github.com/github/github-mcp-server"
         }
       ],
@@ -157,20 +398,64 @@ export const forgeRoleMcpMatrix = {
         {
           "id": "playwright",
           "label": "Playwright",
-          "why": "Primary local automation tool for reproducible UI regression and acceptance checks."
+          "why": "可重复回归、验收测试和 UI 关键路径验证的主力工具。"
         },
         {
           "id": "memory",
           "label": "memory",
-          "why": "Recall prior regressions, fixes, and verification evidence across sessions."
+          "why": "保留历史缺陷、验证证据和回归重点。"
+        }
+      ]
+    },
+    "platform-engineer": {
+      "recommendedStacks": [
+        "platform-infrastructure",
+        "observability",
+        "workflow-automation"
+      ],
+      "recommendedSkills": [
+        "devops",
+        "deployment-patterns",
+        "systematic-debugging",
+        "context-engineering",
+        "code-review"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "CI、基础设施、构建和自动化变更都需要 repo 和 PR 级上下文。",
+          "source": "https://github.com/github/github-mcp-server"
+        },
+        {
+          "id": "slack-mcp",
+          "label": "Slack MCP",
+          "type": "official-hosted",
+          "why": "平台变更、故障广播和发布协调离不开团队沟通面。",
+          "source": "https://slack.com/help/articles/48855576908307-Guide-to-the-Slack-MCP-server"
+        }
+      ],
+      "recommendedToolMcp": [
+        {
+          "id": "context7",
+          "label": "Context7",
+          "type": "official-docs-tooling",
+          "why": "查云平台、容器、运行时和工具链官方文档。"
+        },
+        {
+          "id": "fetch",
+          "label": "fetch",
+          "type": "web-fetch-tooling",
+          "why": "抓取状态页、部署说明和远端诊断信息。"
         }
       ]
     },
     "release-devex": {
       "recommendedStacks": [
-        "release",
-        "workflow-automation",
-        "ecommerce"
+        "release-orchestration",
+        "delivery-management",
+        "platform-infrastructure"
       ],
       "recommendedSkills": [
         "devops",
@@ -183,14 +468,14 @@ export const forgeRoleMcpMatrix = {
           "id": "github-mcp",
           "label": "GitHub MCP Server",
           "type": "official-remote-or-local",
-          "why": "CI, releases, issues, and pull requests are the main release control surface.",
+          "why": "CI、release、issue 和 PR 是发布控制面的核心入口。",
           "source": "https://github.com/github/github-mcp-server"
         },
         {
           "id": "slack-mcp",
           "label": "Slack MCP",
           "type": "official-hosted",
-          "why": "Release coordination, status communication, and post-release incident follow-up.",
+          "why": "发布协调、状态通知和事故跟进都依赖团队沟通通道。",
           "source": "https://slack.com/help/articles/48855576908307-Guide-to-the-Slack-MCP-server"
         }
       ],
@@ -199,13 +484,56 @@ export const forgeRoleMcpMatrix = {
           "id": "fetch",
           "label": "fetch",
           "type": "web-fetch-tooling",
-          "why": "Pull release notes, docs, and web diagnostics when a direct MCP is not available."
+          "why": "拉 release note、文档和线上诊断信息。"
         },
         {
           "id": "context7",
           "label": "Context7",
           "type": "official-docs-tooling",
-          "why": "Look up current packaging, framework, and runtime docs during release work."
+          "why": "查包装、运行时和框架发布链路文档。"
+        }
+      ]
+    },
+    "engineering-manager": {
+      "recommendedStacks": [
+        "delivery-management",
+        "product-delivery",
+        "release-orchestration"
+      ],
+      "recommendedSkills": [
+        "brainstorming",
+        "doc-coauthoring",
+        "internal-comms",
+        "docs-seeker"
+      ],
+      "recommendedMcp": [
+        {
+          "id": "notion-mcp",
+          "label": "Notion MCP",
+          "type": "official-hosted",
+          "why": "记录决策、项目状态和跨团队信息，是管理视角的核心知识面。",
+          "source": "https://developers.notion.com/docs/mcp"
+        },
+        {
+          "id": "linear-mcp",
+          "label": "Linear MCP",
+          "type": "official-remote",
+          "why": "跟踪执行状态、优先级、风险和资源分配。",
+          "source": "https://linear.app/docs/mcp"
+        },
+        {
+          "id": "slack-mcp",
+          "label": "Slack MCP",
+          "type": "official-hosted",
+          "why": "同步团队状态、决策反馈和发布沟通。",
+          "source": "https://slack.com/help/articles/48855576908307-Guide-to-the-Slack-MCP-server"
+        },
+        {
+          "id": "github-mcp",
+          "label": "GitHub MCP Server",
+          "type": "official-remote-or-local",
+          "why": "管理判断仍需要回到 PR、issue、交付节奏和代码事实。",
+          "source": "https://github.com/github/github-mcp-server"
         }
       ]
     }

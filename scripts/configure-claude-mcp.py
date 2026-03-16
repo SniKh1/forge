@@ -11,6 +11,48 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from forge_core import dump_json, ensure_uvx, resolve_servers  # noqa: E402
 
 
+def inspect_server_scope(name):
+    result = subprocess.run(
+        ["claude", "mcp", "get", name],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None
+
+    for line in result.stdout.splitlines():
+        if "Scope:" not in line:
+            continue
+        _, value = line.split("Scope:", 1)
+        label = value.strip().lower()
+        if label.startswith("local"):
+            return "local"
+        if label.startswith("user"):
+            return "user"
+        if label.startswith("project"):
+            return "project"
+    return None
+
+
+def sync_server_to_claude_cli(name, config):
+    scope = inspect_server_scope(name) or "local"
+
+    for existing_scope in ("local", "project", "user"):
+        subprocess.run(
+            ["claude", "mcp", "remove", name, "-s", existing_scope],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+    cmd = ["claude", "mcp", "add", "-s", scope, name]
+    for env_key, env_value in config.get("env", {}).items():
+        cmd.extend(["-e", f"{env_key}={env_value}"])
+    cmd.extend(["--", config["command"], *config.get("args", [])])
+    subprocess.run(cmd, check=True, text=True)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--claude-home", default=os.path.expanduser("~/.claude"))
@@ -40,12 +82,7 @@ def main():
         import shutil
         if shutil.which("claude"):
             for name, config in servers.items():
-                subprocess.run(["claude", "mcp", "remove", name], check=False, capture_output=True)
-                cmd = ["claude", "mcp", "add", name]
-                for env_key, env_value in config.get("env", {}).items():
-                    cmd.extend(["-e", f"{env_key}={env_value}"])
-                cmd.extend(["--", config["command"], *config.get("args", [])])
-                subprocess.run(cmd, check=True)
+                sync_server_to_claude_cli(name, config)
 
     print(f"WROTE {claude_home / '.mcp.json'}")
     print("SERVERS " + ", ".join(sorted(servers.keys())))

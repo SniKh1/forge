@@ -16,7 +16,7 @@
 - UI polish、交互质量和浏览器验证
 
 这个 stack 主要与下面这些 role-pack 配对：
-- `developer`
+- `frontend-engineer`
 - `ui-designer`
 - `qa-strategist`
 - `release-devex`
@@ -269,7 +269,7 @@ component primitive 优先：
 
 ## 9. Role Pairing Notes
 
-### `developer + frontend`
+### `frontend-engineer + frontend`
 重点看实现质量、component maintainability 和 framework-appropriate architecture。
 
 ### `ui-designer + frontend`

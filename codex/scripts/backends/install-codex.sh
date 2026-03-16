@@ -194,6 +194,14 @@ backup_existing() {
   fi
   if [ -d "$FORGE_HOME" ] || [ -f "$CODEX_HOME/AGENTS.md" ]; then
     step 2 7 "$(msg backup)"
+    if [ "$NON_INTERACTIVE" = "1" ]; then
+      mkdir -p "$BACKUP_DIR"
+      [ -d "$FORGE_HOME" ] && cp -r "$FORGE_HOME" "$BACKUP_DIR/forge"
+      [ -f "$CODEX_HOME/AGENTS.md" ] && cp "$CODEX_HOME/AGENTS.md" "$BACKUP_DIR/AGENTS.md"
+      log_ok "Backup: $BACKUP_DIR"
+      echo ""
+      return 0
+    fi
     echo -e "${YELLOW}(y/n)${NC}"
     read -r resp
     if [[ "$resp" =~ ^[Yy]$ ]]; then

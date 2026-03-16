@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-03-13T14:42:30.010Z",
+  "generatedAt": "2026-03-16T09:45:38.721Z",
   "totalSkills": 118,
   "layers": {
-    "core": 13,
+    "core": 15,
     "extended": 21,
-    "specialized": 83,
+    "specialized": 81,
     "experimental": 1
   },
   "skills": [
@@ -190,17 +190,23 @@
       "summary": "Implement authentication and authorization with Better Auth - a framework-agnostic TypeScript authentication framework. Features include email/password authentication with verification, OAuth providers (Google, GitHub, Discord, etc.), two-factor authentication (TOTP, SMS), passkeys/WebAuthn support, session management, role-based access control (RBAC), rate limiting, and database adapters. Use when adding authentication to applications, implementing OAuth flows, setting up 2FA/MFA, managing user sessions, configuring authorization rules, or building secure authentication systems for web applications.",
       "layer": "extended",
       "primaryFor": [
-        "developer"
+        "developer",
+        "security-engineer"
       ],
       "secondaryFor": [],
       "recommendedByRole": [
-        "developer"
+        "developer",
+        "security-engineer"
       ],
       "recommendedByStack": [
         "frontend",
         "java",
         "python",
-        "ecommerce"
+        "ecommerce",
+        "mobile-app",
+        "java-service",
+        "python-service",
+        "security-engineering"
       ],
       "overlapGroup": "auth",
       "clusterRole": null,
@@ -807,15 +813,34 @@
       "id": "databases",
       "title": "databases",
       "summary": "Work with MongoDB (document database, BSON documents, aggregation pipelines, Atlas cloud) and PostgreSQL (relational database, SQL queries, psql CLI, pgAdmin). Use when designing database schemas, writing queries and aggregations, optimizing indexes for performance, performing database migrations, configuring replication and sharding, implementing backup and restore strategies, managing database users and permissions, analyzing query performance, or administering production databases.",
-      "layer": "specialized",
-      "primaryFor": [],
+      "layer": "core",
+      "primaryFor": [
+        "developer",
+        "java-backend-engineer",
+        "python-backend-engineer",
+        "data-engineer"
+      ],
       "secondaryFor": [],
-      "recommendedByRole": [],
-      "recommendedByStack": [],
-      "overlapGroup": null,
-      "clusterRole": null,
-      "supportWhen": [],
-      "preferred": false,
+      "recommendedByRole": [
+        "developer",
+        "java-backend-engineer",
+        "python-backend-engineer",
+        "data-engineer"
+      ],
+      "recommendedByStack": [
+        "java",
+        "python",
+        "java-service",
+        "python-service",
+        "data-platform",
+        "data-pipeline"
+      ],
+      "overlapGroup": "data",
+      "clusterRole": "primary",
+      "supportWhen": [
+        "涉及数据模型、查询、索引、schema 设计或数据库诊断时优先使用。"
+      ],
+      "preferred": true,
       "clients": [
         "claude",
         "codex",
@@ -1201,13 +1226,21 @@
       "title": "foundation-models-on-device",
       "summary": "Apple FoundationModels framework for on-device LLM — text generation, guided generation with @Generable, tool calling, and snapshot streaming in iOS 26+.",
       "layer": "specialized",
-      "primaryFor": [],
+      "primaryFor": [
+        "mobile-engineer",
+        "ai-automation-engineer"
+      ],
       "secondaryFor": [],
       "recommendedByRole": [],
-      "recommendedByStack": [],
-      "overlapGroup": null,
-      "clusterRole": null,
-      "supportWhen": [],
+      "recommendedByStack": [
+        "mobile-app",
+        "agent-automation"
+      ],
+      "overlapGroup": "mobile-ai",
+      "clusterRole": "support",
+      "supportWhen": [
+        "任务明确涉及 Apple 端侧模型、on-device generation 或 iOS/macOS 本地 AI 能力时。"
+      ],
       "preferred": false,
       "clients": [
         "claude",
@@ -1224,17 +1257,26 @@
       "layer": "core",
       "primaryFor": [
         "ui-designer",
-        "developer"
+        "developer",
+        "frontend-engineer",
+        "mobile-engineer"
       ],
       "secondaryFor": [],
       "recommendedByRole": [
         "ui-designer",
-        "developer"
+        "developer",
+        "frontend-engineer",
+        "mobile-engineer"
       ],
       "recommendedByStack": [
         "frontend",
         "design",
-        "ecommerce"
+        "ecommerce",
+        "frontend-web",
+        "frontend-desktop",
+        "mobile-ui",
+        "design-system",
+        "interaction-design"
       ],
       "overlapGroup": "ui",
       "clusterRole": "primary",
@@ -1489,13 +1531,21 @@
       "title": "liquid-glass-design",
       "summary": "iOS 26 Liquid Glass design system — dynamic glass material with blur, reflection, and interactive morphing for SwiftUI, UIKit, and WidgetKit.",
       "layer": "specialized",
-      "primaryFor": [],
+      "primaryFor": [
+        "mobile-engineer",
+        "ui-designer"
+      ],
       "secondaryFor": [],
       "recommendedByRole": [],
-      "recommendedByStack": [],
-      "overlapGroup": null,
-      "clusterRole": null,
-      "supportWhen": [],
+      "recommendedByStack": [
+        "mobile-ui",
+        "design-system"
+      ],
+      "overlapGroup": "mobile-ui",
+      "clusterRole": "support",
+      "supportWhen": [
+        "任务明确面向 iOS 26 风格、动态材质或原生移动端玻璃拟态视觉时。"
+      ],
       "preferred": false,
       "clients": [
         "claude",
@@ -1682,13 +1732,24 @@
       "title": "postgres-patterns",
       "summary": "PostgreSQL database patterns for query optimization, schema design, indexing, and security. Based on Supabase best practices.",
       "layer": "specialized",
-      "primaryFor": [],
+      "primaryFor": [
+        "data-engineer",
+        "java-backend-engineer",
+        "python-backend-engineer"
+      ],
       "secondaryFor": [],
       "recommendedByRole": [],
-      "recommendedByStack": [],
-      "overlapGroup": null,
-      "clusterRole": null,
-      "supportWhen": [],
+      "recommendedByStack": [
+        "java-service",
+        "python-service",
+        "data-platform",
+        "data-pipeline"
+      ],
+      "overlapGroup": "data",
+      "clusterRole": "support",
+      "supportWhen": [
+        "数据库主战场明确是 PostgreSQL，需要查询优化、索引或 schema 设计时。"
+      ],
       "preferred": false,
       "clients": [
         "claude",
@@ -1746,16 +1807,25 @@
       "summary": "Pythonic idioms, PEP 8 standards, type hints, and best practices for building robust, efficient, and maintainable Python applications.",
       "layer": "specialized",
       "primaryFor": [
-        "developer"
+        "developer",
+        "python-backend-engineer",
+        "data-engineer",
+        "ai-automation-engineer"
       ],
       "secondaryFor": [],
       "recommendedByRole": [],
       "recommendedByStack": [
-        "python"
+        "python",
+        "python-service",
+        "data-platform",
+        "data-pipeline",
+        "agent-automation"
       ],
-      "overlapGroup": null,
-      "clusterRole": null,
-      "supportWhen": [],
+      "overlapGroup": "python",
+      "clusterRole": "support",
+      "supportWhen": [
+        "任务明确落在 Python 工程实现、数据处理或自动化脚本上下文时。"
+      ],
       "preferred": false,
       "clients": [
         "claude",
@@ -1946,19 +2016,24 @@
       "layer": "core",
       "primaryFor": [
         "developer",
-        "release-devex"
+        "release-devex",
+        "security-engineer"
       ],
       "secondaryFor": [],
       "recommendedByRole": [
         "developer",
-        "release-devex"
+        "release-devex",
+        "security-engineer"
       ],
       "recommendedByStack": [
         "frontend",
         "java",
         "python",
         "release",
-        "ecommerce"
+        "ecommerce",
+        "security-engineering",
+        "threat-modeling",
+        "mobile-app"
       ],
       "overlapGroup": "security",
       "clusterRole": null,
@@ -2351,15 +2426,25 @@
       "id": "swiftui-patterns",
       "title": "swiftui-patterns",
       "summary": "SwiftUI architecture patterns, state management with @Observable, view composition, navigation, performance optimization, and modern iOS/macOS UI best practices.",
-      "layer": "specialized",
-      "primaryFor": [],
+      "layer": "core",
+      "primaryFor": [
+        "mobile-engineer"
+      ],
       "secondaryFor": [],
-      "recommendedByRole": [],
-      "recommendedByStack": [],
-      "overlapGroup": null,
-      "clusterRole": null,
-      "supportWhen": [],
-      "preferred": false,
+      "recommendedByRole": [
+        "mobile-engineer"
+      ],
+      "recommendedByStack": [
+        "mobile-app",
+        "mobile-ui",
+        "design-system"
+      ],
+      "overlapGroup": "mobile-ui",
+      "clusterRole": "primary",
+      "supportWhen": [
+        "移动端任务明确落在 SwiftUI、状态管理、导航或原生组件实现时。"
+      ],
+      "preferred": true,
       "clients": [
         "claude",
         "codex",
@@ -2543,16 +2628,24 @@
       "layer": "extended",
       "primaryFor": [
         "ui-designer",
-        "developer"
+        "developer",
+        "frontend-engineer",
+        "mobile-engineer"
       ],
       "secondaryFor": [],
       "recommendedByRole": [
         "ui-designer",
-        "developer"
+        "developer",
+        "frontend-engineer",
+        "mobile-engineer"
       ],
       "recommendedByStack": [
         "frontend",
-        "design"
+        "design",
+        "frontend-web",
+        "frontend-desktop",
+        "mobile-ui",
+        "design-system"
       ],
       "overlapGroup": "ui",
       "clusterRole": "support",
@@ -2750,17 +2843,23 @@
       "layer": "extended",
       "primaryFor": [
         "ui-designer",
-        "developer"
+        "developer",
+        "mobile-engineer",
+        "qa-strategist"
       ],
       "secondaryFor": [],
       "recommendedByRole": [
         "ui-designer",
-        "developer"
+        "developer",
+        "mobile-engineer",
+        "qa-strategist"
       ],
       "recommendedByStack": [
         "frontend",
         "design",
-        "qa"
+        "qa",
+        "mobile-ui",
+        "interaction-design"
       ],
       "overlapGroup": "ui",
       "clusterRole": "support",

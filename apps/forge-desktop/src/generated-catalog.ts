@@ -158,16 +158,22 @@ export const forgeSkillOptions = [
     ],
     "layer": "extended",
     "primaryFor": [
-      "developer"
+      "developer",
+      "security-engineer"
     ],
     "recommendedByRole": [
-      "developer"
+      "developer",
+      "security-engineer"
     ],
     "recommendedByStack": [
       "frontend",
       "java",
       "python",
-      "ecommerce"
+      "ecommerce",
+      "mobile-app",
+      "java-service",
+      "python-service",
+      "security-engineering"
     ],
     "overlapGroup": "auth",
     "clusterRole": null,
@@ -683,13 +689,32 @@ export const forgeSkillOptions = [
       "codex",
       "gemini"
     ],
-    "layer": "specialized",
-    "primaryFor": [],
-    "recommendedByRole": [],
-    "recommendedByStack": [],
-    "overlapGroup": null,
-    "clusterRole": null,
-    "supportWhen": []
+    "layer": "core",
+    "primaryFor": [
+      "developer",
+      "java-backend-engineer",
+      "python-backend-engineer",
+      "data-engineer"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "java-backend-engineer",
+      "python-backend-engineer",
+      "data-engineer"
+    ],
+    "recommendedByStack": [
+      "java",
+      "python",
+      "java-service",
+      "python-service",
+      "data-platform",
+      "data-pipeline"
+    ],
+    "overlapGroup": "data",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "涉及数据模型、查询、索引、schema 设计或数据库诊断时优先使用。"
+    ]
   },
   {
     "id": "deployment-patterns",
@@ -1009,12 +1034,20 @@ export const forgeSkillOptions = [
       "gemini"
     ],
     "layer": "specialized",
-    "primaryFor": [],
+    "primaryFor": [
+      "mobile-engineer",
+      "ai-automation-engineer"
+    ],
     "recommendedByRole": [],
-    "recommendedByStack": [],
-    "overlapGroup": null,
-    "clusterRole": null,
-    "supportWhen": []
+    "recommendedByStack": [
+      "mobile-app",
+      "agent-automation"
+    ],
+    "overlapGroup": "mobile-ai",
+    "clusterRole": "support",
+    "supportWhen": [
+      "任务明确涉及 Apple 端侧模型、on-device generation 或 iOS/macOS 本地 AI 能力时。"
+    ]
   },
   {
     "id": "frontend-design",
@@ -1028,16 +1061,25 @@ export const forgeSkillOptions = [
     "layer": "core",
     "primaryFor": [
       "ui-designer",
-      "developer"
+      "developer",
+      "frontend-engineer",
+      "mobile-engineer"
     ],
     "recommendedByRole": [
       "ui-designer",
-      "developer"
+      "developer",
+      "frontend-engineer",
+      "mobile-engineer"
     ],
     "recommendedByStack": [
       "frontend",
       "design",
-      "ecommerce"
+      "ecommerce",
+      "frontend-web",
+      "frontend-desktop",
+      "mobile-ui",
+      "design-system",
+      "interaction-design"
     ],
     "overlapGroup": "ui",
     "clusterRole": "primary",
@@ -1249,12 +1291,20 @@ export const forgeSkillOptions = [
       "gemini"
     ],
     "layer": "specialized",
-    "primaryFor": [],
+    "primaryFor": [
+      "mobile-engineer",
+      "ui-designer"
+    ],
     "recommendedByRole": [],
-    "recommendedByStack": [],
-    "overlapGroup": null,
-    "clusterRole": null,
-    "supportWhen": []
+    "recommendedByStack": [
+      "mobile-ui",
+      "design-system"
+    ],
+    "overlapGroup": "mobile-ui",
+    "clusterRole": "support",
+    "supportWhen": [
+      "任务明确面向 iOS 26 风格、动态材质或原生移动端玻璃拟态视觉时。"
+    ]
   },
   {
     "id": "mcp-builder",
@@ -1410,12 +1460,23 @@ export const forgeSkillOptions = [
       "gemini"
     ],
     "layer": "specialized",
-    "primaryFor": [],
+    "primaryFor": [
+      "data-engineer",
+      "java-backend-engineer",
+      "python-backend-engineer"
+    ],
     "recommendedByRole": [],
-    "recommendedByStack": [],
-    "overlapGroup": null,
-    "clusterRole": null,
-    "supportWhen": []
+    "recommendedByStack": [
+      "java-service",
+      "python-service",
+      "data-platform",
+      "data-pipeline"
+    ],
+    "overlapGroup": "data",
+    "clusterRole": "support",
+    "supportWhen": [
+      "数据库主战场明确是 PostgreSQL，需要查询优化、索引或 schema 设计时。"
+    ]
   },
   {
     "id": "pptx",
@@ -1462,15 +1523,24 @@ export const forgeSkillOptions = [
     ],
     "layer": "specialized",
     "primaryFor": [
-      "developer"
+      "developer",
+      "python-backend-engineer",
+      "data-engineer",
+      "ai-automation-engineer"
     ],
     "recommendedByRole": [],
     "recommendedByStack": [
-      "python"
+      "python",
+      "python-service",
+      "data-platform",
+      "data-pipeline",
+      "agent-automation"
     ],
-    "overlapGroup": null,
-    "clusterRole": null,
-    "supportWhen": []
+    "overlapGroup": "python",
+    "clusterRole": "support",
+    "supportWhen": [
+      "任务明确落在 Python 工程实现、数据处理或自动化脚本上下文时。"
+    ]
   },
   {
     "id": "python-testing",
@@ -1630,18 +1700,23 @@ export const forgeSkillOptions = [
     "layer": "core",
     "primaryFor": [
       "developer",
-      "release-devex"
+      "release-devex",
+      "security-engineer"
     ],
     "recommendedByRole": [
       "developer",
-      "release-devex"
+      "release-devex",
+      "security-engineer"
     ],
     "recommendedByStack": [
       "frontend",
       "java",
       "python",
       "release",
-      "ecommerce"
+      "ecommerce",
+      "security-engineering",
+      "threat-modeling",
+      "mobile-app"
     ],
     "overlapGroup": "security",
     "clusterRole": null,
@@ -1967,13 +2042,23 @@ export const forgeSkillOptions = [
       "codex",
       "gemini"
     ],
-    "layer": "specialized",
-    "primaryFor": [],
-    "recommendedByRole": [],
-    "recommendedByStack": [],
-    "overlapGroup": null,
-    "clusterRole": null,
-    "supportWhen": []
+    "layer": "core",
+    "primaryFor": [
+      "mobile-engineer"
+    ],
+    "recommendedByRole": [
+      "mobile-engineer"
+    ],
+    "recommendedByStack": [
+      "mobile-app",
+      "mobile-ui",
+      "design-system"
+    ],
+    "overlapGroup": "mobile-ui",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "移动端任务明确落在 SwiftUI、状态管理、导航或原生组件实现时。"
+    ]
   },
   {
     "id": "systematic-debugging",
@@ -2131,15 +2216,23 @@ export const forgeSkillOptions = [
     "layer": "extended",
     "primaryFor": [
       "ui-designer",
-      "developer"
+      "developer",
+      "frontend-engineer",
+      "mobile-engineer"
     ],
     "recommendedByRole": [
       "ui-designer",
-      "developer"
+      "developer",
+      "frontend-engineer",
+      "mobile-engineer"
     ],
     "recommendedByStack": [
       "frontend",
-      "design"
+      "design",
+      "frontend-web",
+      "frontend-desktop",
+      "mobile-ui",
+      "design-system"
     ],
     "overlapGroup": "ui",
     "clusterRole": "support",
@@ -2302,16 +2395,22 @@ export const forgeSkillOptions = [
     "layer": "extended",
     "primaryFor": [
       "ui-designer",
-      "developer"
+      "developer",
+      "mobile-engineer",
+      "qa-strategist"
     ],
     "recommendedByRole": [
       "ui-designer",
-      "developer"
+      "developer",
+      "mobile-engineer",
+      "qa-strategist"
     ],
     "recommendedByStack": [
       "frontend",
       "design",
-      "qa"
+      "qa",
+      "mobile-ui",
+      "interaction-design"
     ],
     "overlapGroup": "ui",
     "clusterRole": "support",

@@ -41,4 +41,6 @@
 - 不在缺乏证据时提前宣称稳定
 
 ## Role-to-Stack Mapping
-- `qa-strategist + qa`
+- `qa-strategist + test-automation`
+- `qa-strategist + quality-governance`
+- `qa-strategist + observability`

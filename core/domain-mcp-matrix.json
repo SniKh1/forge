@@ -3,7 +3,7 @@
   "updated": "2026-03-13",
   "stacks": {
     "ecommerce": {
-      "recommendedRoles": ["product-manager", "ui-designer", "developer", "qa-strategist", "release-devex"],
+      "recommendedRoles": ["product-manager", "ui-designer", "frontend-engineer", "java-backend-engineer", "python-backend-engineer", "qa-strategist", "platform-engineer", "release-devex", "engineering-manager"],
       "recommendedMcp": [
         {
           "id": "github-mcp",
@@ -34,7 +34,7 @@
       ]
     },
     "video-creation": {
-      "recommendedRoles": ["product-manager", "ui-designer", "developer"],
+      "recommendedRoles": ["product-manager", "ui-designer", "frontend-engineer", "ai-automation-engineer"],
       "recommendedMcp": [
         {
           "id": "github-mcp",
@@ -58,7 +58,7 @@
       ]
     },
     "image-generation": {
-      "recommendedRoles": ["ui-designer", "product-manager", "developer"],
+      "recommendedRoles": ["ui-designer", "product-manager", "frontend-engineer", "ai-automation-engineer"],
       "recommendedMcp": [
         {
           "id": "figma-mcp",
@@ -89,7 +89,7 @@
       ]
     },
     "workflow-automation": {
-      "recommendedRoles": ["solution-architect", "developer", "release-devex", "qa-strategist"],
+      "recommendedRoles": ["solution-architect", "python-backend-engineer", "ai-automation-engineer", "platform-engineer", "release-devex", "qa-strategist"],
       "recommendedMcp": [
         {
           "id": "github-mcp",

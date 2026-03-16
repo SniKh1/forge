@@ -18,6 +18,41 @@ function selectedSkills(options) {
   return new Set(Array.isArray(options.skillNames) ? options.skillNames : []);
 }
 
+function ensureSettingsDefaults(settingsTarget, templatePath) {
+  if (!fs.existsSync(templatePath)) return;
+  const template = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
+  if (!fs.existsSync(settingsTarget)) {
+    fs.copyFileSync(templatePath, settingsTarget);
+    return;
+  }
+
+  let current;
+  try {
+    current = JSON.parse(fs.readFileSync(settingsTarget, 'utf8'));
+  } catch {
+    current = {};
+  }
+
+  const next = { ...current };
+  if (!next.permissions || typeof next.permissions !== 'object') {
+    next.permissions = template.permissions;
+  } else {
+    const currentAllow = Array.isArray(next.permissions.allow) ? next.permissions.allow : [];
+    const currentDeny = Array.isArray(next.permissions.deny) ? next.permissions.deny : [];
+    next.permissions = {
+      ...next.permissions,
+      allow: currentAllow.length > 0 ? currentAllow : (template.permissions?.allow || []),
+      deny: currentDeny.length > 0 ? currentDeny : (template.permissions?.deny || []),
+    };
+  }
+
+  if (!next.env || typeof next.env !== 'object') {
+    next.env = template.env || {};
+  }
+
+  fs.writeFileSync(settingsTarget, `${JSON.stringify(next, null, 2)}\n`);
+}
+
 function scaffoldMemory(homeDir, cwd) {
   const projectDir = path.join(homeDir, 'projects', workspaceSlug(cwd), 'memory');
   ensureDir(projectDir);
@@ -83,8 +118,10 @@ function configureTemplates(mode) {
   if (fs.existsSync(settingsTemplate)) {
     fs.copyFileSync(settingsTemplate, path.join(homeDir, 'settings.json.template'));
     const settingsTarget = path.join(homeDir, 'settings.json');
-    if (mode === 'full' || !fs.existsSync(settingsTarget)) {
+    if (mode === 'full') {
       fs.copyFileSync(settingsTemplate, settingsTarget);
+    } else {
+      ensureSettingsDefaults(settingsTarget, settingsTemplate);
     }
   }
 

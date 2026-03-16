@@ -65,9 +65,18 @@ Forge 会按客户端和平台写入一整套可协作能力层：
 图形化安装器适合终端经验较少的用户，它会负责：
 
 - 检测本机已安装客户端
+- 基于角色包与栈包生成安装画像
+- 支持角色单选、栈包多选与一键全选
 - 展示平台可安装项
 - 写入 Forge 配置
-- 执行安装后验证与修复
+- 执行安装后验证、修复与状态回读
+
+当前安装画像已经覆盖：
+
+- 前端、移动端、Java 后端、Python 后端、AI 自动化、数据、安全、产品、设计、架构、QA、平台、发布等角色包
+- Web 前端、桌面前端、移动应用、移动界面、Java 服务、Python 服务、数据平台、威胁建模、可观测性、发布编排等栈包
+
+这意味着一台机器可以同时叠加多个工作栈，而不是被迫绑定到单一角色。
 
 ### CLI / 脚本入口
 
@@ -75,6 +84,7 @@ Forge 会按客户端和平台写入一整套可协作能力层：
 node packages/forge-cli/bin/forge.js setup
 node packages/forge-cli/bin/forge.js verify
 node packages/forge-cli/bin/forge.js doctor
+node packages/forge-cli/bin/forge.js install codex --non-interactive
 ```
 
 兼容脚本入口仍然保留：
@@ -103,6 +113,7 @@ npm run tauri:dev
 
 - 对外产品名已经统一为 `Forge`
 - 仓库内部仍保留 `apps/forge-desktop` 作为桌面壳路径，避免一次性打断已有构建链
+- 当前本地发布前验证以 `macOS Apple Silicon .dmg` 为主发布目标，Windows 由 GitHub Actions 产出 `.msi`
 
 ## 分支模型
 
@@ -138,6 +149,7 @@ Forge 使用统一仓库版本线：
 
 - CLI 与图形化应用共享版本号
 - Git tag 与 GitHub Release 名称保持一致
+- Release workflow 只接受指向 `public` 分支可达提交的 tag
 - `0.x` 表示项目仍在快速迭代，但已经按公开仓库方式治理
 
 ## License

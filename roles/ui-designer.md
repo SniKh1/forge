@@ -50,8 +50,9 @@
 - 不为了新鲜感破坏现有 pattern 和一致性
 
 ## Role-to-Stack Mapping
-- `ui-designer + design`
-- 可选与 `developer + frontend` 组合
+- `ui-designer + visual-design`
+- `ui-designer + interaction-design`
+- `ui-designer + design-system`
 
 ## Auto-Trigger Guidance
 - 只要任务核心是 UI / page / component 质量，就先激活这个角色，再进入实现。
