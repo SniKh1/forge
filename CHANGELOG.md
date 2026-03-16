@@ -9,6 +9,11 @@ The format follows a Keep a Changelog style, adapted for Forge.
 ### Added
 - Placeholder for upcoming changes.
 
+## [0.3.8] - 2026-03-16
+
+### Fixed
+- Switched the Intel macOS release job from `macos-13` to `macos-15-intel` after GitHub Actions rejected the previous runner configuration for the x64 `.dmg` build.
+
 ## [0.3.7] - 2026-03-16
 
 ### Fixed

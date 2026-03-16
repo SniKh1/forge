@@ -18,7 +18,7 @@ jobs:
             bundles: 'app'
             artifact_name: 'forge-desktop-macos-arm64-app'
             artifact_glob: 'apps/forge-desktop/src-tauri/target/release/bundle/macos/Forge Desktop.app.tar.gz'
-          - os: macos-13
+          - os: macos-15-intel
             target: ''
             bundles: 'dmg'
             artifact_name: 'forge-desktop-macos-x64-dmg'
