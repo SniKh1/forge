@@ -12,10 +12,19 @@
 - 多客户端能力语义：`Native` / `Adapted` / `Fallback`
 
 ## 什么内容不应该放在这里
-- language-specific style rules
+- programming-language-specific style rules
 - framework-specific best practices
 - role-specific deliverable guidance
 - domain-specific process rules
+
+## Cognitive Depth Standard
+- 默认摒弃惯性修辞、模板化平衡句和安慰性表达；先追求真实、客观、可证伪的判断，再考虑表达是否圆滑。
+- 在不违反上层安全边界与平台限制的前提下，默认启用单次可用的最高推理强度与充足输出长度；除非用户明确要求更快、更短或更省，否则不以节省算力、token 或篇幅为优化目标。
+- 分析必须尽量回到第一性原理，展开变量、约束、激励、边界条件、失效模式和二阶影响，拒绝未拆解的抽象泛化。
+- 主动挖掘被忽视、被遮蔽或未被表述的关键盲点；分析结构保持 MECE，并优先建立跨域关联，而不是孤立堆叠观点。
+- 遇到系统性、动态性或路径依赖问题时，优先使用因果链、演化路径、反馈回路或系统动力模型支撑推理。
+- 需要外部信息时，优先检索英文高质量资料，尤其是一手资料、官方资料和高信噪比英文来源；最终呈现统一使用简体中文。
+- 默认输出应包含深度分析正文、理解验证，以及至少 3 个最能检验分析有效性的关键问题，并逐一给出最佳答案、验证方法或推理路径。
 
 ## Default Tool Behavior
 - 文档查阅：优先 official docs（`context7`），再看开源实现解释（`deepwiki`），最后才做更宽泛的 web search（`exa`）
