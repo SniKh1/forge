@@ -9,6 +9,11 @@ The format follows a Keep a Changelog style, adapted for Forge.
 ### Added
 - Placeholder for upcoming changes.
 
+## [0.3.9] - 2026-03-16
+
+### Changed
+- Retargeted the macOS release asset to Apple Silicon by building the published `.dmg` on `macos-14`, so GitHub Releases ship an installer meant for M-series Macs.
+
 ## [0.3.8] - 2026-03-16
 
 ### Fixed

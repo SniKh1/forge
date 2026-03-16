@@ -15,13 +15,8 @@ jobs:
         include:
           - os: macos-14
             target: ''
-            bundles: 'app'
-            artifact_name: 'forge-desktop-macos-arm64-app'
-            artifact_glob: 'apps/forge-desktop/src-tauri/target/release/bundle/macos/Forge Desktop.app.tar.gz'
-          - os: macos-15-intel
-            target: ''
             bundles: 'dmg'
-            artifact_name: 'forge-desktop-macos-x64-dmg'
+            artifact_name: 'forge-desktop-macos-arm64-dmg'
             artifact_glob: 'apps/forge-desktop/src-tauri/target/release/bundle/dmg/*.dmg'
           - os: windows-latest
             target: ''
