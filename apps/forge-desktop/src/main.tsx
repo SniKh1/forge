@@ -1619,9 +1619,9 @@ const officialInstallCommands: Record<Client, { label: string; command: string }
 
 const mockDoctorReport: DoctorReport = {
   detection: [
-    { name: 'claude', home: '/Users/uui6yee/.claude', homeLabel: '~/.claude', detected: true, configured: true },
-    { name: 'codex', home: '/Users/uui6yee/.codex', homeLabel: '~/.codex', detected: true, configured: true },
-    { name: 'gemini', home: '/Users/uui6yee/.gemini', homeLabel: '~/.gemini', detected: false, configured: false },
+    { name: 'claude', home: '~/.claude', homeLabel: '~/.claude', detected: true, configured: true },
+    { name: 'codex', home: '~/.codex', homeLabel: '~/.codex', detected: true, configured: true },
+    { name: 'gemini', home: '~/.gemini', homeLabel: '~/.gemini', detected: false, configured: false },
   ],
   capabilityMatrix: {
     capabilities: {

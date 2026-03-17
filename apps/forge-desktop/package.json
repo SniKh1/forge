@@ -1,12 +1,12 @@
 {
   "name": "forge",
   "private": true,
-  "version": "0.4.1",
+  "version": "0.4.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "dev:tauri": "node ./scripts/run-dev-server.mjs",
-    "build": "tsc -b && vite build",
+    "build": "node ./scripts/run-tsc.mjs -b && vite build",
     "preview": "vite preview",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",

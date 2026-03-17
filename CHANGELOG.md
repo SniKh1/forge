@@ -6,6 +6,20 @@ The format follows a Keep a Changelog style, adapted for Forge.
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-03-17
+
+### Changed
+- Reframed desktop install and repair actions so they now speak in terms of the current client configuration instead of vaguely "repairing Forge".
+- Stabilized the desktop development loop by reusing an existing Vite dev server when `tauri dev` is launched repeatedly.
+
+### Fixed
+- Fixed Windows Codex repair so the PowerShell installer no longer fails at parse time when run non-interactively.
+- Fixed desktop long-running actions to run off the UI thread and show an explicit blocking progress overlay instead of appearing frozen.
+- Fixed the Windows desktop dev launcher so `npm run tauri:dev` no longer crashes with `spawn EINVAL` when starting the frontend server.
+- Fixed desktop source builds to tolerate the TypeScript package shipping `_tsc.js` instead of `tsc.js` on some local npm installs.
+- Fixed Vite dev watching so Tauri `target/` output no longer causes noisy full reload loops during desktop development.
+- Removed the remaining hard-coded local preview paths from desktop mock status data before publishing a public release.
+
 ## [0.4.1] - 2026-03-16
 
 ### Changed

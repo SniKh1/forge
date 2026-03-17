@@ -14,6 +14,12 @@ Forge uses a deliberately small branch model:
 
 These controls must be configured in GitHub repository settings because they cannot be enforced fully from git alone.
 
+Important visibility rule:
+
+- GitHub branch visibility is repository-level, not branch-level.
+- If the repository is public, pushed `dev`, `public`, and `master` branches are all publicly visible.
+- True internal-only work needs either a private repository or a separate public mirror.
+
 ### `public`
 
 - Set as the default branch after migration.
