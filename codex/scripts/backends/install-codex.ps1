@@ -25,21 +25,21 @@ if ($LangOverride) { $Lang = $LangOverride }
 if ($InstallModeOverride) { $InstallMode = $InstallModeOverride }
 
 function Write-Info([string]$m) { Write-Host $m -ForegroundColor Cyan }
-function Write-Ok([string]$m) { Write-Host "✓ $m" -ForegroundColor Green }
-function Write-Warn([string]$m) { Write-Host "⚠ $m" -ForegroundColor Yellow }
+function Write-Ok([string]$m) { Write-Host "[OK] $m" -ForegroundColor Green }
+function Write-Warn([string]$m) { Write-Host "[WARN] $m" -ForegroundColor Yellow }
 function Write-Step([int]$i,[int]$n,[string]$m) { Write-Host "[$i/$n] $m" -ForegroundColor Yellow }
 
 function Get-Msg([string]$k) {
     if ($Lang -eq "zh") {
         switch ($k) {
-            "title" { "Forge - Codex 配置安装" }
-            "checking" { "检查依赖" }
-            "backup" { "检测到现有 Codex Forge 配置，是否备份？" }
-            "install" { "安装 Forge 资产" }
-            "gen" { "生成 AGENTS.md" }
-            "mcp" { "配置 Codex MCP" }
-            "verify" { "验证安装" }
-            "done" { "安装完成" }
+            "title" { "Forge - Codex setup installer" }
+            "checking" { "Checking dependencies" }
+            "backup" { "Existing Codex Forge setup found. Create backup?" }
+            "install" { "Installing Forge assets" }
+            "gen" { "Generating AGENTS.md" }
+            "mcp" { "Configuring Codex MCP" }
+            "verify" { "Verifying installation" }
+            "done" { "Installation complete" }
             default { $k }
         }
     } else {
@@ -69,9 +69,9 @@ function Has-SelectedSkill([string]$name) {
 function Select-Language {
     if ($NonInteractive) { return }
     Write-Host ""
-    Write-Info "Select language / 选择语言"
+    Write-Info "Select language"
     Write-Host "  1) English"
-    Write-Host "  2) 简体中文"
+    Write-Host "  2) Simplified Chinese"
     $c = Read-Host "Choice (1-2)"
     if ($c -eq "1") { $script:Lang = "en" } else { $script:Lang = "zh" }
 }
@@ -79,15 +79,9 @@ function Select-Language {
 function Select-Mode {
     if ($NonInteractive) { return }
     Write-Host ""
-    if ($Lang -eq "zh") {
-        Write-Info "选择安装模式"
-        Write-Host "  1) 增量模式（保留已有）"
-        Write-Host "  2) 完整模式（覆盖 Forge 文件）"
-    } else {
-        Write-Info "Select install mode"
-        Write-Host "  1) Incremental (preserve existing)"
-        Write-Host "  2) Full (overwrite Forge files)"
-    }
+    Write-Info "Select install mode"
+    Write-Host "  1) Incremental (preserve existing)"
+    Write-Host "  2) Full (overwrite Forge files)"
     $c = Read-Host "Choice (1-2)"
     if ($c -eq "2") { $script:InstallMode = "full" } else { $script:InstallMode = "incremental" }
 }
@@ -322,7 +316,7 @@ function Verify-Install {
         if (Test-Path $_) {
             Write-Ok $_
         } else {
-            Write-Host "✗ missing: $_" -ForegroundColor Red
+            Write-Host "[FAIL] missing: $_" -ForegroundColor Red
             $errors++
         }
     }
@@ -334,7 +328,7 @@ function Verify-Install {
     if ($count -gt 0) {
         Write-Ok "skills/: $count"
     } else {
-        Write-Host "✗ skills/: empty" -ForegroundColor Red
+        Write-Host "[FAIL] skills/: empty" -ForegroundColor Red
         $errors++
     }
 
@@ -345,7 +339,7 @@ function Verify-Install {
         if (Test-Path $_) {
             Write-Ok $_
         } else {
-            Write-Host "✗ missing dir: $_" -ForegroundColor Red
+            Write-Host "[FAIL] missing dir: $_" -ForegroundColor Red
             $errors++
         }
     }
@@ -358,7 +352,7 @@ function Verify-Install {
         if (Test-Path $_) {
             Write-Ok $_
         } else {
-            Write-Host "✗ missing dir: $_" -ForegroundColor Red
+            Write-Host "[FAIL] missing dir: $_" -ForegroundColor Red
             $errors++
         }
     }
@@ -367,7 +361,7 @@ function Verify-Install {
     if (Test-Path $learningScript) {
         Write-Ok $learningScript
     } else {
-        Write-Host "✗ missing: $learningScript" -ForegroundColor Red
+        Write-Host "[FAIL] missing: $learningScript" -ForegroundColor Red
         $errors++
     }
 

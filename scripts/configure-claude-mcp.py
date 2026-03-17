@@ -11,17 +11,34 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from forge_core import dump_json, ensure_uvx, resolve_servers  # noqa: E402
 
 
+WINDOWS_NO_WINDOW = 0x08000000 if sys.platform.startswith("win") else 0
+
+
+def run_cli(args, check=False, capture_output=False):
+    kwargs = {
+        "check": check,
+        "text": False,
+    }
+    if capture_output:
+        kwargs["capture_output"] = True
+    if WINDOWS_NO_WINDOW:
+        kwargs["creationflags"] = WINDOWS_NO_WINDOW
+    result = subprocess.run(args, **kwargs)
+    stdout = (result.stdout or b"").decode("utf-8", errors="replace") if capture_output else ""
+    stderr = (result.stderr or b"").decode("utf-8", errors="replace") if capture_output else ""
+    return result, stdout, stderr
+
+
 def inspect_server_scope(name):
-    result = subprocess.run(
+    result, stdout, _stderr = run_cli(
         ["claude", "mcp", "get", name],
         check=False,
         capture_output=True,
-        text=True,
     )
     if result.returncode != 0:
         return None
 
-    for line in result.stdout.splitlines():
+    for line in stdout.splitlines():
         if "Scope:" not in line:
             continue
         _, value = line.split("Scope:", 1)
@@ -39,18 +56,17 @@ def sync_server_to_claude_cli(name, config):
     scope = inspect_server_scope(name) or "local"
 
     for existing_scope in ("local", "project", "user"):
-        subprocess.run(
+        run_cli(
             ["claude", "mcp", "remove", name, "-s", existing_scope],
             check=False,
             capture_output=True,
-            text=True,
         )
 
     cmd = ["claude", "mcp", "add", "-s", scope, name]
     for env_key, env_value in config.get("env", {}).items():
         cmd.extend(["-e", f"{env_key}={env_value}"])
     cmd.extend(["--", config["command"], *config.get("args", [])])
-    subprocess.run(cmd, check=True, text=True)
+    run_cli(cmd, check=True, capture_output=False)
 
 
 def main():
