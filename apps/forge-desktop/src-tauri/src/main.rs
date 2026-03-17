@@ -54,7 +54,11 @@ fn apply_windows_no_window(_command: &mut Command) {
 }
 
 #[tauri::command]
-fn run_forge_cli(app: AppHandle, args: Vec<String>, cwd: Option<String>) -> Result<String, String> {
+async fn run_forge_cli(
+    app: AppHandle,
+    args: Vec<String>,
+    cwd: Option<String>,
+) -> Result<String, String> {
     let current_dir = resolve_cwd(cwd);
     let repo_root = resolve_repo_root(&app);
     let cli_path = repo_root.join("packages/forge-cli/bin/forge.js");
@@ -63,35 +67,42 @@ fn run_forge_cli(app: AppHandle, args: Vec<String>, cwd: Option<String>) -> Resu
         return Err(format!("Forge CLI not found: {}", cli_path.display()));
     }
 
-    let mut command = Command::new("node");
-    command
-        .arg(&cli_path)
-        .args(args)
-        .current_dir(current_dir)
-        .env("FORGE_REPO_ROOT", &repo_root);
+    let cache_dir = app.path().app_cache_dir().ok().map(|dir| dir.join("forge-cli"));
 
-    if let Ok(cache_dir) = app.path().app_cache_dir() {
-        command.env("FORGE_CACHE_ROOT", cache_dir.join("forge-cli"));
-    }
+    tauri::async_runtime::spawn_blocking(move || {
+        let mut command = Command::new("node");
+        command
+            .arg(&cli_path)
+            .args(args)
+            .current_dir(current_dir)
+            .env("FORGE_REPO_ROOT", &repo_root);
 
-    apply_windows_no_window(&mut command);
-
-    let output = command.output().map_err(|err| {
-        if err.kind() == std::io::ErrorKind::NotFound {
-            "Node.js runtime not found. Install Node.js 18+ to use Forge desktop actions.".to_string()
-        } else {
-            err.to_string()
+        if let Some(cache_dir) = cache_dir {
+            command.env("FORGE_CACHE_ROOT", cache_dir);
         }
-    })?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
+        apply_windows_no_window(&mut command);
 
-    if output.status.success() {
-        Ok(stdout.to_string())
-    } else {
-        Err(format!("{}{}", stdout, stderr))
-    }
+        let output = command.output().map_err(|err| {
+            if err.kind() == std::io::ErrorKind::NotFound {
+                "Node.js runtime not found. Install Node.js 18+ to use Forge desktop actions."
+                    .to_string()
+            } else {
+                err.to_string()
+            }
+        })?;
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+
+        if output.status.success() {
+            Ok(stdout.to_string())
+        } else {
+            Err(format!("{}{}", stdout, stderr))
+        }
+    })
+    .await
+    .map_err(|err| err.to_string())?
 }
 
 #[tauri::command]

@@ -1,5 +1,4 @@
 # Forge Codex Installer (Windows)
-$ErrorActionPreference = "Stop"
 param(
     [switch]$NonInteractive,
     [ValidateSet("zh", "en")][string]$LangOverride,
@@ -7,6 +6,7 @@ param(
     [switch]$SkipBackup
 )
 
+$ErrorActionPreference = "Stop"
 $BackendDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ScriptDir = Split-Path -Parent (Split-Path -Parent $BackendDir)
 $RootDir = Split-Path -Parent $ScriptDir

@@ -926,7 +926,7 @@ const messages: Record<Lang, Messages> = {
     refresh: '刷新',
     installForge: '安装 Forge',
     updateForge: '更新 Forge',
-    repairForge: '修复 Forge',
+    repairForge: '修复当前平台配置',
     verifyNow: '立即验证',
     openTerminal: '打开终端',
     openConfig: '打开配置目录',
@@ -1006,14 +1006,14 @@ const messages: Record<Lang, Messages> = {
     exaHint: '仅在你勾选 MCP 时写入当前平台配置。输出和日志会自动脱敏。',
     exaSection: '密钥与令牌',
     logSection: '命令日志',
-    confirmTitleInstall: '确认安装',
-    confirmTitleUpdate: '确认更新',
-    confirmTitleRepair: '确认修复',
-    actionInstallRunning: '正在安装 Forge 配置...',
-    actionRepairRunning: '正在修复 Forge 配置...',
+    confirmTitleInstall: '确认安装当前平台配置',
+    confirmTitleUpdate: '确认更新当前平台配置',
+    confirmTitleRepair: '确认修复当前平台配置',
+    actionInstallRunning: '正在安装当前平台配置...',
+    actionRepairRunning: '正在修复当前平台配置...',
     actionVerifyRunning: '正在验证当前平台状态...',
-    actionInstallSuccess: 'Forge 配置已写入当前平台。',
-    actionRepairSuccess: 'Forge 修复流程已执行完成。',
+    actionInstallSuccess: '当前平台配置已写入完成。',
+    actionRepairSuccess: '当前平台配置修复已执行完成。',
     actionVerifySuccess: '当前平台验证通过。',
     actionVerifyWarn: '验证已完成，但发现仍需处理的问题。',
     actionFailed: '操作未完成，请查看日志并按提示修复。',
@@ -1109,7 +1109,7 @@ const messages: Record<Lang, Messages> = {
     refresh: 'Refresh',
     installForge: 'Install Forge',
     updateForge: 'Update Forge',
-    repairForge: 'Repair Forge',
+    repairForge: 'Repair current client',
     verifyNow: 'Verify now',
     openTerminal: 'Open terminal',
     openConfig: 'Open config',
@@ -1189,14 +1189,14 @@ const messages: Record<Lang, Messages> = {
     exaHint: 'Only written to the current platform when MCP is selected. Output and logs stay redacted.',
     exaSection: 'Secrets and tokens',
     logSection: 'Command log',
-    confirmTitleInstall: 'Confirm install',
-    confirmTitleUpdate: 'Confirm update',
-    confirmTitleRepair: 'Confirm repair',
-    actionInstallRunning: 'Installing Forge configuration...',
-    actionRepairRunning: 'Repairing Forge configuration...',
+    confirmTitleInstall: 'Confirm current client install',
+    confirmTitleUpdate: 'Confirm current client update',
+    confirmTitleRepair: 'Confirm current client repair',
+    actionInstallRunning: 'Installing current client configuration...',
+    actionRepairRunning: 'Repairing current client configuration...',
     actionVerifyRunning: 'Verifying the current platform...',
-    actionInstallSuccess: 'Forge configuration was written to the current platform.',
-    actionRepairSuccess: 'Forge repair finished for the current platform.',
+    actionInstallSuccess: 'Current client configuration was written successfully.',
+    actionRepairSuccess: 'Current client configuration repair finished.',
     actionVerifySuccess: 'Platform verification passed.',
     actionVerifyWarn: 'Verification finished, but there are still issues to resolve.',
     actionFailed: 'The action did not finish successfully. Check the log for details.',
@@ -1292,7 +1292,7 @@ const messages: Record<Lang, Messages> = {
     refresh: '更新',
     installForge: 'Forge を導入',
     updateForge: 'Forge を更新',
-    repairForge: 'Forge を修復',
+    repairForge: '現在のクライアント設定を修復',
     verifyNow: '今すぐ検証',
     openTerminal: 'ターミナルを開く',
     openConfig: '設定ディレクトリを開く',
@@ -1372,14 +1372,14 @@ const messages: Record<Lang, Messages> = {
     exaHint: 'MCP を選択したときだけ現在のプラットフォーム設定へ書き込みます。出力とログは自動的にマスクされます。',
     exaSection: 'シークレットとトークン',
     logSection: 'コマンドログ',
-    confirmTitleInstall: '導入確認',
-    confirmTitleUpdate: '更新確認',
-    confirmTitleRepair: '修復確認',
-    actionInstallRunning: 'Forge 設定を導入中...',
-    actionRepairRunning: 'Forge 設定を修復中...',
+    confirmTitleInstall: '現在のクライアント設定の導入確認',
+    confirmTitleUpdate: '現在のクライアント設定の更新確認',
+    confirmTitleRepair: '現在のクライアント設定の修復確認',
+    actionInstallRunning: '現在のクライアント設定を導入中...',
+    actionRepairRunning: '現在のクライアント設定を修復中...',
     actionVerifyRunning: '現在のプラットフォームを検証中...',
-    actionInstallSuccess: 'Forge 設定を現在のプラットフォームへ書き込みました。',
-    actionRepairSuccess: '現在のプラットフォーム向け Forge 修復が完了しました。',
+    actionInstallSuccess: '現在のクライアント設定を書き込みました。',
+    actionRepairSuccess: '現在のクライアント設定の修復が完了しました。',
     actionVerifySuccess: 'プラットフォーム検証に成功しました。',
     actionVerifyWarn: '検証は完了しましたが、まだ対処すべき問題があります。',
     actionFailed: '操作は完了していません。ログを確認して修正してください。',
@@ -1874,7 +1874,7 @@ function App() {
   React.useEffect(() => {
     if (typeof document === 'undefined') return undefined;
     const previous = document.body.style.overflow;
-    if (confirmOpen || pendingExternalMcp) {
+    if (confirmOpen || pendingExternalMcp || isRunning) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = previous || '';
@@ -1882,7 +1882,7 @@ function App() {
     return () => {
       document.body.style.overflow = previous || '';
     };
-  }, [confirmOpen, pendingExternalMcp]);
+  }, [confirmOpen, isRunning, pendingExternalMcp]);
 
   React.useEffect(() => {
     if (section !== 'community' || communityMode !== 'search') return undefined;
@@ -1975,7 +1975,7 @@ function App() {
   }, [loadState]);
 
   const runAction = React.useCallback(async (kind: ActionKind, args: string[]) => {
-    const runningTitle = kind === 'install' ? t.actionInstallRunning : kind === 'repair' ? t.actionRepairRunning : t.actionVerifyRunning;
+    const runningTitle = platformActionRunningText(kind, activeClient, lang);
     setIsRunning(true);
     setResultLog(runningTitle);
     setActionFeedback({
@@ -1996,7 +1996,7 @@ function App() {
         id: Date.now(),
         kind,
         tone: 'success',
-        title: kind === 'install' ? t.actionInstallSuccess : kind === 'repair' ? t.actionRepairSuccess : t.actionVerifySuccess,
+        title: platformActionSuccessText(kind, activeClient, lang),
         detail: detail || t.detectLoaded,
       });
     } else if (kind === 'verify' && result.bridgeAvailable) {
@@ -2018,14 +2018,10 @@ function App() {
     }
     setIsRunning(false);
   }, [
+    activeClient,
+    lang,
     loadState,
     t.actionFailed,
-    t.actionInstallRunning,
-    t.actionInstallSuccess,
-    t.actionRepairRunning,
-    t.actionRepairSuccess,
-    t.actionVerifyRunning,
-    t.actionVerifySuccess,
     t.actionVerifyWarn,
     t.detectFailed,
     t.detectLoaded,
@@ -2177,9 +2173,9 @@ function App() {
 
   const installLabel = React.useMemo(() => {
     if (!detection?.detected) return t.officialInstall;
-    if (detection.configured && support?.ok) return t.updateForge;
-    return t.installForge;
-  }, [detection, support, t.installForge, t.officialInstall, t.updateForge]);
+    if (detection.configured && support?.ok) return platformActionLabel('update', activeClient, lang);
+    return platformActionLabel('install', activeClient, lang);
+  }, [activeClient, detection, lang, support, t.officialInstall]);
 
   const searchResults = React.useMemo(
     () => communityEntries.filter((item) => item.kind === communityKind),
@@ -2485,6 +2481,13 @@ function App() {
     id: client,
     ...clientMeta(client),
   }));
+  const repairLabel = platformActionLabel('repair', activeClient, lang);
+  const confirmTitle = platformConfirmTitle(
+    confirmMode === 'repair' ? 'repair' : detection?.configured ? 'update' : 'install',
+    activeClient,
+    lang,
+  );
+  const runningOverlayDetail = actionFeedback?.kind ? platformBusyHint(actionFeedback.kind, lang) : '';
 
   return (
     <div className="min-h-screen bg-[#f3f1ea] text-slate-900">
@@ -2639,7 +2642,7 @@ function App() {
                         compact
                       />
                       <ActionButton
-                        label={t.repairForge}
+                        label={repairLabel}
                         onClick={() => openConfirm('repair')}
                         disabled={isRunning || !detection.detected}
                         loading={Boolean(isRunning && actionFeedback?.kind === 'repair')}
@@ -2758,7 +2761,7 @@ function App() {
 
               {confirmOpen && (
                 <ConfirmModal
-                  title={confirmMode === 'repair' ? t.confirmTitleRepair : detection.configured ? t.confirmTitleUpdate : t.confirmTitleInstall}
+                  title={confirmTitle}
                   hint={t.confirmHint}
                   lang={lang}
                   baseTitle={t.modalBase}
@@ -2806,6 +2809,9 @@ function App() {
                   recommendedSkillIds={recommendedSkillIdSet}
                   onApplyRecommended={applyRecommendedPreset}
                 />
+              )}
+              {isRunning && actionFeedback && (
+                <BusyOverlay title={actionFeedback.title} detail={runningOverlayDetail} />
               )}
               {pendingExternalMcp && (
                 <ExternalMcpConfirmModal
@@ -3383,6 +3389,87 @@ function clientMeta(client: Client): ClientMeta {
   if (client === 'claude') return { label: 'Claude', Icon: ClaudeMark };
   if (client === 'gemini') return { label: 'Gemini', Icon: GeminiMark };
   return { label: 'Codex', Icon: CodexMark };
+}
+
+function platformActionLabel(mode: 'install' | 'update' | 'repair', client: Client, lang: Lang) {
+  const clientName = clientMeta(client).label;
+  if (lang === 'zh') {
+    if (mode === 'install') return `安装 ${clientName} 配置`;
+    if (mode === 'update') return `更新 ${clientName} 配置`;
+    return `修复 ${clientName} 配置`;
+  }
+  if (lang === 'ja') {
+    if (mode === 'install') return `${clientName} 設定をインストール`;
+    if (mode === 'update') return `${clientName} 設定を更新`;
+    return `${clientName} 設定を修復`;
+  }
+  if (mode === 'install') return `Install ${clientName} config`;
+  if (mode === 'update') return `Update ${clientName} config`;
+  return `Repair ${clientName} config`;
+}
+
+function platformActionRunningText(kind: ActionKind, client: Client, lang: Lang) {
+  const clientName = clientMeta(client).label;
+  if (lang === 'zh') {
+    if (kind === 'install') return `正在安装 ${clientName} 配置...`;
+    if (kind === 'repair') return `正在修复 ${clientName} 配置...`;
+    return `正在验证 ${clientName} 状态...`;
+  }
+  if (lang === 'ja') {
+    if (kind === 'install') return `${clientName} 設定をインストール中...`;
+    if (kind === 'repair') return `${clientName} 設定を修復中...`;
+    return `${clientName} の状態を検証中...`;
+  }
+  if (kind === 'install') return `Installing ${clientName} config...`;
+  if (kind === 'repair') return `Repairing ${clientName} config...`;
+  return `Verifying ${clientName} status...`;
+}
+
+function platformActionSuccessText(kind: ActionKind, client: Client, lang: Lang) {
+  const clientName = clientMeta(client).label;
+  if (lang === 'zh') {
+    if (kind === 'install') return `${clientName} 配置已写入当前平台。`;
+    if (kind === 'repair') return `${clientName} 配置修复已执行完成。`;
+    return `${clientName} 状态验证通过。`;
+  }
+  if (lang === 'ja') {
+    if (kind === 'install') return `${clientName} 設定を現在のクライアントへ書き込みました。`;
+    if (kind === 'repair') return `${clientName} 設定の修復が完了しました。`;
+    return `${clientName} の検証が完了しました。`;
+  }
+  if (kind === 'install') return `${clientName} config was written to the current client.`;
+  if (kind === 'repair') return `${clientName} config repair finished.`;
+  return `${clientName} verification passed.`;
+}
+
+function platformConfirmTitle(mode: 'install' | 'update' | 'repair', client: Client, lang: Lang) {
+  const clientName = clientMeta(client).label;
+  if (lang === 'zh') {
+    if (mode === 'install') return `确认安装 ${clientName} 配置`;
+    if (mode === 'update') return `确认更新 ${clientName} 配置`;
+    return `确认修复 ${clientName} 配置`;
+  }
+  if (lang === 'ja') {
+    if (mode === 'install') return `${clientName} 設定のインストール確認`;
+    if (mode === 'update') return `${clientName} 設定の更新確認`;
+    return `${clientName} 設定の修復確認`;
+  }
+  if (mode === 'install') return `Confirm ${clientName} install`;
+  if (mode === 'update') return `Confirm ${clientName} update`;
+  return `Confirm ${clientName} repair`;
+}
+
+function platformBusyHint(kind: ActionKind, lang: Lang) {
+  if (lang === 'zh') {
+    if (kind === 'verify') return '正在后台执行验证，请稍候。完成后会自动刷新状态并展开日志。';
+    return '正在后台执行配置任务，请稍候。完成后会自动刷新状态并展开日志。';
+  }
+  if (lang === 'ja') {
+    if (kind === 'verify') return '検証をバックグラウンドで実行しています。完了後に状態を再読み込みし、ログを展開します。';
+    return '構成タスクをバックグラウンドで実行しています。完了後に状態を再読み込みし、ログを展開します。';
+  }
+  if (kind === 'verify') return 'Verification is running in the background. The app will refresh status and open the log when it finishes.';
+  return 'The configuration task is running in the background. The app will refresh status and open the log when it finishes.';
 }
 
 function PlusIcon({ className }: { className?: string }) {
@@ -4250,6 +4337,31 @@ function DetailCheckboxRow({
       </div>
       <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-slate-900" checked={checked} disabled={disabled} onChange={onToggle} />
     </label>
+  );
+}
+
+function BusyOverlay({ title, detail }: { title: string; detail: string }) {
+  return (
+    <ModalPortal>
+      <div className="forge-modal-backdrop fixed inset-0 z-[55] flex items-center justify-center bg-slate-900/28 p-4 backdrop-blur-[2px]">
+        <div className="forge-modal-panel w-full max-w-[420px] overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-[0_28px_80px_rgba(15,23,42,0.2)]">
+          <div className="px-5 py-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[14px] bg-slate-900 text-white shadow-[0_14px_30px_rgba(15,23,42,0.18)]">
+                <RefreshCw className="h-5 w-5 animate-spin" />
+              </div>
+              <div>
+                <div className="text-[16px] font-semibold tracking-[-0.02em] text-slate-900">{title}</div>
+                <div className="mt-1 text-[12px] leading-5 text-slate-500">{detail}</div>
+              </div>
+            </div>
+            <div className="forge-loading-pulse mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
+              <div className="h-full w-full rounded-full bg-gradient-to-r from-sky-400 via-slate-900 to-orange-400 opacity-90" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </ModalPortal>
   );
 }
 
