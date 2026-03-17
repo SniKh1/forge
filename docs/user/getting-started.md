@@ -11,9 +11,15 @@ Forge has three user entry points. Pick the one that matches your comfort level.
 ## Prerequisites
 
 - Git
-- Node.js
+- Node.js 18+
 - Claude Code CLI if you want the Claude adapter
 - Rust toolchain only if you want to run the Tauri desktop shell from source
+
+Important dependency boundary:
+
+- If you are running the packaged Forge desktop installer from GitHub Releases, you should not need Rust or Cargo.
+- The current desktop product still needs Node.js at runtime because the desktop shell invokes the bundled Forge CLI through the external Node runtime.
+- Python is only needed for some MCP configuration paths.
 
 ## Install
 
@@ -57,6 +63,18 @@ Run:
 node packages/forge-cli/bin/forge.js verify
 node packages/forge-cli/bin/forge.js doctor
 ```
+
+If Forge Desktop says it cannot read status, run the runtime diagnostics:
+
+```bash
+bash scripts/diagnose-forge-runtime.sh
+```
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\diagnose-forge-runtime.ps1
+```
+
+See [`desktop-runtime-troubleshooting.md`](./desktop-runtime-troubleshooting.md) for the full checklist and interpretation guide.
 
 ## If your token is wrong
 

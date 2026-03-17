@@ -7,6 +7,7 @@ This repository now has multiple documentation layers. Use the right entry point
 - [`README.md`](../README.md): Chinese product overview and quick start
 - [`README.en.md`](../README.en.md): English product overview and quick start
 - [`user/getting-started.md`](./user/getting-started.md): user-facing install, verify, and repair flow
+- [`user/desktop-runtime-troubleshooting.md`](./user/desktop-runtime-troubleshooting.md): desktop runtime diagnostics and status-read failure troubleshooting
 - [`CLIENT-CAPABILITY-MATRIX.md`](./CLIENT-CAPABILITY-MATRIX.md): client support matrix for Claude, Codex, and Gemini
 
 ## Adapter-specific docs

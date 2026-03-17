@@ -27,6 +27,7 @@ For maintainers, Forge centralizes rules, skills, memory, and workflow governanc
 | Goal | Entry |
 | --- | --- |
 | Install Forge | [GitHub Releases](https://github.com/SniKh1/forge/releases) |
+| Diagnose desktop runtime | `bash scripts/diagnose-forge-runtime.sh` / `powershell -ExecutionPolicy Bypass -File .\scripts\diagnose-forge-runtime.ps1` |
 | Check changes | [CHANGELOG.md](CHANGELOG.md) |
 | Review branch strategy | [BRANCHING.md](BRANCHING.md) |
 | Open support issues | [GitHub Issues](https://github.com/SniKh1/forge/issues) |
@@ -71,6 +72,13 @@ The GUI installer is the default user path. It handles:
 - writing Forge configuration
 - post-install verification, repair, and state refresh
 
+The runtime dependency boundary is important:
+
+- End users who install the packaged app do not need Rust or Cargo just to run Forge
+- Forge Desktop currently still needs `Node.js 18+` at runtime to execute the bundled Forge CLI
+- Some MCP configuration flows additionally use Python
+- A few install scripts still check for Git
+
 The current installer surface already covers:
 
 - role packs for frontend, mobile, Java backend, Python backend, AI automation, data, security, product, design, architecture, QA, platform, and release
@@ -100,6 +108,18 @@ bash gemini/install-gemini.sh
 .\codex\install-codex.ps1
 .\gemini\install-gemini.ps1
 ```
+
+If Forge Desktop still says it cannot read status after installation, run:
+
+```bash
+bash scripts/diagnose-forge-runtime.sh
+```
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\diagnose-forge-runtime.ps1
+```
+
+The full troubleshooting guide lives in [docs/user/desktop-runtime-troubleshooting.md](docs/user/desktop-runtime-troubleshooting.md).
 
 ## Run From Source
 
