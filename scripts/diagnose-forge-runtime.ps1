@@ -12,7 +12,8 @@ New-Item -ItemType File -Path $ReportFile -Force | Out-Null
 $Warnings = New-Object System.Collections.Generic.List[string]
 
 function Add-Line([string]$Text = "") {
-    $Text | Tee-Object -FilePath $ReportFile -Append
+    [System.IO.File]::AppendAllText($ReportFile, $Text + [Environment]::NewLine, [System.Text.Encoding]::UTF8)
+    Write-Host $Text
 }
 
 function Add-Section([string]$Title) {
