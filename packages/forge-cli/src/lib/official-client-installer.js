@@ -86,9 +86,11 @@ function ensureOfficialClientInstalled(client) {
     };
   }
 
-  const result = run(npmCommand, ['install', '-g', meta.packageName], {
+  // Always use 'npm' as command name with shell:true so the OS resolves it via PATH
+  const result = run('npm', ['install', '-g', meta.packageName], {
     capture: true,
     allowFailure: true,
+    shell: true,
   });
   const after = detectClient(client);
   return {

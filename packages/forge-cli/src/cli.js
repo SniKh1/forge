@@ -175,7 +175,7 @@ async function runInstall(positional, options) {
     throw new Error('Usage: forge install claude|codex|gemini');
   }
   if (!adapters[client].detect().detected) {
-    console.log(`\n[bootstrap] ${client}`);
+    console.log(`\n ${client}`);
     printBootstrapResult(client, ensureOfficialClientInstalled(client));
   }
   options.clients = [client];
@@ -197,10 +197,7 @@ function runVerify(positional, options) {
 function runDoctor(positional, options) {
   const clients = resolveDoctorClients(positional, options);
   const report = doctor(clients, options);
-  if (options.json) {
-    console.log(JSON.stringify(report, null, 2));
-  }
-  if (report.support.some((item) => !item.ok)) process.exitCode = 1;
+  if (!options.json && report.support.some((item) => !item.ok)) process.exitCode = 1;
 }
 
 function runBootstrapClient(positional) {
@@ -209,8 +206,17 @@ function runBootstrapClient(positional) {
     throw new Error('Usage: forge bootstrap-client claude|codex|gemini');
   }
   const result = ensureOfficialClientInstalled(client);
-  console.log(`\n[bootstrap] ${client}`);
-  printBootstrapResult(client, result);
+  console.log(JSON.stringify({
+    ok: result.ok,
+    client,
+    packageName: result.packageName,
+    command: result.command,
+    changed: result.changed,
+    detected: result.detected,
+    stdout: result.stdout || '',
+    stderr: result.stderr || '',
+  }));
+  if (!result.ok) process.exitCode = 1;
 }
 
 async function runRepair(positional, options) {
@@ -218,7 +224,7 @@ async function runRepair(positional, options) {
   options.components = resolveComponents(options);
   for (const client of clients) {
     if (!adapters[client].detect().detected) {
-      console.log(`\n[bootstrap] ${client}`);
+      console.log(`\n ${client}`);
       printBootstrapResult(client, ensureOfficialClientInstalled(client));
     }
     console.log(`\n[repair] ${client}`);

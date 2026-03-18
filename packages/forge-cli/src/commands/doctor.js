@@ -33,7 +33,7 @@ function doctor(clients, options = {}) {
     }
   }
 
-  return {
+  const report = {
     detection: detection.map((item) => ({
       ...item,
       homeLabel: relativeToHome(item.home),
@@ -41,6 +41,14 @@ function doctor(clients, options = {}) {
     capabilityMatrix: loadCapabilityMatrix(),
     support: summary,
   };
+
+  if (options.json) {
+    console.log(JSON.stringify(report, null, 2));
+    // Always exit 0 in JSON mode so the frontend can parse the report
+    process.exitCode = 0;
+  }
+
+  return report;
 }
 
 module.exports = { doctor };

@@ -8,6 +8,7 @@ function run(command, args, options = {}) {
     env: { ...process.env, ...(options.env || {}) },
     encoding: 'utf8',
     windowsHide: true,
+    shell: options.shell || false,
   });
   if (options.capture) {
     return result;

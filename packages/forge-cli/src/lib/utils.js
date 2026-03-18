@@ -8,12 +8,31 @@ function readJson(file) {
 }
 
 function commandExists(command) {
-  const probe = isWindows ? 'where' : 'command';
-  const args = isWindows ? [command] : ['-v', command];
-  const shell = isWindows ? 'cmd.exe' : process.env.SHELL || 'bash';
-  const shellArgs = isWindows ? ['/c', `${probe} ${command}`] : ['-lc', `${probe} ${args.join(' ')}`];
-  const result = spawnSync(shell, shellArgs, { stdio: 'ignore', windowsHide: true });
-  return result.status === 0;
+  const { spawnSync: spawn } = require('child_process');
+  const isWin = process.platform === 'win32';
+
+  // Try where.exe / which directly first
+  const probe = isWin ? 'where.exe' : 'which';
+  const result = spawn(probe, [command], { stdio: 'ignore', windowsHide: true });
+  if (result.status === 0) return true;
+
+  // On Windows, also check common global npm bin locations
+  if (isWin) {
+    const candidates = [];
+    if (process.env.APPDATA) candidates.push(path.join(process.env.APPDATA, 'npm', `${command}.cmd`));
+    if (process.env.APPDATA) candidates.push(path.join(process.env.APPDATA, 'npm', `${command}.ps1`));
+    if (process.env.LOCALAPPDATA) candidates.push(path.join(process.env.LOCALAPPDATA, 'Programs', 'nodejs', `${command}.cmd`));
+    const nodeDir = path.dirname(process.execPath || '');
+    if (nodeDir && nodeDir !== '.') {
+      candidates.push(path.join(nodeDir, `${command}.cmd`));
+      candidates.push(path.join(nodeDir, `${command}.ps1`));
+    }
+    for (const c of candidates) {
+      if (fs.existsSync(c)) return true;
+    }
+  }
+
+  return false;
 }
 
 function ensureDir(dir) {

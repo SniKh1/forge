@@ -40,6 +40,8 @@ fn candidate_repo_roots(app: &AppHandle) -> Vec<PathBuf> {
     if let Ok(resource_dir) = app.path().resource_dir() {
         candidates.push(resource_dir.clone());
         candidates.push(resource_dir.join("_up_"));
+        candidates.push(resource_dir.join("_up_").join("_up_"));
+        candidates.push(resource_dir.join("_up_").join("_up_").join("_up_"));
     }
 
     if let Ok(exe_path) = std::env::current_exe() {
@@ -75,6 +77,15 @@ fn resolve_repo_root(app: &AppHandle) -> Result<PathBuf, String> {
         "Forge CLI bundle not found. Searched roots: {}",
         searched
     ))
+}
+
+fn normalize_path(path: PathBuf) -> PathBuf {
+    let s = path.to_string_lossy();
+    if s.starts_with("\\\\?\\") {
+        PathBuf::from(&s[4..])
+    } else {
+        path
+    }
 }
 
 fn apply_windows_no_window(_command: &mut Command) {
@@ -183,12 +194,15 @@ async fn run_forge_cli(
 ) -> Result<String, String> {
     let current_dir = resolve_cwd(cwd);
     let repo_root = resolve_repo_root(&app)?;
-    let cli_path = repo_root.join("packages/forge-cli/bin/forge.js");
+    let cli_path_raw = repo_root.join("packages/forge-cli/bin/forge.js");
     let node_binary = resolve_node_binary()?;
 
-    if !cli_path.exists() {
-        return Err(format!("Forge CLI not found: {}", cli_path.display()));
+    if !cli_path_raw.exists() {
+        return Err(format!("Forge CLI not found: {}", cli_path_raw.display()));
     }
+
+    let cli_path = normalize_path(cli_path_raw.canonicalize().unwrap_or(cli_path_raw));
+    let repo_root = normalize_path(repo_root.canonicalize().unwrap_or(repo_root));
 
     let cache_dir = app.path().app_cache_dir().ok().map(|dir| dir.join("forge-cli"));
 
@@ -217,7 +231,7 @@ async fn run_forge_cli(
         let stdout = String::from_utf8_lossy(&output.stdout);
         let stderr = String::from_utf8_lossy(&output.stderr);
 
-        if output.status.success() {
+        if output.status.success() || stdout.trim_start().starts_with('{') {
             Ok(stdout.to_string())
         } else {
             Err(format!("{}{}", stdout, stderr))

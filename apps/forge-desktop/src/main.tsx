@@ -667,7 +667,8 @@ function extractFailureSummary(output: string) {
 }
 
 function extractOutputSummary(output: string) {
-  return extractFailureSummary(output) || stripAnsi(output).split('\n').map((line) => line.trim()).find(Boolean) || '';
+  if (output?.trimStart().startsWith('{')) return '';
+  return extractFailureSummary(output) || stripAnsi(output).split('\n').map((line) => line.trim()).filter((line) => !line.startsWith('[bootstrap]') && !line.startsWith('- package:') && !line.startsWith('- command:')).find(Boolean) || '';
 }
 
 function extractSupportIssue(item?: SupportItem | null) {
@@ -1729,6 +1730,9 @@ async function runForgeResult(args: string[], cwd?: string): Promise<ForgeComman
       bridgeAvailable: true,
     };
   } catch (error) {
+    if (typeof error === 'string' && error.trimStart().startsWith('{')) {
+      return { output: error, ok: true, bridgeAvailable: true };
+    }
     if (typeof error === 'string' && error.trim()) {
       return {
         output: error,
@@ -1977,13 +1981,13 @@ function App() {
     };
   }, [communityKind, communityMode, deferredSearchQuery, section, t.externalSearchError, workspace]);
 
-  const loadState = React.useCallback(async () => {
+  const loadState = React.useCallback(async (preserveClient = false) => {
     setIsLoading(true);
     setStatusMessage(t.detectRunning);
     if (!isTauriRuntime()) {
       setRuntimeBlocker(null);
       setReport(mockDoctorReport);
-      setActiveClient(mockDoctorReport.detection.find((item) => item.detected)?.name || 'claude');
+      if (!preserveClient) setActiveClient(mockDoctorReport.detection.find((item) => item.detected)?.name || 'claude');
       setStatusMessage(t.detectPreview);
       setLastUpdated(new Date().toLocaleString());
       setIsLoading(false);
@@ -2017,20 +2021,27 @@ function App() {
 
     setRuntimeBlocker(null);
     setReport(next);
-    const firstDetected = next.detection.find((item) => item.detected)?.name;
-    setActiveClient((current) => {
-      const stillVisible = next.detection.some((item) => item.name === current && item.detected);
-      return stillVisible ? current : (firstDetected || current);
-    });
-    const firstIssue = next.support.map((item) => extractSupportIssue(item)).find(Boolean);
-    setStatusMessage(firstIssue ? `${t.detectNeedsAttention} ${t.issueSummary}: ${firstIssue}` : t.detectLoaded);
+    if (!preserveClient) {
+      const firstDetected = next.detection.find((item) => item.detected)?.name;
+      setActiveClient((current) => {
+        const stillVisible = next.detection.some((item) => item.name === current && item.detected);
+        return stillVisible ? current : (firstDetected || current);
+      });
+    }
     setLastUpdated(new Date().toLocaleString());
     setIsLoading(false);
-  }, [t.detectFailed, t.detectLoaded, t.detectNeedsAttention, t.detectRunning, t.issueSummary, workspace]);
+  }, [t.detectFailed, t.detectRunning, workspace]);
 
   React.useEffect(() => {
     setStatusMessage(t.detectRunning);
   }, [t.detectRunning]);
+
+  React.useEffect(() => {
+    if (!report || isLoading) return;
+    const activeSupport = report.support.find((item) => item.client === activeClient);
+    const issue = extractSupportIssue(activeSupport);
+    setStatusMessage(issue ? `${t.detectNeedsAttention} ${t.issueSummary}: ${issue}` : t.detectLoaded);
+  }, [report, activeClient, isLoading, t.detectLoaded, t.detectNeedsAttention, t.issueSummary]);
 
   React.useEffect(() => {
     void loadState();
@@ -2049,13 +2060,32 @@ function App() {
     });
     const result = await runForgeResult(args, workspace);
     const output = result.output || 'Completed without output.';
-    const detail = extractOutputSummary(output);
     const nextRuntimeBlocker = detectRuntimeBlocker(output);
-    setResultLog(output);
+
+    // For bootstrap, parse JSON result to determine true success/failure
+    let bootstrapOk = result.ok;
+    let displayOutput = output;
+    if (kind === 'bootstrap') {
+      try {
+        const parsed = JSON.parse(output) as { ok: boolean; client: string; stdout?: string; stderr?: string; packageName?: string };
+        bootstrapOk = parsed.ok;
+        displayOutput = [
+          parsed.stdout?.trim(),
+          parsed.stderr?.trim(),
+          parsed.ok ? `${parsed.packageName || parsed.client} installed successfully.` : `Failed to install ${parsed.packageName || parsed.client}.`,
+        ].filter(Boolean).join('\n') || (parsed.ok ? 'Installed successfully.' : 'Installation failed.');
+      } catch {
+        bootstrapOk = result.ok;
+      }
+    }
+    const effectiveOk = kind === 'bootstrap' ? bootstrapOk : result.ok;
+    const detail = extractOutputSummary(displayOutput);
+
+    setResultLog(displayOutput);
     setLogExpanded(true);
-    setRuntimeBlocker(nextRuntimeBlocker);
-    await loadState();
-    if (result.ok) {
+    setRuntimeBlocker(detectRuntimeBlocker(displayOutput));
+    await loadState(kind === 'bootstrap');
+    if (effectiveOk) {
       setActionFeedback({
         id: Date.now(),
         kind,
