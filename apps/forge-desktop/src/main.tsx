@@ -110,6 +110,13 @@ type ActionFeedbackState = {
   detail: string;
 };
 
+type RuntimeBlocker =
+  | {
+      kind: 'node';
+      detail: string;
+    }
+  | null;
+
 type Messages = Record<string, string>;
 
 type InstallOption = {
@@ -667,6 +674,23 @@ function extractSupportIssue(item?: SupportItem | null) {
   return extractFailureSummary(`${item?.stdout || ''}\n${item?.stderr || ''}`);
 }
 
+function detectRuntimeBlocker(output: string): RuntimeBlocker {
+  const text = stripAnsi(output).toLowerCase();
+  if (
+    text.includes('node.js runtime not found')
+    || text.includes('node.js is required')
+    || text.includes('install node.js 18+')
+    || text.includes('set forge_node_path')
+    || text.includes('npm is not available. install node.js with npm first')
+  ) {
+    return {
+      kind: 'node',
+      detail: extractOutputSummary(output),
+    };
+  }
+  return null;
+}
+
 function itemNoteOrClients(item: DetailOption, lang: Lang) {
   if (item.note) return item.note;
   if (!item.clients?.length) return '';
@@ -1034,6 +1058,11 @@ const messages: Record<Lang, Messages> = {
     logCollapsedHint: '默认折叠，需要时再看详细输出。',
     saveSelection: '当前平台会安装',
     restartHint: '安装完成后，如客户端已在运行，建议重启该客户端。',
+    nodeRequiredTitle: '需要先安装 Node.js 18+ 运行时',
+    nodeRequiredHint: 'Forge 当前通过本地 Node/npm 驱动安装、修复与验证流程。请先安装 Node.js LTS，再回到 Forge 刷新状态。',
+    nodeRequiredAction: '打开 Node 安装页',
+    nodeRequiredSecondary: '安装后刷新',
+    nodeRequiredDisabledHint: '缺少 Node.js 时，安装官方客户端、安装 Forge、修复与验证按钮会暂时禁用。',
     lastUpdated: '最后更新',
     noItems: '没有匹配项',
     baseInstallNote: '以下 4 项是 Forge 的基础层，当前版本保持必装，用来保证规则、角色、脚本和工作流完整。',
@@ -1217,6 +1246,11 @@ const messages: Record<Lang, Messages> = {
     logCollapsedHint: 'Logs stay collapsed by default and only expand when needed.',
     saveSelection: 'Current platform will install',
     restartHint: 'If the client is already running, restart it after installation.',
+    nodeRequiredTitle: 'Install Node.js 18+ first',
+    nodeRequiredHint: 'Forge currently uses local Node/npm to run install, repair, and verify flows. Install the LTS release first, then return to Forge and refresh.',
+    nodeRequiredAction: 'Open Node download',
+    nodeRequiredSecondary: 'Refresh after install',
+    nodeRequiredDisabledHint: 'Install, repair, verify, and official-client bootstrap stay disabled until Node.js is available.',
     lastUpdated: 'Last updated',
     noItems: 'No matching items',
     baseInstallNote: 'These four items stay mandatory in the current version so rules, roles, scripts, and workflows remain intact.',
@@ -1400,6 +1434,11 @@ const messages: Record<Lang, Messages> = {
     logCollapsedHint: 'ログは普段は折りたたみ、必要な時だけ開きます。',
     saveSelection: '現在のプラットフォームへ導入',
     restartHint: 'クライアントが起動中なら、導入後に再起動してください。',
+    nodeRequiredTitle: '先に Node.js 18+ を導入してください',
+    nodeRequiredHint: 'Forge は導入・修復・検証フローをローカルの Node/npm で実行します。先に Node.js LTS を導入し、その後 Forge に戻って状態を更新してください。',
+    nodeRequiredAction: 'Node 導入ページを開く',
+    nodeRequiredSecondary: '導入後に更新',
+    nodeRequiredDisabledHint: 'Node.js が見つかるまで、公式クライアント導入・Forge 導入・修復・検証は無効になります。',
     lastUpdated: '更新時刻',
     noItems: '一致する項目がありません',
     baseInstallNote: 'この 4 項目は現行版では必須です。ルール、ロール、スクリプト、ワークフローを壊さないためです。',
@@ -1617,6 +1656,8 @@ const officialInstallCommands: Record<Client, { label: string; command: string }
   },
 };
 
+const nodeDownloadUrl = 'https://nodejs.org/en/download';
+
 const mockDoctorReport: DoctorReport = {
   detection: [
     { name: 'claude', home: '~/.claude', homeLabel: '~/.claude', detected: true, configured: true },
@@ -1808,6 +1849,7 @@ function App() {
   const [externalInstallBusy, setExternalInstallBusy] = React.useState('');
   const [communityExpanded, setCommunityExpanded] = React.useState<Record<string, boolean>>({});
   const [actionFeedback, setActionFeedback] = React.useState<ActionFeedbackState | null>(null);
+  const [runtimeBlocker, setRuntimeBlocker] = React.useState<RuntimeBlocker>(null);
 
   const t = messages[lang];
   const installGuide = React.useMemo(() => installRoleGuide(selectedInstallRole), [selectedInstallRole]);
@@ -1938,22 +1980,42 @@ function App() {
   const loadState = React.useCallback(async () => {
     setIsLoading(true);
     setStatusMessage(t.detectRunning);
-    const next = await runForgeJson<DoctorReport>(['doctor', '--detected-only', '--json'], workspace);
-    if (!next) {
-      if (!isTauriRuntime()) {
-        setReport(mockDoctorReport);
-        setActiveClient(mockDoctorReport.detection.find((item) => item.detected)?.name || 'claude');
-        setStatusMessage(t.detectPreview);
-        setLastUpdated(new Date().toLocaleString());
-        setIsLoading(false);
-        return;
-      }
-
-      setStatusMessage(t.detectFailed);
+    if (!isTauriRuntime()) {
+      setRuntimeBlocker(null);
+      setReport(mockDoctorReport);
+      setActiveClient(mockDoctorReport.detection.find((item) => item.detected)?.name || 'claude');
+      setStatusMessage(t.detectPreview);
+      setLastUpdated(new Date().toLocaleString());
       setIsLoading(false);
       return;
     }
 
+    const result = await runForgeResult(['doctor', '--detected-only', '--json'], workspace);
+    if (!result.ok) {
+      const detail = extractOutputSummary(result.output);
+      setRuntimeBlocker(detectRuntimeBlocker(result.output));
+      setResultLog(result.output || 'Failed to read Forge state.');
+      setStatusMessage(detail ? `${t.detectFailed} ${detail}` : t.detectFailed);
+      setIsLoading(false);
+      return;
+    }
+
+    let next: DoctorReport | null = null;
+    try {
+      next = JSON.parse(result.output) as DoctorReport;
+    } catch {
+      next = null;
+    }
+    if (!next) {
+      const detail = extractOutputSummary(result.output);
+      setRuntimeBlocker(detectRuntimeBlocker(result.output));
+      setResultLog(result.output || 'Forge CLI returned non-JSON output.');
+      setStatusMessage(detail ? `${t.detectFailed} ${detail}` : t.detectFailed);
+      setIsLoading(false);
+      return;
+    }
+
+    setRuntimeBlocker(null);
     setReport(next);
     const firstDetected = next.detection.find((item) => item.detected)?.name;
     setActiveClient((current) => {
@@ -1988,8 +2050,10 @@ function App() {
     const result = await runForgeResult(args, workspace);
     const output = result.output || 'Completed without output.';
     const detail = extractOutputSummary(output);
+    const nextRuntimeBlocker = detectRuntimeBlocker(output);
     setResultLog(output);
     setLogExpanded(true);
+    setRuntimeBlocker(nextRuntimeBlocker);
     await loadState();
     if (result.ok) {
       setActionFeedback({
@@ -2029,7 +2093,16 @@ function App() {
     workspace,
   ]);
 
-  const detection = React.useMemo(() => report?.detection.find((item) => item.name === activeClient) || null, [report, activeClient]);
+  const detection = React.useMemo<DetectionItem>(
+    () => report?.detection.find((item) => item.name === activeClient) || {
+      name: activeClient,
+      home: '',
+      homeLabel: '',
+      detected: false,
+      configured: false,
+    },
+    [report, activeClient],
+  );
   const support = React.useMemo(() => report?.support.find((item) => item.client === activeClient) || null, [report, activeClient]);
   const capabilityMap = report?.capabilityMatrix.capabilities || {};
   const supportIssue = React.useMemo(() => extractSupportIssue(support), [support]);
@@ -2056,6 +2129,7 @@ function App() {
     if (detection.detected) return 'needs-repair';
     return 'unknown';
   }, [detection, support]);
+  const nodeBlocked = runtimeBlocker?.kind === 'node';
 
   const optionalComponentList = React.useMemo(() => optionalOptions.filter((item) => true), []);
   const activeStackGuides = React.useMemo(
@@ -2542,10 +2616,32 @@ function App() {
         </section>
 
         <main className="min-h-0 flex-1">
-          {section === 'platform' && detection && (
+          {section === 'platform' && (
             <div key={stageKey} className="forge-stage-view forge-stage-stack flex min-h-0 flex-col gap-4">
               {actionFeedback && (
                 <ActionFeedbackBanner key={actionFeedback.id} state={actionFeedback} />
+              )}
+              {nodeBlocked && (
+                <section className="overflow-hidden rounded-[12px] border border-blue-200 bg-blue-50 shadow-[0_10px_24px_rgba(59,130,246,0.10)]">
+                  <div className="flex flex-col gap-4 px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                      <div className="text-[14px] font-semibold text-blue-950">{t.nodeRequiredTitle}</div>
+                      <div className="mt-1 text-[12px] leading-6 text-blue-800">{t.nodeRequiredHint}</div>
+                      <div className="mt-2 text-[11px] text-blue-700">{runtimeBlocker?.detail || t.nodeRequiredDisabledHint}</div>
+                      <div className="mt-1 text-[11px] text-blue-700">{t.nodeRequiredDisabledHint}</div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button type="button" onClick={() => void openTarget(nodeDownloadUrl)} className="inline-flex items-center gap-2 rounded-[10px] bg-slate-900 px-3 py-2 text-[12px] font-medium text-white shadow-[0_10px_18px_rgba(15,23,42,0.16)]">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        {t.nodeRequiredAction}
+                      </button>
+                      <button type="button" onClick={() => void loadState()} disabled={isLoading || isRunning} className="inline-flex items-center gap-2 rounded-[10px] border border-blue-200 bg-white px-3 py-2 text-[12px] font-medium text-blue-800 disabled:opacity-50">
+                        <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+                        {t.nodeRequiredSecondary}
+                      </button>
+                    </div>
+                  </div>
+                </section>
               )}
               <section className="overflow-hidden rounded-[12px] border border-slate-200 bg-white shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
                 <div className="flex items-center justify-between gap-4 border-b border-slate-100 px-4 py-4">
@@ -2564,7 +2660,9 @@ function App() {
                     </div>
                     <h2 className="mt-2 text-[18px] font-semibold tracking-[-0.03em]">{t.platformWorkbench}</h2>
                     <p className="mt-1 text-[13px] text-slate-500">
-                      {detection.detected
+                      {nodeBlocked
+                        ? t.nodeRequiredHint
+                        : detection.detected
                         ? (currentStatus === 'needs-repair' ? t.platformNeedsRepair : t.platformReady)
                         : t.platformBlocked}
                     </p>
@@ -2618,7 +2716,7 @@ function App() {
                       <ActionButton
                         label={t.officialInstall}
                         onClick={() => void runAction('bootstrap', ['bootstrap-client', activeClient])}
-                        disabled={isRunning || Boolean(detection.detected)}
+                        disabled={isRunning || nodeBlocked || Boolean(detection.detected)}
                         loading={Boolean(isRunning && actionFeedback?.kind === 'bootstrap')}
                         badgeText={actionBadge('bootstrap')?.text}
                         badgeTone={actionBadge('bootstrap')?.tone}
@@ -2629,7 +2727,7 @@ function App() {
                         label={installLabel}
                         primary
                         onClick={() => openConfirm('install')}
-                        disabled={isRunning}
+                        disabled={isRunning || nodeBlocked}
                         loading={Boolean(isRunning && actionFeedback?.kind === 'install')}
                         badgeText={actionBadge('install')?.text}
                         badgeTone={actionBadge('install')?.tone}
@@ -2639,7 +2737,7 @@ function App() {
                       <ActionButton
                         label={t.verifyNow}
                         onClick={() => void runAction('verify', ['verify', '--client', activeClient])}
-                        disabled={isRunning || !detection.detected}
+                        disabled={isRunning || nodeBlocked || !detection.detected}
                         loading={Boolean(isRunning && actionFeedback?.kind === 'verify')}
                         badgeText={actionBadge('verify')?.text}
                         badgeTone={actionBadge('verify')?.tone}
@@ -2649,7 +2747,7 @@ function App() {
                       <ActionButton
                         label={repairLabel}
                         onClick={() => openConfirm('repair')}
-                        disabled={isRunning}
+                        disabled={isRunning || nodeBlocked}
                         loading={Boolean(isRunning && actionFeedback?.kind === 'repair')}
                         badgeText={actionBadge('repair')?.text}
                         badgeTone={actionBadge('repair')?.tone}

@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const { isWindows } = require('./constants');
 const { detectClient } = require('./detection');
 const { run } = require('./process');
@@ -19,6 +21,26 @@ const officialClientPackages = {
 };
 
 function npmExecutable() {
+  const candidates = [];
+  const nodeDir = path.dirname(process.execPath || '');
+
+  if (nodeDir) {
+    candidates.push(path.join(nodeDir, isWindows ? 'npm.cmd' : 'npm'));
+    if (isWindows) {
+      candidates.push(path.join(nodeDir, 'npm.exe'));
+    }
+  }
+
+  if (isWindows && process.env.APPDATA) {
+    candidates.push(path.join(process.env.APPDATA, 'npm', 'npm.cmd'));
+  }
+
+  for (const candidate of candidates) {
+    if (candidate && fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
   return isWindows ? 'npm.cmd' : 'npm';
 }
 
@@ -50,7 +72,9 @@ function ensureOfficialClientInstalled(client) {
     };
   }
 
-  if (!commandExists('npm')) {
+  const npmCommand = npmExecutable();
+  const npmAvailable = path.isAbsolute(npmCommand) ? fs.existsSync(npmCommand) : commandExists('npm');
+  if (!npmAvailable) {
     return {
       ok: false,
       changed: false,
@@ -62,7 +86,7 @@ function ensureOfficialClientInstalled(client) {
     };
   }
 
-  const result = run(npmExecutable(), ['install', '-g', meta.packageName], {
+  const result = run(npmCommand, ['install', '-g', meta.packageName], {
     capture: true,
     allowFailure: true,
   });

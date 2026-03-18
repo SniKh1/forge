@@ -34,23 +34,145 @@ fn source_repo_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..")
 }
 
-fn bundled_repo_root(app: &AppHandle) -> Option<PathBuf> {
-    let resource_dir = app.path().resource_dir().ok()?;
-    let cli_path = resource_dir.join("packages/forge-cli/bin/forge.js");
-    if cli_path.exists() {
-        Some(resource_dir)
-    } else {
-        None
+fn candidate_repo_roots(app: &AppHandle) -> Vec<PathBuf> {
+    let mut candidates = Vec::new();
+
+    if let Ok(resource_dir) = app.path().resource_dir() {
+        candidates.push(resource_dir.clone());
+        candidates.push(resource_dir.join("_up_"));
     }
+
+    if let Ok(exe_path) = std::env::current_exe() {
+        if let Some(exe_dir) = exe_path.parent() {
+            candidates.push(exe_dir.to_path_buf());
+            candidates.push(exe_dir.join("resources"));
+            if let Some(parent) = exe_dir.parent() {
+                candidates.push(parent.to_path_buf());
+                candidates.push(parent.join("resources"));
+            }
+        }
+    }
+
+    candidates.push(source_repo_root());
+    candidates
 }
 
-fn resolve_repo_root(app: &AppHandle) -> PathBuf {
-    bundled_repo_root(app).unwrap_or_else(source_repo_root)
+fn resolve_repo_root(app: &AppHandle) -> Result<PathBuf, String> {
+    let candidates = candidate_repo_roots(app);
+    for candidate in &candidates {
+        let cli_path = candidate.join("packages/forge-cli/bin/forge.js");
+        if cli_path.exists() {
+            return Ok(candidate.clone());
+        }
+    }
+
+    let searched = candidates
+        .iter()
+        .map(|path| path.display().to_string())
+        .collect::<Vec<_>>()
+        .join(", ");
+    Err(format!(
+        "Forge CLI bundle not found. Searched roots: {}",
+        searched
+    ))
 }
 
 fn apply_windows_no_window(_command: &mut Command) {
     #[cfg(target_os = "windows")]
     _command.creation_flags(CREATE_NO_WINDOW);
+}
+
+fn command_from_probe(command: &str, args: &[&str]) -> Option<PathBuf> {
+    let output = Command::new(command).args(args).output().ok()?;
+    if !output.status.success() {
+        return None;
+    }
+
+    String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .map(str::trim)
+        .find(|line| !line.is_empty())
+        .map(PathBuf::from)
+}
+
+fn resolve_node_binary() -> Result<PathBuf, String> {
+    let mut searched = Vec::new();
+
+    let mut direct = Command::new("node");
+    direct.arg("--version");
+    apply_windows_no_window(&mut direct);
+    if let Ok(output) = direct.output() {
+        if output.status.success() {
+            return Ok(PathBuf::from("node"));
+        }
+    }
+    searched.push("PATH:node".to_string());
+
+    #[cfg(target_os = "windows")]
+    {
+        if let Some(path) = command_from_probe("where.exe", &["node"]) {
+            return Ok(path);
+        }
+        searched.push("where.exe node".to_string());
+
+        let mut candidates = Vec::new();
+        if let Some(value) = std::env::var_os("FORGE_NODE_PATH") {
+            candidates.push(PathBuf::from(value));
+        }
+        if let Some(value) = std::env::var_os("NVM_SYMLINK") {
+            candidates.push(PathBuf::from(value).join("node.exe"));
+        }
+        if let Some(value) = std::env::var_os("NVM_HOME") {
+            candidates.push(PathBuf::from(value).join("node.exe"));
+        }
+        if let Some(value) = std::env::var_os("VOLTA_HOME") {
+            candidates.push(PathBuf::from(value).join("bin/node.exe"));
+        }
+        if let Some(value) = std::env::var_os("ProgramFiles") {
+            candidates.push(PathBuf::from(value).join("nodejs/node.exe"));
+        }
+        if let Some(value) = std::env::var_os("LOCALAPPDATA") {
+            candidates.push(PathBuf::from(value).join("Programs/nodejs/node.exe"));
+            candidates.push(PathBuf::from(value).join("Volta/bin/node.exe"));
+        }
+        if let Some(value) = std::env::var_os("APPDATA") {
+            candidates.push(PathBuf::from(value).join("npm/node.exe"));
+        }
+
+        for candidate in candidates {
+            searched.push(candidate.display().to_string());
+            if candidate.exists() {
+                return Ok(candidate);
+            }
+        }
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        if let Some(path) = command_from_probe("which", &["node"]) {
+            return Ok(path);
+        }
+        searched.push("which node".to_string());
+
+        let candidates = [
+            "/opt/homebrew/bin/node",
+            "/usr/local/bin/node",
+            "/usr/bin/node",
+            "/opt/local/bin/node",
+        ];
+        for candidate in candidates {
+            let path = PathBuf::from(candidate);
+            searched.push(path.display().to_string());
+            if path.exists() {
+                return Ok(path);
+            }
+        }
+    }
+
+    Err(format!(
+        "Node.js runtime not found. Install Node.js 18+ or set FORGE_NODE_PATH. Searched: {}",
+        searched.join(", ")
+    ))
 }
 
 #[tauri::command]
@@ -60,8 +182,9 @@ async fn run_forge_cli(
     cwd: Option<String>,
 ) -> Result<String, String> {
     let current_dir = resolve_cwd(cwd);
-    let repo_root = resolve_repo_root(&app);
+    let repo_root = resolve_repo_root(&app)?;
     let cli_path = repo_root.join("packages/forge-cli/bin/forge.js");
+    let node_binary = resolve_node_binary()?;
 
     if !cli_path.exists() {
         return Err(format!("Forge CLI not found: {}", cli_path.display()));
@@ -70,7 +193,7 @@ async fn run_forge_cli(
     let cache_dir = app.path().app_cache_dir().ok().map(|dir| dir.join("forge-cli"));
 
     tauri::async_runtime::spawn_blocking(move || {
-        let mut command = Command::new("node");
+        let mut command = Command::new(&node_binary);
         command
             .arg(&cli_path)
             .args(args)
@@ -84,12 +207,11 @@ async fn run_forge_cli(
         apply_windows_no_window(&mut command);
 
         let output = command.output().map_err(|err| {
-            if err.kind() == std::io::ErrorKind::NotFound {
-                "Node.js runtime not found. Install Node.js 18+ to use Forge desktop actions."
-                    .to_string()
-            } else {
-                err.to_string()
-            }
+            format!(
+                "Failed to launch Forge CLI via {}: {}",
+                node_binary.display(),
+                err
+            )
         })?;
 
         let stdout = String::from_utf8_lossy(&output.stdout);

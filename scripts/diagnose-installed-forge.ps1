@@ -88,6 +88,64 @@ function Write-ValueBlock([string]$Label, [string]$Value) {
     }
 }
 
+function Resolve-NodeBinary {
+    $candidates = New-Object System.Collections.Generic.List[string]
+
+    $command = Get-Command node -ErrorAction SilentlyContinue
+    if ($command -and $command.Source) {
+        $candidates.Add([string]$command.Source) | Out-Null
+        return @{
+            Path = [string]$command.Source
+            Candidates = $candidates
+            Source = "Get-Command"
+        }
+    }
+
+    try {
+        $whereOutput = & where.exe node 2>$null
+        foreach ($line in $whereOutput) {
+            $trimmed = [string]$line
+            if (-not [string]::IsNullOrWhiteSpace($trimmed)) {
+                $candidates.Add($trimmed) | Out-Null
+                if (Test-Path $trimmed -PathType Leaf) {
+                    return @{
+                        Path = $trimmed
+                        Candidates = $candidates
+                        Source = "where.exe"
+                    }
+                }
+            }
+        }
+    } catch {}
+
+    $fallbacks = @()
+    if ($env:FORGE_NODE_PATH) { $fallbacks += $env:FORGE_NODE_PATH }
+    if ($env:NVM_SYMLINK) { $fallbacks += (Join-Path $env:NVM_SYMLINK "node.exe") }
+    if ($env:NVM_HOME) { $fallbacks += (Join-Path $env:NVM_HOME "node.exe") }
+    if ($env:VOLTA_HOME) { $fallbacks += (Join-Path $env:VOLTA_HOME "bin\node.exe") }
+    if ($env:ProgramFiles) { $fallbacks += (Join-Path $env:ProgramFiles "nodejs\node.exe") }
+    if ($env:LOCALAPPDATA) {
+        $fallbacks += (Join-Path $env:LOCALAPPDATA "Programs\nodejs\node.exe")
+        $fallbacks += (Join-Path $env:LOCALAPPDATA "Volta\bin\node.exe")
+    }
+    foreach ($candidate in $fallbacks | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) {
+        $candidates.Add($candidate) | Out-Null
+        if (Test-Path $candidate -PathType Leaf) {
+            return @{
+                Path = $candidate
+                Candidates = $candidates
+                Source = "fallback"
+            }
+        }
+    }
+
+    return @{
+        Path = $null
+        Candidates = $candidates
+        Source = "not-found"
+    }
+}
+
 Add-Line "# Forge Installed Runtime Diagnostic Report"
 Add-Line
 Add-Line ("- Generated: {0}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz"))
@@ -108,7 +166,7 @@ Write-ValueBlock "User PATH" $UserPath
 Write-ValueBlock "Machine PATH" $MachinePath
 
 Add-Section "Command Availability"
-$NodePath = Report-Command "node" @("--version")
+$NodeCommandPath = Report-Command "node" @("--version")
 $NpmPath = Report-Command "npm" @("--version")
 [void](Report-Command "claude" @("--version"))
 [void](Report-Command "codex" @("--version"))
@@ -117,11 +175,23 @@ $NpmPath = Report-Command "npm" @("--version")
 [void](Report-Command "python" @("--version"))
 [void](Report-Command "python3" @("--version"))
 
-if (-not $NodePath) {
+if (-not $NodeCommandPath) {
     Add-Warning "Node.js is missing. Forge Desktop currently needs Node.js 18+ at runtime."
 }
 if (-not $NpmPath) {
     Add-Warning "npm is missing. Forge cannot bootstrap official clients without npm."
+}
+
+Add-Section "Node Resolution"
+$ResolvedNode = Resolve-NodeBinary
+if ($ResolvedNode.Path) {
+    Add-Line ("- Resolved node binary: {0} ({1})" -f $ResolvedNode.Path, $ResolvedNode.Source)
+} else {
+    Add-Line "- Resolved node binary: missing"
+    Add-Warning "Unable to resolve node.exe through Get-Command, where.exe, or fallback install paths."
+}
+if ($ResolvedNode.Candidates.Count -gt 0) {
+    Add-CodeBlock "text" (($ResolvedNode.Candidates | Select-Object -Unique) -join [Environment]::NewLine)
 }
 
 Add-Section "Client Homes"
@@ -174,9 +244,30 @@ function Find-InstalledForgeFromRegistry {
     return $null
 }
 
+function Find-InstalledForgeFromLocalAppData {
+    if (-not $env:LOCALAPPDATA) {
+        return $null
+    }
+    $programsDir = Join-Path $env:LOCALAPPDATA "Programs"
+    if (-not (Test-Path $programsDir -PathType Container)) {
+        return $null
+    }
+    try {
+        $match = Get-ChildItem -Path $programsDir -Filter "Forge.exe" -Recurse -ErrorAction SilentlyContinue |
+            Select-Object -First 1 -ExpandProperty FullName
+        if ($match -and (Test-Path $match -PathType Leaf)) {
+            return $match
+        }
+    } catch {}
+    return $null
+}
+
 $AppPath = $AppCandidates | Where-Object { $_ -and (Test-Path $_ -PathType Leaf) } | Select-Object -First 1
 if (-not $AppPath) {
     $AppPath = Find-InstalledForgeFromRegistry
+}
+if (-not $AppPath) {
+    $AppPath = Find-InstalledForgeFromLocalAppData
 }
 if (-not $AppPath) {
     Add-Line "- Forge.exe not found in common install locations"
@@ -186,23 +277,38 @@ if (-not $AppPath) {
 }
 
 $InstallRoot = if ($AppPath) { Split-Path -Parent $AppPath } else { "" }
-$ResourceRoot = if ($InstallRoot) { Join-Path $InstallRoot "resources" } else { "" }
+$ResourceRoots = @()
+if ($InstallRoot) {
+    $ResourceRoots += (Join-Path $InstallRoot "resources")
+    $ResourceRoots += (Join-Path $InstallRoot "_up_\resources")
+}
+$ResourceRoot = $ResourceRoots | Where-Object { $_ -and (Test-Path $_ -PathType Container) } | Select-Object -First 1
+
+if ($ResourceRoots.Count -gt 0) {
+    Add-Line "- Resource root candidates:"
+    Add-CodeBlock "text" (($ResourceRoots | Select-Object -Unique) -join [Environment]::NewLine)
+}
+
 $CliEntry = if ($ResourceRoot) { Join-Path $ResourceRoot "packages\forge-cli\bin\forge.js" } else { "" }
 $VerifyClaude = if ($ResourceRoot) { Join-Path $ResourceRoot "scripts\verify.ps1" } else { "" }
 $VerifyCodex = if ($ResourceRoot) { Join-Path $ResourceRoot "codex\scripts\verify-codex.ps1" } else { "" }
 $VerifyGemini = if ($ResourceRoot) { Join-Path $ResourceRoot "gemini\scripts\verify-gemini.ps1" } else { "" }
 
 if ($ResourceRoot) {
+    Add-Line ("- Selected resource root: {0}" -f $ResourceRoot)
     [void](Check-PathState $CliEntry "file")
     [void](Check-PathState $VerifyClaude "file")
     [void](Check-PathState $VerifyCodex "file")
     [void](Check-PathState $VerifyGemini "file")
+} else {
+    Add-Line "- Resource root: missing"
+    Add-Warning "Forge resources directory was not found next to Forge.exe."
 }
 
-if ($NodePath -and $CliEntry -and (Test-Path $CliEntry -PathType Leaf)) {
-    [void](Run-AndCapture "Forge CLI doctor (detected only)" $NodePath @($CliEntry, "doctor", "--detected-only", "--json"))
-    [void](Run-AndCapture "Forge CLI doctor (Claude only)" $NodePath @($CliEntry, "doctor", "--client", "claude", "--json"))
-    [void](Run-AndCapture "Forge CLI doctor (all clients)" $NodePath @($CliEntry, "doctor", "--client", "claude,codex,gemini", "--json"))
+if ($ResolvedNode.Path -and $CliEntry -and (Test-Path $CliEntry -PathType Leaf)) {
+    [void](Run-AndCapture "Forge CLI doctor (detected only)" $ResolvedNode.Path @($CliEntry, "doctor", "--detected-only", "--json"))
+    [void](Run-AndCapture "Forge CLI doctor (Claude only)" $ResolvedNode.Path @($CliEntry, "doctor", "--client", "claude", "--json"))
+    [void](Run-AndCapture "Forge CLI doctor (all clients)" $ResolvedNode.Path @($CliEntry, "doctor", "--client", "claude,codex,gemini", "--json"))
 } else {
     Add-Warning "Bundled forge.js was not found or node is unavailable."
 }

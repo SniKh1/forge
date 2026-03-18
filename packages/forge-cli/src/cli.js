@@ -1,7 +1,7 @@
 const { createInterface, ask, askYesNo } = require('./lib/prompt');
 const { detectAll } = require('./lib/detection');
 const { renderCapabilityTable } = require('./lib/capabilities');
-const { sanitizeToken, printHeader, commandExists } = require('./lib/utils');
+const { sanitizeToken, printHeader } = require('./lib/utils');
 const { installClients, printInstallSummary } = require('./commands/install');
 const { verifyClients } = require('./commands/verify');
 const { doctor } = require('./commands/doctor');
@@ -314,9 +314,6 @@ function runExternalInstallMcp(options) {
 
 async function main() {
   const { command, positional, options } = parseArgs(process.argv.slice(2));
-  if (!commandExists('node')) {
-    throw new Error('Node.js is required.');
-  }
   if (command === 'setup') {
     await runSetup(options);
     return;
