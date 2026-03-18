@@ -6,6 +6,7 @@ const { installClients, printInstallSummary } = require('./commands/install');
 const { verifyClients } = require('./commands/verify');
 const { doctor } = require('./commands/doctor');
 const { adapters } = require('./lib/adapters');
+const { ensureOfficialClientInstalled } = require('./lib/official-client-installer');
 const {
   loadRegistrySources,
   searchExternalSkills,
@@ -28,6 +29,7 @@ function parseArgs(argv) {
     skipBackup: process.env.FORGE_SKIP_BACKUP === '1',
     cwd: process.cwd(),
     json: false,
+    detectedOnly: false,
     components: [],
     mcpServers: [],
     skillNames: [],
@@ -60,6 +62,8 @@ function parseArgs(argv) {
       options.includeOptionalMcp = false;
     } else if (token === '--json') {
       options.json = true;
+    } else if (token === '--detected-only') {
+      options.detectedOnly = true;
     } else if (token === '--components') {
       options.components = (rest[++i] || '').split(',').map((item) => item.trim()).filter(Boolean);
     } else if (token === '--mcp-servers') {
@@ -90,6 +94,30 @@ function resolveClients(options, fallbackDetected = true) {
   if (options.clients.length) return options.clients;
   const detected = detectAll().filter((item) => item.detected).map((item) => item.name);
   return detected.length || !fallbackDetected ? detected : ['claude', 'codex', 'gemini'];
+}
+
+function resolveDoctorClients(positional, options) {
+  if (options.clients.length) {
+    if (!options.detectedOnly) return options.clients;
+    const detected = new Set(detectAll().filter((item) => item.detected).map((item) => item.name));
+    return options.clients.filter((client) => detected.has(client));
+  }
+  if (positional[0]) return [positional[0]];
+  return options.detectedOnly ? resolveClients(options, false) : ['claude', 'codex', 'gemini'];
+}
+
+function printBootstrapResult(client, result) {
+  console.log(`- package: ${result.packageName}`);
+  console.log(`- command: ${result.command}`);
+  if (result.stdout && result.stdout.trim()) {
+    console.log(result.stdout.trim());
+  }
+  if (result.stderr && result.stderr.trim()) {
+    console.error(result.stderr.trim());
+  }
+  if (!result.ok) {
+    throw new Error(`Failed to install the official ${client} client. ${result.stderr.trim() || result.stdout.trim() || 'No additional output.'}`);
+  }
 }
 
 function resolveComponents(options) {
@@ -146,6 +174,10 @@ async function runInstall(positional, options) {
   if (!client || !adapters[client]) {
     throw new Error('Usage: forge install claude|codex|gemini');
   }
+  if (!adapters[client].detect().detected) {
+    console.log(`\n[bootstrap] ${client}`);
+    printBootstrapResult(client, ensureOfficialClientInstalled(client));
+  }
   options.clients = [client];
   options.components = resolveComponents(options);
   const results = await installClients([client], options);
@@ -163,7 +195,7 @@ function runVerify(positional, options) {
 }
 
 function runDoctor(positional, options) {
-  const clients = options.clients.length ? options.clients : (positional[0] ? [positional[0]] : ['claude', 'codex', 'gemini']);
+  const clients = resolveDoctorClients(positional, options);
   const report = doctor(clients, options);
   if (options.json) {
     console.log(JSON.stringify(report, null, 2));
@@ -171,10 +203,24 @@ function runDoctor(positional, options) {
   if (report.support.some((item) => !item.ok)) process.exitCode = 1;
 }
 
+function runBootstrapClient(positional) {
+  const client = positional[0];
+  if (!client || !adapters[client]) {
+    throw new Error('Usage: forge bootstrap-client claude|codex|gemini');
+  }
+  const result = ensureOfficialClientInstalled(client);
+  console.log(`\n[bootstrap] ${client}`);
+  printBootstrapResult(client, result);
+}
+
 async function runRepair(positional, options) {
   const clients = options.clients.length ? options.clients : (positional[0] ? [positional[0]] : ['claude', 'codex', 'gemini']);
   options.components = resolveComponents(options);
   for (const client of clients) {
+    if (!adapters[client].detect().detected) {
+      console.log(`\n[bootstrap] ${client}`);
+      printBootstrapResult(client, ensureOfficialClientInstalled(client));
+    }
     console.log(`\n[repair] ${client}`);
     adapters[client].repair({ ...options, nonInteractive: true, skipBackup: true });
   }
@@ -289,6 +335,10 @@ async function main() {
   }
   if (command === 'repair') {
     await runRepair(positional, options);
+    return;
+  }
+  if (command === 'bootstrap-client') {
+    runBootstrapClient(positional);
     return;
   }
   if (command === 'external-search') {

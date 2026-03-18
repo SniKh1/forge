@@ -71,7 +71,7 @@ type StackPack =
   | 'video-creation'
   | 'image-generation';
 type DomainStackPack = keyof typeof forgeDomainMcpMatrix.stacks;
-type ActionKind = 'install' | 'repair' | 'verify';
+type ActionKind = 'install' | 'repair' | 'verify' | 'bootstrap';
 type ActionTone = 'running' | 'success' | 'warn' | 'error';
 
 type DetectionItem = {
@@ -1938,7 +1938,7 @@ function App() {
   const loadState = React.useCallback(async () => {
     setIsLoading(true);
     setStatusMessage(t.detectRunning);
-    const next = await runForgeJson<DoctorReport>(['doctor', '--client', 'claude,codex,gemini', '--json'], workspace);
+    const next = await runForgeJson<DoctorReport>(['doctor', '--detected-only', '--json'], workspace);
     if (!next) {
       if (!isTauriRuntime()) {
         setReport(mockDoctorReport);
@@ -2172,10 +2172,9 @@ function App() {
   }, [availableInstallStacks]);
 
   const installLabel = React.useMemo(() => {
-    if (!detection?.detected) return t.officialInstall;
-    if (detection.configured && support?.ok) return platformActionLabel('update', activeClient, lang);
+    if (detection?.configured && support?.ok) return platformActionLabel('update', activeClient, lang);
     return platformActionLabel('install', activeClient, lang);
-  }, [activeClient, detection, lang, support, t.officialInstall]);
+  }, [activeClient, detection, lang, support]);
 
   const searchResults = React.useMemo(
     () => communityEntries.filter((item) => item.kind === communityKind),
@@ -2448,13 +2447,9 @@ function App() {
   }, []);
 
   const openConfirm = React.useCallback((mode: 'install' | 'repair') => {
-    if (!detection?.detected) {
-      void handleCopy(`${activeClient}-official`, officialInstallCommands[activeClient].command);
-      return;
-    }
     setConfirmMode(mode);
     setConfirmOpen(true);
-  }, [activeClient, detection, handleCopy]);
+  }, []);
 
   const executeConfirmedAction = React.useCallback(async () => {
     const args = [
@@ -2621,6 +2616,16 @@ function App() {
                   <div>
                     <div className="grid gap-2">
                       <ActionButton
+                        label={t.officialInstall}
+                        onClick={() => void runAction('bootstrap', ['bootstrap-client', activeClient])}
+                        disabled={isRunning || Boolean(detection.detected)}
+                        loading={Boolean(isRunning && actionFeedback?.kind === 'bootstrap')}
+                        badgeText={actionBadge('bootstrap')?.text}
+                        badgeTone={actionBadge('bootstrap')?.tone}
+                        icon={<Plus className="h-3.5 w-3.5" />}
+                        compact
+                      />
+                      <ActionButton
                         label={installLabel}
                         primary
                         onClick={() => openConfirm('install')}
@@ -2644,7 +2649,7 @@ function App() {
                       <ActionButton
                         label={repairLabel}
                         onClick={() => openConfirm('repair')}
-                        disabled={isRunning || !detection.detected}
+                        disabled={isRunning}
                         loading={Boolean(isRunning && actionFeedback?.kind === 'repair')}
                         badgeText={actionBadge('repair')?.text}
                         badgeTone={actionBadge('repair')?.tone}
@@ -3411,15 +3416,18 @@ function platformActionLabel(mode: 'install' | 'update' | 'repair', client: Clie
 function platformActionRunningText(kind: ActionKind, client: Client, lang: Lang) {
   const clientName = clientMeta(client).label;
   if (lang === 'zh') {
+    if (kind === 'bootstrap') return `正在安装 ${clientName} 官方客户端...`;
     if (kind === 'install') return `正在安装 ${clientName} 配置...`;
     if (kind === 'repair') return `正在修复 ${clientName} 配置...`;
     return `正在验证 ${clientName} 状态...`;
   }
   if (lang === 'ja') {
+    if (kind === 'bootstrap') return `${clientName} 公式クライアントを導入中...`;
     if (kind === 'install') return `${clientName} 設定をインストール中...`;
     if (kind === 'repair') return `${clientName} 設定を修復中...`;
     return `${clientName} の状態を検証中...`;
   }
+  if (kind === 'bootstrap') return `Installing the official ${clientName} client...`;
   if (kind === 'install') return `Installing ${clientName} config...`;
   if (kind === 'repair') return `Repairing ${clientName} config...`;
   return `Verifying ${clientName} status...`;
@@ -3428,15 +3436,18 @@ function platformActionRunningText(kind: ActionKind, client: Client, lang: Lang)
 function platformActionSuccessText(kind: ActionKind, client: Client, lang: Lang) {
   const clientName = clientMeta(client).label;
   if (lang === 'zh') {
+    if (kind === 'bootstrap') return `${clientName} 官方客户端安装完成。`;
     if (kind === 'install') return `${clientName} 配置已写入当前平台。`;
     if (kind === 'repair') return `${clientName} 配置修复已执行完成。`;
     return `${clientName} 状态验证通过。`;
   }
   if (lang === 'ja') {
+    if (kind === 'bootstrap') return `${clientName} 公式クライアントの導入が完了しました。`;
     if (kind === 'install') return `${clientName} 設定を現在のクライアントへ書き込みました。`;
     if (kind === 'repair') return `${clientName} 設定の修復が完了しました。`;
     return `${clientName} の検証が完了しました。`;
   }
+  if (kind === 'bootstrap') return `The official ${clientName} client was installed.`;
   if (kind === 'install') return `${clientName} config was written to the current client.`;
   if (kind === 'repair') return `${clientName} config repair finished.`;
   return `${clientName} verification passed.`;
@@ -3461,13 +3472,16 @@ function platformConfirmTitle(mode: 'install' | 'update' | 'repair', client: Cli
 
 function platformBusyHint(kind: ActionKind, lang: Lang) {
   if (lang === 'zh') {
+    if (kind === 'bootstrap') return '正在后台安装官方客户端，请稍候。完成后会自动刷新状态并展开日志。';
     if (kind === 'verify') return '正在后台执行验证，请稍候。完成后会自动刷新状态并展开日志。';
     return '正在后台执行配置任务，请稍候。完成后会自动刷新状态并展开日志。';
   }
   if (lang === 'ja') {
+    if (kind === 'bootstrap') return '公式クライアントをバックグラウンドで導入しています。完了後に状態を再読み込みし、ログを展開します。';
     if (kind === 'verify') return '検証をバックグラウンドで実行しています。完了後に状態を再読み込みし、ログを展開します。';
     return '構成タスクをバックグラウンドで実行しています。完了後に状態を再読み込みし、ログを展開します。';
   }
+  if (kind === 'bootstrap') return 'The official client is being installed in the background. The app will refresh status and open the log when it finishes.';
   if (kind === 'verify') return 'Verification is running in the background. The app will refresh status and open the log when it finishes.';
   return 'The configuration task is running in the background. The app will refresh status and open the log when it finishes.';
 }
