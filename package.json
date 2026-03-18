@@ -11,6 +11,7 @@
     "forge:setup": "node packages/forge-cli/bin/forge.js setup",
     "forge:verify": "node packages/forge-cli/bin/forge.js verify",
     "forge:doctor": "node packages/forge-cli/bin/forge.js doctor",
-    "forge:skills:sync": "node scripts/generate-skill-registry.js"
+    "forge:skills:sync": "node scripts/generate-skill-registry.js",
+    "forge:session-memory": "node scripts/session-memory-report.js"
   }
 }
