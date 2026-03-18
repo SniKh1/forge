@@ -14,6 +14,11 @@ from forge_core import dump_json, ensure_uvx, resolve_servers  # noqa: E402
 WINDOWS_NO_WINDOW = 0x08000000 if sys.platform.startswith("win") else 0
 
 
+def get_claude_cmd():
+    """Get the correct claude command for the current platform."""
+    return "claude.cmd" if sys.platform.startswith("win") else "claude"
+
+
 def run_cli(args, check=False, capture_output=False):
     kwargs = {
         "check": check,
@@ -31,7 +36,7 @@ def run_cli(args, check=False, capture_output=False):
 
 def inspect_server_scope(name):
     result, stdout, _stderr = run_cli(
-        ["claude", "mcp", "get", name],
+        [get_claude_cmd(), "mcp", "get", name],
         check=False,
         capture_output=True,
     )
@@ -57,12 +62,12 @@ def sync_server_to_claude_cli(name, config):
 
     for existing_scope in ("local", "project", "user"):
         run_cli(
-            ["claude", "mcp", "remove", name, "-s", existing_scope],
+            [get_claude_cmd(), "mcp", "remove", name, "-s", existing_scope],
             check=False,
             capture_output=True,
         )
 
-    cmd = ["claude", "mcp", "add", "-s", scope, name]
+    cmd = [get_claude_cmd(), "mcp", "add", "-s", scope, name]
     for env_key, env_value in config.get("env", {}).items():
         cmd.extend(["-e", f"{env_key}={env_value}"])
     cmd.extend(["--", config["command"], *config.get("args", [])])
