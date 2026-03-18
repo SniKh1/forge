@@ -132,7 +132,7 @@ fn resolve_node_binary() -> Result<PathBuf, String> {
             candidates.push(PathBuf::from(value).join("nodejs/node.exe"));
         }
         if let Some(value) = std::env::var_os("LOCALAPPDATA") {
-            candidates.push(PathBuf::from(value).join("Programs/nodejs/node.exe"));
+            candidates.push(PathBuf::from(value.clone()).join("Programs/nodejs/node.exe"));
             candidates.push(PathBuf::from(value).join("Volta/bin/node.exe"));
         }
         if let Some(value) = std::env::var_os("APPDATA") {
