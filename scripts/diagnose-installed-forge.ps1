@@ -138,7 +138,46 @@ if ($env:LOCALAPPDATA) { $AppCandidates += (Join-Path $env:LOCALAPPDATA "Program
 if ($env:ProgramFiles) { $AppCandidates += (Join-Path $env:ProgramFiles "Forge\Forge.exe") }
 if (${env:ProgramFiles(x86)}) { $AppCandidates += (Join-Path ${env:ProgramFiles(x86)} "Forge\Forge.exe") }
 
+function Find-InstalledForgeFromRegistry {
+    $roots = @(
+        "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
+    )
+
+    foreach ($root in $roots) {
+        $items = Get-ItemProperty -Path $root -ErrorAction SilentlyContinue
+        foreach ($item in $items) {
+            $displayName = [string]$item.DisplayName
+            if ([string]::IsNullOrWhiteSpace($displayName) -or $displayName -notlike "Forge*") {
+                continue
+            }
+
+            $installExe = ""
+            if ($item.InstallLocation) {
+                $installExe = Join-Path ([string]$item.InstallLocation) "Forge.exe"
+            }
+            $candidates = @(
+                [string]$item.DisplayIcon,
+                $installExe
+            ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+
+            foreach ($candidate in $candidates) {
+                $normalized = $candidate.Trim('"')
+                if (Test-Path $normalized -PathType Leaf) {
+                    return $normalized
+                }
+            }
+        }
+    }
+
+    return $null
+}
+
 $AppPath = $AppCandidates | Where-Object { $_ -and (Test-Path $_ -PathType Leaf) } | Select-Object -First 1
+if (-not $AppPath) {
+    $AppPath = Find-InstalledForgeFromRegistry
+}
 if (-not $AppPath) {
     Add-Line "- Forge.exe not found in common install locations"
     Add-Warning "Forge.exe was not found."
@@ -168,13 +207,13 @@ if ($NodePath -and $CliEntry -and (Test-Path $CliEntry -PathType Leaf)) {
     Add-Warning "Bundled forge.js was not found or node is unavailable."
 }
 
-if (Test-Path $VerifyClaude -PathType Leaf) {
+if (-not [string]::IsNullOrWhiteSpace($VerifyClaude) -and (Test-Path $VerifyClaude -PathType Leaf)) {
     [void](Run-AndCapture "Verify Claude" "powershell" @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $VerifyClaude))
 }
-if (Test-Path $VerifyCodex -PathType Leaf) {
+if (-not [string]::IsNullOrWhiteSpace($VerifyCodex) -and (Test-Path $VerifyCodex -PathType Leaf)) {
     [void](Run-AndCapture "Verify Codex" "powershell" @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $VerifyCodex))
 }
-if (Test-Path $VerifyGemini -PathType Leaf) {
+if (-not [string]::IsNullOrWhiteSpace($VerifyGemini) -and (Test-Path $VerifyGemini -PathType Leaf)) {
     [void](Run-AndCapture "Verify Gemini" "powershell" @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $VerifyGemini))
 }
 

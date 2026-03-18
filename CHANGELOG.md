@@ -6,6 +6,17 @@ The format follows a Keep a Changelog style, adapted for Forge.
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-03-18
+
+### Added
+- Added a first-class desktop action to install the official current client (`Claude`, `Codex`, or `Gemini`) directly from Forge instead of only copying a command.
+- Added a standalone Windows diagnostic script for installed Forge builds so support can capture runtime state without requiring the source repo dev flow.
+
+### Fixed
+- Fixed desktop status loading so it now checks only detected clients, preventing missing `Codex` or `Gemini` installs from breaking the `Claude` platform view.
+- Fixed Forge client install and repair flows so missing official clients are bootstrapped before Forge configuration is applied.
+- Fixed the installed-build diagnostic script so it no longer crashes when `Forge.exe` is missing from the common install paths and now also searches Windows uninstall registry entries.
+
 ## [0.4.2] - 2026-03-17
 
 ### Changed
