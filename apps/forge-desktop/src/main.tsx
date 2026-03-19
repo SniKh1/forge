@@ -1007,9 +1007,14 @@ const messages: Record<Lang, Messages> = {
     selectedStacksLabel: '已选栈包',
     selectedSkillsLabel: '已选 Skills',
     selectedMcpLabel: '已选 MCP',
+    switchRole: '切换角色',
+    hideRolePicker: '收起角色',
     adjustStacks: '调整栈包',
     hideStackAdjustments: '收起栈包',
     quickApplyHint: '默认会随角色自动应用推荐栈、推荐 Skills 与推荐 MCP。只有需要偏离推荐时再展开调整。',
+    additionalStacksLabel: '补充栈',
+    customStacksLabel: '自定义栈',
+    roleStackModeHint: '角色负责给出默认匹配；栈包只用于补充当前角色没有覆盖到的工作面。',
     roleBoundInstallHint: '内置项可以直接加入当前平台安装清单；社区仓库仍然作为浏览入口。',
     roleRecommendationHint: '先看角色推荐，再决定要不要从下面的社区仓库继续扩展。',
     stackRecommendationHint: '先按当前栈查看推荐，再决定要不要继续扩展社区能力。',
@@ -1216,9 +1221,14 @@ const messages: Record<Lang, Messages> = {
     selectedStacksLabel: 'Selected stacks',
     selectedSkillsLabel: 'Selected skills',
     selectedMcpLabel: 'Selected MCP',
+    switchRole: 'Switch role',
+    hideRolePicker: 'Hide roles',
     adjustStacks: 'Adjust stacks',
     hideStackAdjustments: 'Hide stack adjustments',
     quickApplyHint: 'Selecting a role automatically applies the recommended stacks, skills, and MCP set. Expand only when you want to diverge.',
+    additionalStacksLabel: 'Additional stacks',
+    customStacksLabel: 'Custom stacks',
+    roleStackModeHint: 'The role defines the default match. Use stacks only to extend coverage beyond that role.',
     roleBoundInstallHint: 'Built-in items can be added directly to the current platform install list. Community repositories remain browse-only.',
     roleRecommendationHint: 'Start from role-based recommendations, then expand with community sources only when needed.',
     stackRecommendationHint: 'Start from stack-based recommendations, then expand only when the current stack still needs more capability.',
@@ -1425,9 +1435,14 @@ const messages: Record<Lang, Messages> = {
     selectedStacksLabel: '選択中スタック',
     selectedSkillsLabel: '選択中 Skills',
     selectedMcpLabel: '選択中 MCP',
+    switchRole: 'ロールを切り替え',
+    hideRolePicker: 'ロールを閉じる',
     adjustStacks: 'スタックを調整',
     hideStackAdjustments: 'スタック調整を閉じる',
     quickApplyHint: 'ロールを選ぶと推奨 stack・推奨 Skills・推奨 MCP が自動適用されます。推奨から外すときだけ展開してください。',
+    additionalStacksLabel: '追加スタック',
+    customStacksLabel: 'カスタムスタック',
+    roleStackModeHint: 'ロールが標準の組み合わせを決め、stack はそのロールで不足する作業面を補うためにだけ使います。',
     roleBoundInstallHint: '内蔵項目は現在のプラットフォーム導入一覧へ直接追加できます。コミュニティリポジトリは閲覧入口のままです。',
     roleRecommendationHint: 'まず役割別の推奨を見て、必要な場合だけ下のコミュニティソースを追加してください。',
     stackRecommendationHint: 'まず現在のスタックに合わせた推奨を確認し、その後で必要な拡張だけを追加してください。',
@@ -1910,6 +1925,7 @@ function App() {
   const [selectedSkillDetails, setSelectedSkillDetails] = React.useState<Record<string, boolean>>(() =>
     Object.fromEntries(skillDetailOptions.map((item) => [item.id, false])),
   );
+  const [rolePickerExpanded, setRolePickerExpanded] = React.useState(false);
   const [stackConfiguratorExpanded, setStackConfiguratorExpanded] = React.useState(false);
   const [mcpSelectionMode, setMcpSelectionMode] = React.useState<'recommended' | 'custom'>('recommended');
   const [skillSelectionMode, setSkillSelectionMode] = React.useState<'recommended' | 'custom'>('recommended');
@@ -2205,6 +2221,15 @@ function App() {
     () => selectedInstallStacks.map((stack) => stackLabel(stack, lang)),
     [lang, selectedInstallStacks],
   );
+  const selectedInstallStackPreview = React.useMemo(
+    () => selectedInstallStacks.slice(0, 6).map((stack) => ({
+      id: stack,
+      label: stackLabel(stack, lang),
+      recommended: recommendedInstallStacks.includes(stack),
+    })),
+    [lang, recommendedInstallStacks, selectedInstallStacks],
+  );
+  const hiddenInstallStackPreviewCount = Math.max(0, selectedInstallStacks.length - selectedInstallStackPreview.length);
   const installStackLabelText = React.useMemo(
     () => joinWithLocale(selectedInstallStackLabels, lang),
     [lang, selectedInstallStackLabels],
@@ -2370,6 +2395,10 @@ function App() {
   const allInstallStacksSelected = React.useMemo(
     () => availableInstallStacks.length > 0 && availableInstallStacks.every((stack) => selectedInstallStacks.includes(stack)),
     [availableInstallStacks, selectedInstallStacks],
+  );
+  const additionalInstallStacks = React.useMemo(
+    () => availableInstallStacks.filter((stack) => !recommendedInstallStacks.includes(stack)),
+    [availableInstallStacks, recommendedInstallStacks],
   );
   const matchesRecommendedInstallStacks = React.useMemo(
     () => selectedInstallStacks.length === recommendedInstallStacks.length
@@ -2558,6 +2587,7 @@ function App() {
     setSelectedInstallRole(role);
     const recommended = visibleStacks(installRoleGuide(role).recommendedStacks as readonly StackPack[]);
     setSelectedInstallStacks(recommended.length > 0 ? recommended : ['frontend-web']);
+    setRolePickerExpanded(false);
     setStackConfiguratorExpanded(false);
   }, []);
 
@@ -3011,14 +3041,25 @@ function App() {
                             <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${hasInstalledForgeBase ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-slate-100 text-slate-600 ring-slate-200'}`}>
                               {hasInstalledForgeBase ? t.roleStacksInstalled : t.roleStacksPending}
                             </span>
+                            <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${matchesRecommendedInstallStacks ? 'bg-amber-50 text-amber-800 ring-amber-200' : 'bg-slate-100 text-slate-700 ring-slate-200'}`}>
+                              {matchesRecommendedInstallStacks ? t.recommendedPreset : t.customStacksLabel}
+                            </span>
                             {!matchesRecommendedInstallStacks && recommendedRoleStackLabelText && (
                               <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-800">
                                 {t.recommendedBadge}: {recommendedRoleStackLabelText}
                               </span>
                             )}
                           </div>
+                          <div className="text-[12px] text-slate-500">{matchesRecommendedInstallStacks ? t.quickApplyHint : t.roleStackModeHint}</div>
                         </div>
                         <div className="flex shrink-0 flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setRolePickerExpanded((current) => !current)}
+                            className="inline-flex items-center justify-center rounded-[10px] bg-white px-3 py-2.5 text-[12px] font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300"
+                          >
+                            {rolePickerExpanded ? t.hideRolePicker : t.switchRole}
+                          </button>
                           <button
                             type="button"
                             onClick={() => setStackConfiguratorExpanded((current) => !current)}
@@ -3063,133 +3104,144 @@ function App() {
                       <div className="rounded-[12px] border border-slate-200 bg-white px-3 py-3">
                         <div className="flex items-center justify-between gap-3">
                           <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.stackPackLabel}</div>
-                          <div className="text-[11px] text-slate-500">{selectedInstallStacks.length}/{availableInstallStacks.length}</div>
+                          <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                            <span>{selectedInstallStacks.length}/{availableInstallStacks.length}</span>
+                            <button
+                              type="button"
+                              onClick={toggleInstallStackPreset}
+                              className="inline-flex items-center justify-center rounded-full bg-slate-50 px-2.5 py-1 font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-100"
+                            >
+                              {allInstallStacksSelected ? t.restoreRecommendedStacks : t.stackPackSelectAll}
+                            </button>
+                          </div>
                         </div>
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {selectedInstallStackLabels.map((label, index) => {
-                            const stack = selectedInstallStacks[index];
-                            const recommended = recommendedInstallStacks.includes(stack);
+                          {selectedInstallStackPreview.map((item) => {
                             return (
                               <span
-                                key={label}
-                                className={`rounded-full px-3 py-1.5 text-[12px] font-medium ring-1 ${recommended ? 'border border-amber-200 bg-amber-50 text-amber-900 ring-amber-200' : 'border border-slate-200 bg-slate-50 text-slate-700 ring-slate-200'}`}
+                                key={item.id}
+                                className={`rounded-full px-3 py-1.5 text-[12px] font-medium ring-1 ${item.recommended ? 'border border-amber-200 bg-amber-50 text-amber-900 ring-amber-200' : 'border border-slate-200 bg-slate-50 text-slate-700 ring-slate-200'}`}
                               >
-                                {label}
+                                {item.label}
                               </span>
                             );
                           })}
-                        </div>
-                      </div>
-
-                      <div className="rounded-[12px] border border-dashed border-slate-200 bg-white/80 px-3 py-3">
-                        <div className="text-[12px] text-slate-500">{t.quickApplyHint}</div>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={toggleInstallStackPreset}
-                            className="inline-flex items-center justify-center rounded-[10px] bg-white px-3 py-2 text-[12px] font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300"
-                          >
-                            {allInstallStacksSelected ? t.restoreRecommendedStacks : t.stackPackSelectAll}
-                          </button>
-                          {!matchesRecommendedInstallStacks && (
-                            <button
-                              type="button"
-                              onClick={applyRecommendedPreset}
-                              className="inline-flex items-center justify-center rounded-[10px] bg-white px-3 py-2 text-[12px] font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300"
-                            >
-                              {t.recommendedPreset}
-                            </button>
+                          {hiddenInstallStackPreviewCount > 0 && (
+                            <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-medium text-slate-600 ring-1 ring-slate-200">
+                              +{hiddenInstallStackPreviewCount}
+                            </span>
                           )}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className={`grid gap-4 ${stackConfiguratorExpanded ? 'lg:grid-cols-[280px_minmax(0,1fr)]' : 'lg:grid-cols-[minmax(0,1fr)_280px]'}`}>
-                    <div className="rounded-[14px] border border-slate-200 bg-slate-50 px-4 py-4">
-                      <div className="mb-3 text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.rolePackLabel}</div>
-                      <div className="grid gap-2">
-                        {installRoleOrder.map((role) => (
-                          <button
-                            key={role}
-                            type="button"
-                            onClick={() => selectInstallRole(role)}
-                            className={`relative inline-flex min-h-[44px] w-full items-center justify-between gap-3 rounded-[10px] border px-3 py-2 pr-7 text-left text-[12px] font-medium transition ${selectedInstallRole === role ? 'border-slate-900 bg-slate-900 text-white shadow-[0_8px_20px_rgba(15,23,42,0.18)] ring-1 ring-slate-900/10' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
-                          >
-                            {roleLabel(role, lang)}
-                            <span className={`absolute right-2 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full transition ${selectedInstallRole === role ? 'bg-white shadow-[0_0_0_3px_rgba(255,255,255,0.2)]' : 'bg-transparent ring-1 ring-slate-300'}`} />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {stackConfiguratorExpanded ? (
-                      <div className="rounded-[14px] border border-slate-200 bg-slate-50 px-4 py-4">
-                        <div className="mb-3 flex items-center justify-between gap-3">
-                          <div>
-                            <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.stackPackLabel}</div>
-                            <div className="mt-1 text-[11px] text-slate-500">{selectedInstallStacks.length}/{availableInstallStacks.length}</div>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            {!matchesRecommendedInstallStacks && (
-                              <button
-                                type="button"
-                                onClick={applyRecommendedPreset}
-                                className="inline-flex items-center justify-center rounded-[10px] bg-white px-3 py-2 text-[12px] font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300"
-                              >
-                                {t.recommendedPreset}
-                              </button>
-                            )}
+                  {(rolePickerExpanded || stackConfiguratorExpanded) && (
+                    <div className={`grid gap-4 ${rolePickerExpanded && stackConfiguratorExpanded ? 'xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]' : 'grid-cols-1'}`}>
+                      {rolePickerExpanded && (
+                        <div className="rounded-[14px] border border-slate-200 bg-slate-50 px-4 py-4">
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <div>
+                              <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.rolePackLabel}</div>
+                              <div className="mt-1 text-[11px] text-slate-500">{installRoleLabelText}</div>
+                            </div>
                             <button
                               type="button"
-                              onClick={toggleInstallStackPreset}
+                              onClick={() => setRolePickerExpanded(false)}
                               className="inline-flex items-center justify-center rounded-[10px] bg-white px-3 py-2 text-[12px] font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300"
                             >
-                              {allInstallStacksSelected ? t.restoreRecommendedStacks : t.stackPackSelectAll}
+                              {t.hideRolePicker}
                             </button>
                           </div>
+                          <div className="flex flex-wrap gap-2">
+                            {installRoleOrder.map((role) => (
+                              <RoleChip
+                                key={role}
+                                label={roleLabel(role, lang)}
+                                selected={selectedInstallRole === role}
+                                onClick={() => selectInstallRole(role)}
+                              />
+                            ))}
+                          </div>
                         </div>
-                        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                          {availableInstallStacks.map((stack) => (
-                            <button
-                              key={stack}
-                              type="button"
-                              onClick={() => toggleInstallStack(stack)}
-                              className={`relative inline-flex min-h-[44px] w-full items-center rounded-[10px] border px-3 py-2 pr-7 text-left text-[12px] font-medium transition ${selectedInstallStacks.includes(stack) ? 'border-slate-900 bg-slate-900 text-white shadow-[0_8px_20px_rgba(15,23,42,0.18)] ring-1 ring-slate-900/10' : recommendedInstallStacks.includes(stack) ? 'border-amber-200 bg-amber-50 text-amber-900 hover:border-amber-300' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
-                            >
-                              <span className="pr-4">{stackLabel(stack, lang)}</span>
-                              {!selectedInstallStacks.includes(stack) && recommendedInstallStacks.includes(stack) && (
-                                <span className="ml-auto rounded-full bg-white/80 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200">
-                                  {t.recommendedBadge}
-                                </span>
+                      )}
+
+                      {stackConfiguratorExpanded && (
+                        <div className="rounded-[14px] border border-slate-200 bg-slate-50 px-4 py-4">
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <div>
+                              <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.stackPackLabel}</div>
+                              <div className="mt-1 text-[11px] text-slate-500">{selectedInstallStacks.length}/{availableInstallStacks.length}</div>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              {!matchesRecommendedInstallStacks && (
+                                <button
+                                  type="button"
+                                  onClick={applyRecommendedPreset}
+                                  className="inline-flex items-center justify-center rounded-[10px] bg-white px-3 py-2 text-[12px] font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300"
+                                >
+                                  {t.recommendedPreset}
+                                </button>
                               )}
-                              <span className={`absolute right-2 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full transition ${selectedInstallStacks.includes(stack) ? 'bg-white shadow-[0_0_0_3px_rgba(255,255,255,0.2)]' : 'bg-transparent ring-1 ring-slate-300'}`} />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="rounded-[14px] border border-slate-200 bg-slate-50 px-4 py-4">
-                        <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.stackPackLabel}</div>
-                        <div className="mt-2 text-[13px] font-medium text-slate-900">{t.recommendedPreset}</div>
-                        <div className="mt-1 text-[12px] text-slate-500">{t.quickApplyHint}</div>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {selectedInstallStackLabels.map((label, index) => {
-                            const stack = selectedInstallStacks[index];
-                            const recommended = recommendedInstallStacks.includes(stack);
-                            return (
-                              <span
-                                key={label}
-                                className={`rounded-full px-3 py-1.5 text-[12px] font-medium ring-1 ${recommended ? 'border border-amber-200 bg-amber-50 text-amber-900 ring-amber-200' : 'border border-slate-200 bg-white text-slate-700 ring-slate-200'}`}
+                              <button
+                                type="button"
+                                onClick={toggleInstallStackPreset}
+                                className="inline-flex items-center justify-center rounded-[10px] bg-white px-3 py-2 text-[12px] font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300"
                               >
-                                {label}
-                              </span>
-                            );
-                          })}
+                                {allInstallStacksSelected ? t.restoreRecommendedStacks : t.stackPackSelectAll}
+                              </button>
+                            </div>
+                          </div>
+                          <div className="space-y-4">
+                            <div className="rounded-[12px] border border-amber-200 bg-amber-50/60 px-3 py-3">
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-amber-700">{t.recommendedStacksLabel}</div>
+                                  <div className="mt-1 text-[11px] text-amber-800">{t.roleStackModeHint}</div>
+                                </div>
+                                <span className="rounded-full border border-amber-200 bg-white px-2.5 py-1 text-[11px] font-medium text-amber-800">
+                                  {recommendedInstallStacks.filter((stack) => selectedInstallStacks.includes(stack)).length}/{recommendedInstallStacks.length}
+                                </span>
+                              </div>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {recommendedInstallStacks.map((stack) => (
+                                  <StackChip
+                                    key={stack}
+                                    label={stackLabel(stack, lang)}
+                                    selected={selectedInstallStacks.includes(stack)}
+                                    emphasized
+                                    onClick={() => toggleInstallStack(stack)}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="rounded-[12px] border border-slate-200 bg-white px-3 py-3">
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.additionalStacksLabel}</div>
+                                  <div className="mt-1 text-[11px] text-slate-500">{selectedInstallStacks.filter((stack) => additionalInstallStacks.includes(stack)).length}/{additionalInstallStacks.length}</div>
+                                </div>
+                                <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600">
+                                  {t.stackPackLabel}
+                                </span>
+                              </div>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {additionalInstallStacks.map((stack) => (
+                                  <StackChip
+                                    key={stack}
+                                    label={stackLabel(stack, lang)}
+                                    selected={selectedInstallStacks.includes(stack)}
+                                    onClick={() => toggleInstallStack(stack)}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </section>
 
@@ -3208,6 +3260,13 @@ function App() {
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setRolePickerExpanded((current) => !current)}
+                        className="inline-flex items-center justify-center rounded-[10px] bg-white px-3 py-2 text-[12px] font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300"
+                      >
+                        {rolePickerExpanded ? t.hideRolePicker : t.switchRole}
+                      </button>
                       <button
                         type="button"
                         onClick={toggleInstallStackPreset}
@@ -4788,6 +4847,54 @@ function SelectionMetricCard({
       <div className="mt-2 text-[16px] font-semibold tracking-[-0.02em] text-slate-900">{value}</div>
       {hint && <div className="mt-1 text-[11px] text-slate-500">{hint}</div>}
     </div>
+  );
+}
+
+function RoleChip({
+  label,
+  selected,
+  onClick,
+}: {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex min-h-[36px] items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition ${selected ? 'border-slate-900 bg-slate-900 text-white shadow-[0_8px_20px_rgba(15,23,42,0.14)]' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'}`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function StackChip({
+  label,
+  selected,
+  emphasized,
+  onClick,
+}: {
+  label: string;
+  selected: boolean;
+  emphasized?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex min-h-[34px] items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition ${
+        selected
+          ? 'border-slate-900 bg-slate-900 text-white shadow-[0_8px_20px_rgba(15,23,42,0.14)]'
+          : emphasized
+            ? 'border-amber-200 bg-amber-50 text-amber-900 hover:border-amber-300'
+            : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 
