@@ -326,6 +326,13 @@ verify_install() {
   step 6 7 "$(msg verify)"
   local errors=0
 
+  if command -v codex >/dev/null 2>&1; then
+    log_ok "codex command"
+  else
+    log_err "codex command not found in PATH"
+    errors=$((errors + 1))
+  fi
+
   for f in \
     "$CODEX_HOME/AGENTS.md" \
     "$FORGE_HOME/CLAUDE.md" \

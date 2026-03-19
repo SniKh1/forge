@@ -7,6 +7,9 @@ import sys
 import tomllib
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from forge_core import load_json, write_claude_mcp_config  # noqa: E402
+
 
 def load_codex_config(path: Path):
     if not path.exists():
@@ -59,12 +62,6 @@ def dump_codex_config(data):
         lines.append('')
     return '\n'.join(lines).rstrip() + '\n'
 
-
-def dump_json(path: Path, payload):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--client', required=True, choices=['claude', 'codex', 'gemini'])
@@ -88,14 +85,20 @@ def main():
         payload = {}
         target = claude_home / '.mcp.json'
         if target.exists():
-            payload = json.loads(target.read_text(encoding='utf-8'))
+            payload = load_json(target)
+        else:
+            fallback = claude_home.parent / '.claude.json'
+            if fallback.exists():
+                payload = load_json(fallback)
         payload.setdefault('mcpServers', {})
         item = {'command': command, 'args': argv}
         if env:
             item['env'] = env
         payload['mcpServers'][server_name] = item
-        dump_json(target, payload)
-        print(f'WROTE {target}')
+        written_path, fallback_error = write_claude_mcp_config(claude_home, payload)
+        if fallback_error is not None:
+            print(f'WARN primary_write_failed {target}')
+        print(f'WROTE {written_path}')
         print(f'SERVER {server_name}')
         return
 
@@ -111,7 +114,8 @@ def main():
         if env:
             item['env'] = env
         payload['mcpServers'][server_name] = item
-        dump_json(target, payload)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
         print(f'WROTE {target}')
         print(f'SERVER {server_name}')
         return

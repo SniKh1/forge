@@ -80,6 +80,8 @@ type DetectionItem = {
   homeLabel: string;
   detected: boolean;
   configured: boolean;
+  homeExists?: boolean;
+  commandAvailable?: boolean;
 };
 
 type SupportItem = {
@@ -976,8 +978,10 @@ const messages: Record<Lang, Messages> = {
     installedPath: '路径',
     notConfigured: '尚未安装 Forge 配置',
     healthyState: '已可用',
+    clientMissingState: '缺少客户端',
     needsRepair: '需要修复',
     platformNeedsRepair: '当前平台已接入，但仍有配置问题需要修复。',
+    platformClientMissing: 'Forge 配置已存在，但官方客户端命令不可用。请先安装或修复官方 Codex CLI。',
     issueSummary: '问题摘要',
     unknown: '未知',
     systemDetected: '系统已检测到客户端，可直接安装 Forge 配置。',
@@ -1164,8 +1168,10 @@ const messages: Record<Lang, Messages> = {
     installedPath: 'Path',
     notConfigured: 'Forge is not configured yet',
     healthyState: 'Ready',
+    clientMissingState: 'Client missing',
     needsRepair: 'Needs repair',
     platformNeedsRepair: 'The platform is connected, but some configuration issues still need repair.',
+    platformClientMissing: 'Forge config exists, but the official client command is unavailable. Install or repair the official Codex CLI first.',
     issueSummary: 'Issue summary',
     unknown: 'Unknown',
     systemDetected: 'The client is available. Forge can install configuration now.',
@@ -1352,8 +1358,10 @@ const messages: Record<Lang, Messages> = {
     installedPath: 'パス',
     notConfigured: 'Forge はまだ設定されていません',
     healthyState: '利用可能',
+    clientMissingState: 'クライアント未導入',
     needsRepair: '修復が必要',
     platformNeedsRepair: 'このプラットフォームは接続済みですが、まだ修復すべき設定問題があります。',
+    platformClientMissing: 'Forge 設定はありますが、公式クライアントのコマンドが利用できません。先に公式 Codex CLI を導入または修復してください。',
     issueSummary: '問題要約',
     unknown: '不明',
     systemDetected: 'クライアントは利用可能です。Forge をそのまま導入できます。',
@@ -2153,7 +2161,8 @@ function App() {
     [communityStackPack, lang],
   );
 
-  const currentStatus: 'healthy' | 'needs-repair' | 'unknown' = React.useMemo(() => {
+  const currentStatus: 'healthy' | 'needs-repair' | 'client-missing' | 'unknown' = React.useMemo(() => {
+    if (!detection?.detected && detection?.configured) return 'client-missing';
     if (!detection?.detected) return 'unknown';
     if (support?.ok) return 'healthy';
     if (detection.detected) return 'needs-repair';
@@ -2692,6 +2701,8 @@ function App() {
                     <p className="mt-1 text-[13px] text-slate-500">
                       {nodeBlocked
                         ? t.nodeRequiredHint
+                        : currentStatus === 'client-missing'
+                        ? t.platformClientMissing
                         : detection.detected
                         ? (currentStatus === 'needs-repair' ? t.platformNeedsRepair : t.platformReady)
                         : t.platformBlocked}
@@ -2699,7 +2710,7 @@ function App() {
                   </div>
                   <div className={`rounded-[14px] bg-gradient-to-br px-3 py-2.5 text-white shadow-[0_12px_28px_rgba(15,23,42,0.16)] ${clientAccent(activeClient)}`}>
                     <div className="text-[10px] uppercase tracking-[0.22em] text-white/75">{t.forgeState}</div>
-                    <div className="mt-1 text-[17px] font-semibold">{currentStatus === 'healthy' ? t.healthyState : currentStatus === 'needs-repair' ? t.needsRepair : t.notConfigured}</div>
+                    <div className="mt-1 text-[17px] font-semibold">{currentStatus === 'healthy' ? t.healthyState : currentStatus === 'needs-repair' ? t.needsRepair : currentStatus === 'client-missing' ? t.clientMissingState : t.notConfigured}</div>
                   </div>
                 </div>
 
@@ -2708,7 +2719,7 @@ function App() {
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                       <StatusMetric title={t.environment} value={detection.detected ? t.detected : t.missing} tone={detection.detected ? 'good' : 'neutral'} compact />
                       <StatusMetric title={t.forgeState} value={detection.configured ? t.configured : t.notConfigured} tone={detection.configured ? 'good' : 'neutral'} compact />
-                      <StatusMetric title={t.status} value={currentStatus === 'healthy' ? t.healthyState : currentStatus === 'needs-repair' ? t.needsRepair : t.unknown} tone={currentStatus === 'healthy' ? 'good' : currentStatus === 'needs-repair' ? 'warn' : 'neutral'} compact />
+                      <StatusMetric title={t.status} value={currentStatus === 'healthy' ? t.healthyState : currentStatus === 'needs-repair' ? t.needsRepair : currentStatus === 'client-missing' ? t.clientMissingState : t.unknown} tone={currentStatus === 'healthy' ? 'good' : currentStatus === 'needs-repair' || currentStatus === 'client-missing' ? 'warn' : 'neutral'} compact />
                       <StatusMetric title={t.supported} value={currentSupportLabel('mcp')} tone="neutral" compact />
                     </div>
 

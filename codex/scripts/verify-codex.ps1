@@ -16,6 +16,7 @@ Write-Host "Forge Codex verification" -ForegroundColor Cyan
 Write-Host "Target: $CodexHome"
 Write-Host ""
 
+if (Get-Command codex -ErrorAction SilentlyContinue) { Pass "codex command" } else { Fail "codex command not found in PATH" }
 if (Test-Path (Join-Path $CodexHome "AGENTS.md")) { Pass "AGENTS.md" } else { Fail "AGENTS.md missing" }
 if (Test-Path (Join-Path $ForgeHome "CLAUDE.md")) { Pass "forge/CLAUDE.md" } else { Fail "forge/CLAUDE.md missing" }
 if (Test-Path (Join-Path $ForgeHome "core")) { Pass "forge/core" } else { Fail "forge/core missing" }

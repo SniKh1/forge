@@ -8,7 +8,9 @@ function doctor(clients, options = {}) {
   if (!options.json) {
     console.log('Client detection');
     for (const item of detection) {
-      console.log(`- ${item.name}: detected=${item.detected ? 'yes' : 'no'}, configured=${item.configured ? 'yes' : 'no'}, home=${relativeToHome(item.home)}`);
+      console.log(
+        `- ${item.name}: detected=${item.detected ? 'yes' : 'no'}, configured=${item.configured ? 'yes' : 'no'}, command=${item.commandAvailable ? 'yes' : 'no'}, homeExists=${item.homeExists ? 'yes' : 'no'}, home=${relativeToHome(item.home)}`,
+      );
     }
     console.log('\nCapability matrix');
     console.log(renderCapabilityTable(['claude', 'codex', 'gemini']));

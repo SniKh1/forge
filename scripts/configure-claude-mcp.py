@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from forge_core import dump_json, ensure_uvx, resolve_servers  # noqa: E402
+from forge_core import ensure_uvx, resolve_servers, write_claude_mcp_config  # noqa: E402
 
 
 WINDOWS_NO_WINDOW = 0x08000000 if sys.platform.startswith("win") else 0
@@ -97,7 +97,7 @@ def main():
             item["env"] = config["env"]
         payload["mcpServers"][name] = item
 
-    dump_json(claude_home / ".mcp.json", payload)
+    target_path, fallback_error = write_claude_mcp_config(claude_home, payload)
 
     if args.sync_cli:
         import shutil
@@ -105,7 +105,9 @@ def main():
             for name, config in servers.items():
                 sync_server_to_claude_cli(name, config)
 
-    print(f"WROTE {claude_home / '.mcp.json'}")
+    if fallback_error is not None:
+        print(f"WARN primary_write_failed {claude_home / '.mcp.json'}")
+    print(f"WROTE {target_path}")
     print("SERVERS " + ", ".join(sorted(servers.keys())))
 
 

@@ -17,11 +17,17 @@ function detectClient(name) {
     gemini: 'gemini',
   };
 
+  const homeExists = fs.existsSync(home);
+  const commandAvailable = commandExists(commandMap[name]);
+  const markerExists = fs.existsSync(marker);
+
   return {
     name,
     home,
-    detected: fs.existsSync(home) || commandExists(commandMap[name]),
-    configured: fs.existsSync(marker),
+    homeExists,
+    commandAvailable,
+    detected: commandAvailable,
+    configured: markerExists,
   };
 }
 
