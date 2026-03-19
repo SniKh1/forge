@@ -1,6 +1,8 @@
 $BackendDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ScriptDir = Split-Path -Parent (Split-Path -Parent $BackendDir)
 $RootDir = Split-Path -Parent $ScriptDir
+. (Join-Path $RootDir "scripts\lib\powershell-utf8.ps1")
+Initialize-ForgeEncoding
 $GeminiHome = Join-Path $HOME ".gemini"
 $ForgeHome = Join-Path $GeminiHome "forge"
 $Components = if ($env:FORGE_COMPONENTS) { $env:FORGE_COMPONENTS.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ } } else { @("mcp", "skills", "memory") }
@@ -57,9 +59,9 @@ if (Has-Component "skills") {
     }
 }
 
-$template = Get-Content (Join-Path $ScriptDir "GEMINI.md.template") -Raw
+$template = Read-Utf8File (Join-Path $ScriptDir "GEMINI.md.template")
 $template = $template -replace '\{\{GEMINI_HOME\}\}', ($GeminiHome -replace '\\', '/')
-Set-Content -Path (Join-Path $GeminiHome "GEMINI.md") -Value $template
+Write-Utf8File (Join-Path $GeminiHome "GEMINI.md") $template
 
 if (Has-Component "memory") {
     & (Join-Path $ScriptDir "scripts\ensure.ps1") --cwd $RootDir

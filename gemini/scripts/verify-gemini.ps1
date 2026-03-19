@@ -1,3 +1,7 @@
+$RepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path $RepoRoot "scripts\lib\powershell-utf8.ps1")
+Initialize-ForgeEncoding
+
 $GeminiHome = Join-Path $HOME ".gemini"
 $ForgeHome = Join-Path $GeminiHome "forge"
 if (-not (Test-Path (Join-Path $GeminiHome "GEMINI.md"))) { exit 1 }

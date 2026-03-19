@@ -1,4 +1,6 @@
 $ErrorActionPreference = "Continue"
+. (Join-Path $PSScriptRoot "lib\powershell-utf8.ps1")
+Initialize-ForgeEncoding
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot = Split-Path -Parent $ScriptDir

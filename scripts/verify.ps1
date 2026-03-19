@@ -21,6 +21,8 @@ param(
 # ============================================================================
 
 $ErrorActionPreference = 'SilentlyContinue'
+. (Join-Path $PSScriptRoot "lib\powershell-utf8.ps1")
+Initialize-ForgeEncoding
 
 $script:PassCount = 0
 $script:FailCount = 0
@@ -134,7 +136,7 @@ function Test-CoreFiles {
     } else {
         $GlobalClaudeConfig = Join-Path $HOME ".claude.json"
         if (Test-Path $GlobalClaudeConfig) {
-            $globalContent = Get-Content $GlobalClaudeConfig -Raw
+            $globalContent = Read-Utf8File $GlobalClaudeConfig
             if ($globalContent -match '"mcpServers"\s*:') {
                 Write-Status "PASS" "~/.claude.json contains mcpServers"
             } else {
@@ -155,7 +157,7 @@ function Test-ConfigContent {
 
     # Check CLAUDE.md version
     if (Test-Path $ClaudeMd) {
-        $content = Get-Content $ClaudeMd -Raw
+        $content = Read-Utf8File $ClaudeMd
         if ($content -match 'v\d+\.\d+') {
             $version = $Matches[0]
             Write-Status "PASS" "CLAUDE.md version detected: $version"
@@ -173,7 +175,7 @@ function Test-ConfigContent {
 
     # Check settings.json permissions count
     if (Test-Path $SettingsFile) {
-        $settingsContent = Get-Content $SettingsFile -Raw
+        $settingsContent = Read-Utf8File $SettingsFile
         $settings = $settingsContent | ConvertFrom-Json
 
         # Count permissions in allowedTools
@@ -197,7 +199,7 @@ function Test-ConfigContent {
 
     # Check .mcp.json server count
     if (Test-Path $McpFile) {
-        $mcpContent = Get-Content $McpFile -Raw
+        $mcpContent = Read-Utf8File $McpFile
         $mcp = $mcpContent | ConvertFrom-Json
 
         $serverCount = 0
@@ -273,7 +275,7 @@ function Test-AssetCounts {
     # Skills count (check installed-skills.json first, then directory)
     $InstalledFile = Join-Path $ClaudeDir "installed-skills.json"
     if (Test-Path $InstalledFile) {
-        $installed = Get-Content $InstalledFile -Raw | ConvertFrom-Json
+        $installed = Read-Utf8File $InstalledFile | ConvertFrom-Json
         $skillCount = ($installed.skills | Measure-Object).Count
         Write-Status "PASS" "Skills: $skillCount installed (via manifest)"
     } elseif (Test-Path $SkillsDir) {
