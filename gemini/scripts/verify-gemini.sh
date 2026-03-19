@@ -5,7 +5,11 @@ GEMINI_HOME="${GEMINI_HOME:-$HOME/.gemini}"
 FORGE_HOME="$GEMINI_HOME/forge"
 
 test -f "$GEMINI_HOME/GEMINI.md"
-test -f "$GEMINI_HOME/settings.json"
+if [ -f "$GEMINI_HOME/settings.json" ]; then
+  echo "PASS settings.json"
+else
+  echo "WARN settings.json missing (MCP not configured)"
+fi
 test -d "$FORGE_HOME"
 test -d "$FORGE_HOME/core"
 test -f "$FORGE_HOME/core/skill-registry.json"

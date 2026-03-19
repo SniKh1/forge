@@ -38,7 +38,7 @@ command -v codex >/dev/null 2>&1 && ok "codex command" || bad "codex command not
 [ -f "$FORGE_HOME/scripts/codex-learning/codex-learning.js" ] && ok "forge/scripts/codex-learning/codex-learning.js" || bad "codex-learning script missing"
 
 if [ -d "$CODEX_HOME/skills" ]; then
-  sc=$(find "$CODEX_HOME/skills" -maxdepth 1 -mindepth 1 -type d | wc -l | tr -d ' ')
+  sc=$(find "$CODEX_HOME/skills" -maxdepth 1 -mindepth 1 -type d ! -name learned | wc -l | tr -d ' ')
   if [ "${sc:-0}" -gt 0 ]; then
     ok "skills: $sc"
   else

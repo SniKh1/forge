@@ -347,7 +347,7 @@ verify_install() {
   done
 
   local skill_total
-  skill_total=$(find "$CODEX_HOME/skills" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+  skill_total=$(find "$CODEX_HOME/skills" -maxdepth 1 -mindepth 1 -type d ! -name learned 2>/dev/null | wc -l | tr -d ' ')
   if [ "${skill_total:-0}" -ge 1 ]; then
     log_ok "skills/: $skill_total"
   else
