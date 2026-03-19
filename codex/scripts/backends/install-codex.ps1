@@ -307,6 +307,13 @@ function Verify-Install {
     Write-Step 6 7 (Get-Msg "verify")
     $errors = 0
 
+    if (Get-Command codex -ErrorAction SilentlyContinue) {
+        Write-Ok "codex command"
+    } else {
+        Write-Host "[FAIL] codex command not found in PATH" -ForegroundColor Red
+        $errors++
+    }
+
     @(
       (Join-Path $CodexHome "AGENTS.md"),
       (Join-Path $ForgeHome "CLAUDE.md"),

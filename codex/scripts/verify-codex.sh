@@ -24,6 +24,7 @@ echo -e "${CYAN}Forge Codex verification${NC}"
 echo "Target: $CODEX_HOME"
 echo ""
 
+command -v codex >/dev/null 2>&1 && ok "codex command" || bad "codex command not found in PATH"
 [ -f "$CODEX_HOME/AGENTS.md" ] && ok "AGENTS.md" || bad "AGENTS.md missing"
 [ -f "$FORGE_HOME/CLAUDE.md" ] && ok "forge/CLAUDE.md" || bad "forge/CLAUDE.md missing"
 [ -d "$FORGE_HOME/core" ] && ok "forge/core" || bad "forge/core missing"

@@ -3,6 +3,7 @@
 import json
 import os
 import shutil
+import stat
 import subprocess
 import sys
 from copy import deepcopy
@@ -87,4 +88,39 @@ def resolve_servers(client, exa_key="", include_optional=True, selected_servers=
 
 def dump_json(path, payload):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    if path.exists():
+        try:
+            path.chmod(stat.S_IWRITE | stat.S_IREAD)
+        except OSError:
+            pass
+
+    temp_path = path.with_name(f".{path.name}.tmp")
+    temp_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    os.replace(temp_path, path)
+
+
+def load_json(path):
+    if not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def write_claude_mcp_config(claude_home, payload):
+    claude_home = Path(claude_home).expanduser()
+    primary_path = claude_home / ".mcp.json"
+    fallback_path = claude_home.parent / ".claude.json"
+
+    try:
+        dump_json(primary_path, payload)
+        return primary_path, None
+    except PermissionError as primary_error:
+        fallback_payload = load_json(fallback_path)
+        fallback_payload["mcpServers"] = payload.get("mcpServers", {})
+        try:
+            dump_json(fallback_path, fallback_payload)
+            return fallback_path, primary_error
+        except PermissionError as fallback_error:
+            raise PermissionError(
+                f"Unable to write Claude MCP config to {primary_path} or fallback {fallback_path}"
+            ) from fallback_error
