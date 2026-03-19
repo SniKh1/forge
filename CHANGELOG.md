@@ -6,6 +6,14 @@ The format follows a Keep a Changelog style, adapted for Forge.
 
 ## [Unreleased]
 
+## [0.4.5] - 2026-03-19
+
+### Fixed
+- Fixed Codex detection so Forge only marks Codex as detected when the official `codex` command is actually available, instead of treating the presence of `~/.codex` as a healthy install.
+- Fixed Codex verification and install self-checks on Windows and Unix so they now fail loudly when the `codex` CLI is missing from `PATH`, preventing false "ready" states in support diagnostics and release builds.
+- Fixed the desktop installer status model so a Forge-configured client without a working official CLI is shown as a distinct "client missing" state instead of being misrepresented as ready.
+- Fixed Claude MCP configuration fallback so permission failures writing `~/.claude/.mcp.json` now fall back to `~/.claude.json`, and the external MCP installer reuses the same recovery path.
+
 ## [0.4.3] - 2026-03-18
 
 ### Added
