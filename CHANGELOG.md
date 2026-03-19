@@ -6,6 +6,15 @@ The format follows a Keep a Changelog style, adapted for Forge.
 
 ## [Unreleased]
 
+## [0.4.7] - 2026-03-19
+
+### Changed
+- Simplified the desktop installer confirmation flow so role packs and stack packs stay directly visible, selection intent is easier to understand, and the modal no longer repeats the same primary action in multiple places.
+
+### Fixed
+- Fixed the desktop installer summary so selected component counts stay aligned with the actual role and stack choices instead of showing misleading totals.
+- Fixed the persona selection UX so bulk actions remain clear and users no longer need to hunt across repeated controls to update configuration.
+
 ## [0.4.6] - 2026-03-19
 
 ### Added
