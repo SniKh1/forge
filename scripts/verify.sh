@@ -154,8 +154,8 @@ else
   warn "Skills: not installed yet"
 fi
 
-if command -v node &> /dev/null && [ -f "$(dirname "$0")/check-runtime-skill-duplicates.js" ] && [ -d "$CLAUDE_HOME/skills" ]; then
-  dup_json=$(node "$(dirname "$0")/check-runtime-skill-duplicates.js" --json --warn-only "$CLAUDE_HOME/skills")
+if command -v node &> /dev/null && [ -f "$(dirname "$0")/check-runtime-skill-duplicates.cjs" ] && [ -d "$CLAUDE_HOME/skills" ]; then
+  dup_json=$(node "$(dirname "$0")/check-runtime-skill-duplicates.cjs" --json --warn-only "$CLAUDE_HOME/skills")
   dup_count=$(printf '%s' "$dup_json" | node -e 'const fs=require("fs"); const data=JSON.parse(fs.readFileSync(0,"utf8")); process.stdout.write(String(data.duplicateCount||0));')
   if [ "${dup_count:-0}" -gt 0 ]; then
     dup_ids=$(printf '%s' "$dup_json" | node -e 'const fs=require("fs"); const data=JSON.parse(fs.readFileSync(0,"utf8")); process.stdout.write((data.duplicates||[]).map((x) => x.id).join(", "));')

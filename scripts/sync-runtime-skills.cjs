@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 function usage() {
-  console.error('Usage: sync-runtime-skills.js <repo-root> <target-skills-dir> [--mode full|incremental] [--selected a,b,c]');
+  console.error('Usage: sync-runtime-skills.cjs <repo-root> <target-skills-dir> [--mode full|incremental] [--selected a,b,c]');
   process.exit(1);
 }
 

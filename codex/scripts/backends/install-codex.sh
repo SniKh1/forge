@@ -251,8 +251,8 @@ install_assets() {
 
   local skills=0
   if has_component "skills"; then
-    if command -v node >/dev/null 2>&1 && [ -f "$ROOT_DIR/scripts/sync-runtime-skills.js" ]; then
-      sync_args=("$ROOT_DIR/scripts/sync-runtime-skills.js" "$ROOT_DIR" "$CODEX_HOME/skills" "--mode" "$INSTALL_MODE")
+    if command -v node >/dev/null 2>&1 && [ -f "$ROOT_DIR/scripts/sync-runtime-skills.cjs" ]; then
+      sync_args=("$ROOT_DIR/scripts/sync-runtime-skills.cjs" "$ROOT_DIR" "$CODEX_HOME/skills" "--mode" "$INSTALL_MODE")
       if [ -n "$FORGE_SKILLS" ]; then
         sync_args+=("--selected" "$FORGE_SKILLS")
       fi
@@ -347,7 +347,7 @@ verify_install() {
   done
 
   local skill_total
-  skill_total=$(find "$CODEX_HOME/skills" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+  skill_total=$(find "$CODEX_HOME/skills" -maxdepth 1 -mindepth 1 -type d ! -name learned 2>/dev/null | wc -l | tr -d ' ')
   if [ "${skill_total:-0}" -ge 1 ]; then
     log_ok "skills/: $skill_total"
   else

@@ -8,6 +8,8 @@ param(
 $ErrorActionPreference = 'Stop'
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = Split-Path -Parent $ScriptDir
+. (Join-Path $RootDir 'scripts\lib\powershell-utf8.ps1')
+Initialize-ForgeEncoding
 $Cli = Join-Path $RootDir 'packages/forge-cli/bin/forge.js'
 
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {

@@ -1,6 +1,8 @@
 $BackendDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ScriptDir = Split-Path -Parent (Split-Path -Parent $BackendDir)
 $RootDir = Split-Path -Parent $ScriptDir
+. (Join-Path $RootDir "scripts\lib\powershell-utf8.ps1")
+Initialize-ForgeEncoding
 $GeminiHome = Join-Path $HOME ".gemini"
 $ForgeHome = Join-Path $GeminiHome "forge"
 $Components = if ($env:FORGE_COMPONENTS) { $env:FORGE_COMPONENTS.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ } } else { @("mcp", "skills", "memory") }
@@ -42,7 +44,7 @@ Copy-Item (Join-Path $ScriptDir "scripts\*") -Destination $GeminiScriptsHome -Re
 
 if (Has-Component "skills") {
     New-Item -ItemType Directory -Path (Join-Path $GeminiHome "skills") -Force | Out-Null
-    $syncScript = Join-Path $RootDir "scripts\sync-runtime-skills.js"
+    $syncScript = Join-Path $RootDir "scripts\sync-runtime-skills.cjs"
     if ((Get-Command node -ErrorAction SilentlyContinue) -and (Test-Path $syncScript)) {
         $syncArgs = @($syncScript, $RootDir, (Join-Path $GeminiHome "skills"), "--mode", "full")
         if ($env:FORGE_SKILLS) { $syncArgs += @("--selected", $env:FORGE_SKILLS) }
@@ -57,9 +59,9 @@ if (Has-Component "skills") {
     }
 }
 
-$template = Get-Content (Join-Path $ScriptDir "GEMINI.md.template") -Raw
+$template = Read-Utf8File (Join-Path $ScriptDir "GEMINI.md.template")
 $template = $template -replace '\{\{GEMINI_HOME\}\}', ($GeminiHome -replace '\\', '/')
-Set-Content -Path (Join-Path $GeminiHome "GEMINI.md") -Value $template
+Write-Utf8File (Join-Path $GeminiHome "GEMINI.md") $template
 
 if (Has-Component "memory") {
     & (Join-Path $ScriptDir "scripts\ensure.ps1") --cwd $RootDir

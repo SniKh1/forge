@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOMClient from 'react-dom/client';
 import { createPortal } from 'react-dom';
-import { invoke } from '@tauri-apps/api/core';
 import {
   Bot,
   Boxes,
@@ -25,15 +24,44 @@ import {
   X,
 } from 'lucide-react';
 import './styles.css';
+import {
+  bootstrapOfficialClient,
+  getAppState,
+  installClientConfig,
+  installExternalMcp,
+  installExternalSkill,
+  isTauriRuntime,
+  loadBuiltinMcpSecrets,
+  openTarget,
+  openTerminalHere,
+  repairClientConfig,
+  saveBuiltinMcpSecrets,
+  searchExternalMcp,
+  searchExternalSkills,
+  verifyClientConfig,
+} from './lib/backend';
+import type {
+  ActionPayload,
+  ActionResult,
+  AppStatePayload,
+  Client,
+  DetectionItem,
+  DoctorReport,
+  ExternalMcpInstallSpec,
+  ExternalRegistrySource,
+  ExternalSearchPayload,
+  RuntimeStatus,
+  SupportItem,
+} from './lib/backend';
 import { forgeSkillOptions } from './generated-catalog';
 import { forgeRoleMcpMatrix } from './generated-role-mcp';
 import { forgeDomainMcpMatrix } from './generated-domain-mcp';
+import builtInMcpCatalogJson from '../../../core/mcp-servers.json';
 import forgeBloomIcon from './assets/forge-bloom.png';
 import claudeIcon from './assets/platform-icons/claude.png';
 import codexIcon from './assets/platform-icons/codex.png';
 import geminiIcon from './assets/platform-icons/gemini.png';
 
-type Client = 'claude' | 'codex' | 'gemini';
 type Lang = 'zh' | 'en' | 'ja';
 type Section = 'platform' | 'community' | 'settings';
 type CommunityKind = 'skills' | 'mcp';
@@ -73,37 +101,6 @@ type StackPack =
 type DomainStackPack = keyof typeof forgeDomainMcpMatrix.stacks;
 type ActionKind = 'install' | 'repair' | 'verify' | 'bootstrap';
 type ActionTone = 'running' | 'success' | 'warn' | 'error';
-
-type DetectionItem = {
-  name: Client;
-  home: string;
-  homeLabel: string;
-  detected: boolean;
-  configured: boolean;
-  homeExists?: boolean;
-  commandAvailable?: boolean;
-};
-
-type SupportItem = {
-  client: Client;
-  ok: boolean;
-  exitCode: number;
-  stdout?: string;
-  stderr?: string;
-};
-
-type DoctorReport = {
-  detection: DetectionItem[];
-  capabilityMatrix: { capabilities: Record<string, Record<Client, string>> };
-  support: SupportItem[];
-};
-
-type ForgeCommandResult = {
-  output: string;
-  ok: boolean;
-  bridgeAvailable: boolean;
-};
-
 type ActionFeedbackState = {
   id: number;
   kind: ActionKind;
@@ -136,6 +133,7 @@ type DetailOption = {
   summary: string;
   note?: string;
   clients: readonly Client[];
+  requiredSecrets?: readonly string[];
   layer?: string;
   primaryFor?: readonly string[];
   recommendedByRole?: readonly string[];
@@ -158,6 +156,28 @@ type CommunityEntry = {
   note: string;
 };
 
+type BuiltInMcpCatalogEntry = {
+  optional?: boolean;
+  summary?: string;
+  note?: string;
+  clients: Client[];
+  platforms?: string[];
+  config: {
+    env?: Record<string, string>;
+  };
+};
+
+type BuiltInMcpCatalog = {
+  servers: Record<string, BuiltInMcpCatalogEntry>;
+};
+
+type BuiltInSecretField = {
+  key: string;
+  clients: readonly Client[];
+  mcpIds: readonly string[];
+  mcpTitles: readonly string[];
+};
+
 type ExternalSkillResult = {
   id: string;
   source: string;
@@ -170,16 +190,6 @@ type ExternalSkillResult = {
   trust: string;
   kind: 'skills';
   installable: boolean;
-};
-
-type ExternalMcpInstallSpec = {
-  name: string;
-  transport: 'stdio';
-  command: string;
-  args: string[];
-  env?: Record<string, string>;
-  requiredSecrets?: string[];
-  packageIdentifier?: string;
 };
 
 type ExternalMcpResult = {
@@ -201,23 +211,6 @@ type ExternalMcpResult = {
 type ExternalMcpConfirmData = {
   entry: ExternalMcpResult;
   busyKey: string;
-};
-
-type ExternalRegistrySource = {
-  id: string;
-  name: string;
-  kind: CommunityKind;
-  type: string;
-  url: string;
-  trust: string;
-  note: string;
-};
-
-type ExternalSearchPayload = {
-  kind: CommunityKind;
-  query: string;
-  sources: ExternalRegistrySource[];
-  results: Array<ExternalSkillResult | ExternalMcpResult>;
 };
 
 const clientOrder: Client[] = ['claude', 'codex', 'gemini'];
@@ -1002,6 +995,7 @@ const messages: Record<Lang, Messages> = {
     stackPackLabel: '栈包',
     stackPackSelectAll: '全选栈包',
     stackPackAllSelected: '已全选',
+    restoreRecommendedStacks: '恢复推荐栈',
     recommendedPreset: '按推荐预选',
     recommendedBadge: '推荐',
     roleStacksInstalled: '当前平台已内置该角色对应栈包',
@@ -1009,6 +1003,17 @@ const messages: Record<Lang, Messages> = {
     addToInstallList: '加入安装清单',
     switchToPlatform: '回到平台安装',
     currentPersona: '当前画像',
+    selectedStacksLabel: '已选栈包',
+    selectedSkillsLabel: '已选 Skills',
+    selectedMcpLabel: '已选 MCP',
+    switchRole: '切换角色',
+    hideRolePicker: '收起角色',
+    adjustStacks: '调整栈包',
+    hideStackAdjustments: '收起栈包',
+    quickApplyHint: '默认会随角色自动应用推荐栈、推荐 Skills 与推荐 MCP。只有需要偏离推荐时再展开调整。',
+    additionalStacksLabel: '补充栈',
+    customStacksLabel: '自定义栈',
+    roleStackModeHint: '角色负责给出默认匹配；栈包只用于补充当前角色没有覆盖到的工作面。',
     roleBoundInstallHint: '内置项可以直接加入当前平台安装清单；社区仓库仍然作为浏览入口。',
     roleRecommendationHint: '先看角色推荐，再决定要不要从下面的社区仓库继续扩展。',
     stackRecommendationHint: '先按当前栈查看推荐，再决定要不要继续扩展社区能力。',
@@ -1034,6 +1039,18 @@ const messages: Record<Lang, Messages> = {
     exaKey: 'EXA API Key',
     exaHint: '仅在你勾选 MCP 时写入当前平台配置。输出和日志会自动脱敏。',
     exaSection: '密钥与令牌',
+    saveSecrets: '保存令牌配置',
+    resetSecrets: '恢复已保存',
+    secretPending: '未保存',
+    secretSavedHint: '已保存的令牌会在安装 Forge 内置 MCP 时自动注入当前客户端配置。',
+    secretDirtyHint: '你有未保存的令牌修改；当前安装仍只会使用上次保存的值。',
+    secretUsedBy: '用于',
+    secretSkipHint: '未填写时，依赖该令牌的内置 MCP 会在安装时自动跳过。',
+    savedSecretsCount: '已保存令牌',
+    selectedSecretsCount: '当前安装依赖',
+    missingSecretsCount: '当前仍缺少',
+    savedSecretsList: '已保存项',
+    noSavedSecrets: '当前还没有保存任何内置 MCP 的 token。',
     logSection: '命令日志',
     confirmTitleInstall: '确认安装当前平台配置',
     confirmTitleUpdate: '确认更新当前平台配置',
@@ -1192,6 +1209,7 @@ const messages: Record<Lang, Messages> = {
     stackPackLabel: 'Stack pack',
     stackPackSelectAll: 'Select all stacks',
     stackPackAllSelected: 'All stacks selected',
+    restoreRecommendedStacks: 'Restore recommended stacks',
     recommendedPreset: 'Apply recommended',
     recommendedBadge: 'Recommended',
     roleStacksInstalled: 'This client already has the stacks for the selected role built in',
@@ -1199,6 +1217,17 @@ const messages: Record<Lang, Messages> = {
     addToInstallList: 'Add to install list',
     switchToPlatform: 'Back to platform install',
     currentPersona: 'Current persona',
+    selectedStacksLabel: 'Selected stacks',
+    selectedSkillsLabel: 'Selected skills',
+    selectedMcpLabel: 'Selected MCP',
+    switchRole: 'Switch role',
+    hideRolePicker: 'Hide roles',
+    adjustStacks: 'Adjust stacks',
+    hideStackAdjustments: 'Hide stack adjustments',
+    quickApplyHint: 'Selecting a role automatically applies the recommended stacks, skills, and MCP set. Expand only when you want to diverge.',
+    additionalStacksLabel: 'Additional stacks',
+    customStacksLabel: 'Custom stacks',
+    roleStackModeHint: 'The role defines the default match. Use stacks only to extend coverage beyond that role.',
     roleBoundInstallHint: 'Built-in items can be added directly to the current platform install list. Community repositories remain browse-only.',
     roleRecommendationHint: 'Start from role-based recommendations, then expand with community sources only when needed.',
     stackRecommendationHint: 'Start from stack-based recommendations, then expand only when the current stack still needs more capability.',
@@ -1224,6 +1253,18 @@ const messages: Record<Lang, Messages> = {
     exaKey: 'EXA API Key',
     exaHint: 'Only written to the current platform when MCP is selected. Output and logs stay redacted.',
     exaSection: 'Secrets and tokens',
+    saveSecrets: 'Save token settings',
+    resetSecrets: 'Reset to saved',
+    secretPending: 'Unsaved',
+    secretSavedHint: 'Saved tokens are injected automatically when Forge installs built-in MCP servers.',
+    secretDirtyHint: 'You have unsaved token changes. The current install still uses the last saved values.',
+    secretUsedBy: 'Used by',
+    secretSkipHint: 'If left empty, built-in MCP servers that require this token are skipped during install.',
+    savedSecretsCount: 'Saved tokens',
+    selectedSecretsCount: 'Required now',
+    missingSecretsCount: 'Still missing',
+    savedSecretsList: 'Saved items',
+    noSavedSecrets: 'No built-in MCP token has been saved yet.',
     logSection: 'Command log',
     confirmTitleInstall: 'Confirm current client install',
     confirmTitleUpdate: 'Confirm current client update',
@@ -1382,6 +1423,7 @@ const messages: Record<Lang, Messages> = {
     stackPackLabel: 'スタックパック',
     stackPackSelectAll: 'スタックをすべて選択',
     stackPackAllSelected: 'すべて選択済み',
+    restoreRecommendedStacks: '推奨スタックに戻す',
     recommendedPreset: '推奨で選択',
     recommendedBadge: '推奨',
     roleStacksInstalled: 'このクライアントには選択ロール向けスタックがすでに組み込まれています',
@@ -1389,6 +1431,17 @@ const messages: Record<Lang, Messages> = {
     addToInstallList: '導入一覧に追加',
     switchToPlatform: 'プラットフォーム導入へ戻る',
     currentPersona: '現在のプロファイル',
+    selectedStacksLabel: '選択中スタック',
+    selectedSkillsLabel: '選択中 Skills',
+    selectedMcpLabel: '選択中 MCP',
+    switchRole: 'ロールを切り替え',
+    hideRolePicker: 'ロールを閉じる',
+    adjustStacks: 'スタックを調整',
+    hideStackAdjustments: 'スタック調整を閉じる',
+    quickApplyHint: 'ロールを選ぶと推奨 stack・推奨 Skills・推奨 MCP が自動適用されます。推奨から外すときだけ展開してください。',
+    additionalStacksLabel: '追加スタック',
+    customStacksLabel: 'カスタムスタック',
+    roleStackModeHint: 'ロールが標準の組み合わせを決め、stack はそのロールで不足する作業面を補うためにだけ使います。',
     roleBoundInstallHint: '内蔵項目は現在のプラットフォーム導入一覧へ直接追加できます。コミュニティリポジトリは閲覧入口のままです。',
     roleRecommendationHint: 'まず役割別の推奨を見て、必要な場合だけ下のコミュニティソースを追加してください。',
     stackRecommendationHint: 'まず現在のスタックに合わせた推奨を確認し、その後で必要な拡張だけを追加してください。',
@@ -1414,6 +1467,18 @@ const messages: Record<Lang, Messages> = {
     exaKey: 'EXA API Key',
     exaHint: 'MCP を選択したときだけ現在のプラットフォーム設定へ書き込みます。出力とログは自動的にマスクされます。',
     exaSection: 'シークレットとトークン',
+    saveSecrets: 'トークン設定を保存',
+    resetSecrets: '保存済みに戻す',
+    secretPending: '未保存',
+    secretSavedHint: '保存済みトークンは Forge 内蔵 MCP の導入時に自動で現在のクライアント設定へ注入されます。',
+    secretDirtyHint: '未保存のトークン変更があります。現在の導入では最後に保存した値だけを使います。',
+    secretUsedBy: '対象',
+    secretSkipHint: '未入力の場合、そのトークンが必要な内蔵 MCP は導入時に自動でスキップされます。',
+    savedSecretsCount: '保存済みトークン',
+    selectedSecretsCount: '今回必要',
+    missingSecretsCount: '未充足',
+    savedSecretsList: '保存済み項目',
+    noSavedSecrets: '内蔵 MCP 用トークンはまだ保存されていません。',
     logSection: 'コマンドログ',
     confirmTitleInstall: '現在のクライアント設定の導入確認',
     confirmTitleUpdate: '現在のクライアント設定の更新確認',
@@ -1574,16 +1639,52 @@ const baseOptions: InstallOption[] = [
   },
 ];
 
-const mcpDetailOptions: DetailOption[] = [
-  { id: 'sequential-thinking', title: 'sequential-thinking', summary: '复杂问题分步推理。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'context7', title: 'context7', summary: '文档与示例检索。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'memory', title: 'memory', summary: '跨会话记忆。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'fetch', title: 'fetch', summary: '通用 HTTP 抓取。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'playwright', title: 'playwright', summary: '浏览器自动化与网页验证。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'deepwiki', title: 'deepwiki', summary: '开源仓库说明与结构检索。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'exa', title: 'exa', summary: '联网搜索，需要 EXA key。', note: '未填写 EXA key 时不会写入。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'pencil', title: 'pencil', summary: '设计画布与视觉编辑。', note: '仅在 Codex / Gemini 的 macOS 环境可用。', clients: ['codex', 'gemini'] },
-];
+const builtInMcpCatalog = builtInMcpCatalogJson as BuiltInMcpCatalog;
+const BUILT_IN_SECRET_STORAGE_KEY = 'forge.desktop.built-in-secrets.v1';
+const SECRET_PLACEHOLDER_PATTERN = /^\{\{\s*([A-Z0-9_]+)\s*\}\}$/;
+
+function extractRequiredSecrets(env?: Record<string, string>) {
+  if (!env) return [] as string[];
+  const secrets = new Set<string>();
+  Object.values(env).forEach((value) => {
+    const match = typeof value === 'string' ? value.match(SECRET_PLACEHOLDER_PATTERN) : null;
+    if (match?.[1]) secrets.add(match[1]);
+  });
+  return Array.from(secrets);
+}
+
+const mcpDetailOptions: DetailOption[] = Object.entries(builtInMcpCatalog.servers).map(([id, entry]) => ({
+  id,
+  title: id,
+  summary: entry.summary || `${id} MCP`,
+  note: entry.note,
+  clients: entry.clients,
+  requiredSecrets: extractRequiredSecrets(entry.config.env),
+}));
+
+const builtInSecretFields: BuiltInSecretField[] = Array.from(
+  Object.entries(builtInMcpCatalog.servers).reduce((map, [id, entry]) => {
+    const requiredSecrets = extractRequiredSecrets(entry.config.env);
+    requiredSecrets.forEach((key) => {
+      const existing = map.get(key) || {
+        key,
+        clients: new Set<Client>(),
+        mcpIds: new Set<string>(),
+        mcpTitles: new Set<string>(),
+      };
+      entry.clients.forEach((client) => existing.clients.add(client));
+      existing.mcpIds.add(id);
+      existing.mcpTitles.add(id);
+      map.set(key, existing);
+    });
+    return map;
+  }, new Map<string, { key: string; clients: Set<Client>; mcpIds: Set<string>; mcpTitles: Set<string> }>()),
+).map(([, value]) => ({
+  key: value.key,
+  clients: Array.from(value.clients),
+  mcpIds: Array.from(value.mcpIds),
+  mcpTitles: Array.from(value.mcpTitles).sort((a, b) => a.localeCompare(b)),
+})).sort((a, b) => a.key.localeCompare(b.key));
 
 const skillDetailOptions: DetailOption[] = forgeSkillOptions.map((item) => ({ ...item }));
 
@@ -1698,14 +1799,42 @@ function detectSystemLanguage(): Lang {
   return 'en';
 }
 
-function isTauriRuntime() {
-  return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
-}
-
 function sanitizeToken(value: string) {
   if (!value) return '';
   if (value.length <= 8) return '••••';
   return `${value.slice(0, 4)}...${value.slice(-4)}`;
+}
+
+function normalizeSecretValues(values: Record<string, string>) {
+  return Object.fromEntries(
+    Object.entries(values)
+      .map(([key, value]) => [key, value.trim()])
+      .filter(([, value]) => value.length > 0),
+  );
+}
+
+function secretMapsEqual(left: Record<string, string>, right: Record<string, string>) {
+  const leftKeys = Object.keys(left).sort();
+  const rightKeys = Object.keys(right).sort();
+  if (leftKeys.length !== rightKeys.length) return false;
+  return leftKeys.every((key, index) => key === rightKeys[index] && left[key] === right[key]);
+}
+
+function loadStoredBuiltInSecrets() {
+  if (typeof window === 'undefined') return {} as Record<string, string>;
+  try {
+    const raw = window.localStorage.getItem(BUILT_IN_SECRET_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return {};
+    return Object.fromEntries(
+      Object.entries(parsed)
+        .filter(([key, value]) => typeof key === 'string' && typeof value === 'string')
+        .map(([key, value]) => [key, value]),
+    ) as Record<string, string>;
+  } catch {
+    return {};
+  }
 }
 
 function toneForStatus(status: 'healthy' | 'needs-repair' | 'unknown') {
@@ -1726,66 +1855,17 @@ function clientAccent(client: Client) {
   return 'from-sky-500 to-blue-500';
 }
 
-async function runForge(args: string[], cwd?: string) {
-  return (await runForgeResult(args, cwd)).output;
-}
-
-async function runForgeResult(args: string[], cwd?: string): Promise<ForgeCommandResult> {
-  try {
-    return {
-      output: await invoke<string>('run_forge_cli', { args, cwd }),
-      ok: true,
-      bridgeAvailable: true,
-    };
-  } catch (error) {
-    if (typeof error === 'string' && error.trimStart().startsWith('{')) {
-      return { output: error, ok: true, bridgeAvailable: true };
-    }
-    if (typeof error === 'string' && error.trim()) {
-      return {
-        output: error,
-        ok: false,
-        bridgeAvailable: true,
-      };
-    }
-    if (error && typeof error === 'object') {
-      const message = 'message' in error && typeof error.message === 'string' ? error.message : '';
-      if (message.trim()) {
-        return {
-          output: message,
-          ok: false,
-          bridgeAvailable: true,
-        };
-      }
-    }
-    return {
-      output: `Tauri bridge unavailable. Run manually:\nnode packages/forge-cli/bin/forge.js ${args.join(' ')}`,
-      ok: false,
-      bridgeAvailable: false,
-    };
-  }
-}
-
-async function runForgeJson<T>(args: string[], cwd?: string): Promise<T | null> {
-  const output = await runForge(args, cwd);
-  try {
-    return JSON.parse(output) as T;
-  } catch {
-    return null;
-  }
-}
-
 async function openTerminal(cwd: string) {
   try {
-    await invoke('open_terminal_here', { cwd });
+    await openTerminalHere(cwd);
   } catch {
     window.alert(`Open terminal manually in:\n${cwd}`);
   }
 }
 
-async function openTarget(target: string) {
+async function openExternalTarget(target: string) {
   try {
-    await invoke('open_target', { target });
+    await openTarget(target);
   } catch {
     window.open(target, '_blank', 'noopener,noreferrer');
   }
@@ -1818,15 +1898,16 @@ function App() {
   });
   const [activeClient, setActiveClient] = React.useState<Client>('claude');
   const [report, setReport] = React.useState<DoctorReport | null>(null);
+  const [runtimeStatus, setRuntimeStatus] = React.useState<RuntimeStatus | null>(null);
   const [statusMessage, setStatusMessage] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(true);
   const [isRunning, setIsRunning] = React.useState(false);
   const [lastUpdated, setLastUpdated] = React.useState<string>('');
-  const [exaKey, setExaKey] = React.useState('');
+  const [savedSecretValues, setSavedSecretValues] = React.useState<Record<string, string>>(() => loadStoredBuiltInSecrets());
+  const [secretDraftValues, setSecretDraftValues] = React.useState<Record<string, string>>(() => loadStoredBuiltInSecrets());
   const [logExpanded, setLogExpanded] = React.useState(false);
   const [secretExpanded, setSecretExpanded] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
-  const [confirmMode, setConfirmMode] = React.useState<'install' | 'repair'>('install');
   const [pendingExternalMcp, setPendingExternalMcp] = React.useState<ExternalMcpConfirmData | null>(null);
   const [resultLog, setResultLog] = React.useState('Ready.');
   const [copiedKey, setCopiedKey] = React.useState('');
@@ -1838,11 +1919,13 @@ function App() {
     memory: true,
   });
   const [selectedMcpDetails, setSelectedMcpDetails] = React.useState<Record<string, boolean>>(() =>
-    Object.fromEntries(mcpDetailOptions.map((item) => [item.id, true])),
+    Object.fromEntries(mcpDetailOptions.map((item) => [item.id, false])),
   );
   const [selectedSkillDetails, setSelectedSkillDetails] = React.useState<Record<string, boolean>>(() =>
-    Object.fromEntries(skillDetailOptions.map((item) => [item.id, true])),
+    Object.fromEntries(skillDetailOptions.map((item) => [item.id, false])),
   );
+  const [mcpSelectionMode, setMcpSelectionMode] = React.useState<'recommended' | 'custom'>('recommended');
+  const [skillSelectionMode, setSkillSelectionMode] = React.useState<'recommended' | 'custom'>('recommended');
   const [externalSearchLoading, setExternalSearchLoading] = React.useState(false);
   const [externalSearchError, setExternalSearchError] = React.useState('');
   const [externalSkillResults, setExternalSkillResults] = React.useState<ExternalSkillResult[]>([]);
@@ -1894,6 +1977,16 @@ function App() {
     if (typeof window === 'undefined') return;
     window.localStorage.setItem('forge.desktop.workspace', workspace);
   }, [workspace]);
+
+  React.useEffect(() => {
+    if (!isTauriRuntime()) return;
+    void (async () => {
+      const result = await loadBuiltinMcpSecrets();
+      if (!result.ok || !result.data) return;
+      setSavedSecretValues(result.data);
+      setSecretDraftValues(result.data);
+    })();
+  }, []);
 
   React.useEffect(() => {
     setActionFeedback(null);
@@ -1955,12 +2048,11 @@ function App() {
       void (async () => {
         setExternalSearchLoading(true);
         setExternalSearchError('');
-        const payload = await runForgeJson<ExternalSearchPayload>(
-          ['external-search', '--kind', communityKind, '--query', q],
-          workspace,
-        );
+        const result = communityKind === 'skills'
+          ? await searchExternalSkills(q)
+          : await searchExternalMcp(q);
         if (!active) return;
-        if (!payload) {
+        if (!result.ok || !result.data) {
           setExternalSources([]);
           if (communityKind === 'skills') {
             setExternalSkillResults([]);
@@ -1971,6 +2063,7 @@ function App() {
           setExternalSearchLoading(false);
           return;
         }
+        const payload = result.data as ExternalSearchPayload;
         setExternalSources(payload.sources || []);
         if (communityKind === 'skills') {
           setExternalSkillResults((payload.results || []) as ExternalSkillResult[]);
@@ -1995,6 +2088,7 @@ function App() {
     if (!isTauriRuntime()) {
       setRuntimeBlocker(null);
       setReport(mockDoctorReport);
+      setRuntimeStatus(null);
       if (!preserveClient) setActiveClient(mockDoctorReport.detection.find((item) => item.detected)?.name || 'claude');
       setStatusMessage(t.detectPreview);
       setLastUpdated(new Date().toLocaleString());
@@ -2002,32 +2096,19 @@ function App() {
       return;
     }
 
-    const result = await runForgeResult(['doctor', '--detected-only', '--json'], workspace);
-    if (!result.ok) {
-      const detail = extractOutputSummary(result.output);
-      setRuntimeBlocker(detectRuntimeBlocker(result.output));
-      setResultLog(result.output || 'Failed to read Forge state.');
+    const result = await getAppState();
+    if (!result.ok || !result.data) {
+      const detail = extractOutputSummary(result.raw);
+      setRuntimeBlocker(detectRuntimeBlocker(result.raw));
+      setResultLog(result.raw || 'Failed to read Forge state.');
       setStatusMessage(detail ? `${t.detectFailed} ${detail}` : t.detectFailed);
       setIsLoading(false);
       return;
     }
 
-    let next: DoctorReport | null = null;
-    try {
-      next = JSON.parse(result.output) as DoctorReport;
-    } catch {
-      next = null;
-    }
-    if (!next) {
-      const detail = extractOutputSummary(result.output);
-      setRuntimeBlocker(detectRuntimeBlocker(result.output));
-      setResultLog(result.output || 'Forge CLI returned non-JSON output.');
-      setStatusMessage(detail ? `${t.detectFailed} ${detail}` : t.detectFailed);
-      setIsLoading(false);
-      return;
-    }
-
-    setRuntimeBlocker(null);
+    const next = result.data.report;
+    setRuntimeStatus(result.data.runtime);
+    setRuntimeBlocker(result.data.runtime.nodeAvailable ? null : { kind: 'node', detail: 'Node.js runtime is not available.' });
     setReport(next);
     if (!preserveClient) {
       const firstDetected = next.detection.find((item) => item.detected)?.name;
@@ -2038,7 +2119,7 @@ function App() {
     }
     setLastUpdated(new Date().toLocaleString());
     setIsLoading(false);
-  }, [t.detectFailed, t.detectRunning, workspace]);
+  }, [t.detectFailed, t.detectRunning]);
 
   React.useEffect(() => {
     setStatusMessage(t.detectRunning);
@@ -2055,7 +2136,7 @@ function App() {
     void loadState();
   }, [loadState]);
 
-  const runAction = React.useCallback(async (kind: ActionKind, args: string[]) => {
+  const runAction = React.useCallback(async <T,>(kind: ActionKind, runner: () => Promise<ActionResult<T>>) => {
     const runningTitle = platformActionRunningText(kind, activeClient, lang);
     setIsRunning(true);
     setResultLog(runningTitle);
@@ -2066,27 +2147,9 @@ function App() {
       title: runningTitle,
       detail: '',
     });
-    const result = await runForgeResult(args, workspace);
-    const output = result.output || 'Completed without output.';
-    const nextRuntimeBlocker = detectRuntimeBlocker(output);
-
-    // For bootstrap, parse JSON result to determine true success/failure
-    let bootstrapOk = result.ok;
-    let displayOutput = output;
-    if (kind === 'bootstrap') {
-      try {
-        const parsed = JSON.parse(output) as { ok: boolean; client: string; stdout?: string; stderr?: string; packageName?: string };
-        bootstrapOk = parsed.ok;
-        displayOutput = [
-          parsed.stdout?.trim(),
-          parsed.stderr?.trim(),
-          parsed.ok ? `${parsed.packageName || parsed.client} installed successfully.` : `Failed to install ${parsed.packageName || parsed.client}.`,
-        ].filter(Boolean).join('\n') || (parsed.ok ? 'Installed successfully.' : 'Installation failed.');
-      } catch {
-        bootstrapOk = result.ok;
-      }
-    }
-    const effectiveOk = kind === 'bootstrap' ? bootstrapOk : result.ok;
+    const result = await runner();
+    const displayOutput = stripAnsi(result.raw || result.summary || 'Completed without output.');
+    const effectiveOk = result.ok;
     const detail = extractOutputSummary(displayOutput);
 
     setResultLog(displayOutput);
@@ -2101,7 +2164,7 @@ function App() {
         title: platformActionSuccessText(kind, activeClient, lang),
         detail: detail || t.detectLoaded,
       });
-    } else if (kind === 'verify' && result.bridgeAvailable) {
+    } else if (kind === 'verify') {
       setActionFeedback({
         id: Date.now(),
         kind,
@@ -2128,7 +2191,6 @@ function App() {
     t.detectFailed,
     t.detectLoaded,
     t.detectNeedsAttention,
-    workspace,
   ]);
 
   const detection = React.useMemo<DetectionItem>(
@@ -2152,9 +2214,13 @@ function App() {
     () => joinWithLocale(recommendedInstallStacks.map((stack) => stackLabel(stack, lang)), lang),
     [lang, recommendedInstallStacks],
   );
-  const installStackLabelText = React.useMemo(
-    () => joinWithLocale(selectedInstallStacks.map((stack) => stackLabel(stack, lang)), lang),
+  const selectedInstallStackLabels = React.useMemo(
+    () => selectedInstallStacks.map((stack) => stackLabel(stack, lang)),
     [lang, selectedInstallStacks],
+  );
+  const installStackLabelText = React.useMemo(
+    () => joinWithLocale(selectedInstallStackLabels, lang),
+    [lang, selectedInstallStackLabels],
   );
   const communityStackLabelText = React.useMemo(
     () => stackLabel(communityStackPack, lang),
@@ -2247,9 +2313,65 @@ function App() {
     () => mcpDetailList.filter((item) => selectedMcpDetails[item.id]).map((item) => item.id),
     [mcpDetailList, selectedMcpDetails],
   );
+  const selectedRecommendedMcpCount = React.useMemo(
+    () => mcpDetailList.filter((item) => selectedMcpDetails[item.id] && recommendedMcpIdSet.has(item.id)).length,
+    [mcpDetailList, recommendedMcpIdSet, selectedMcpDetails],
+  );
+  const recommendedMcpCount = React.useMemo(
+    () => mcpDetailList.filter((item) => recommendedMcpIdSet.has(item.id)).length,
+    [mcpDetailList, recommendedMcpIdSet],
+  );
+  const activeSecretFields = React.useMemo(
+    () => builtInSecretFields.filter((field) => field.clients.includes(activeClient)),
+    [activeClient],
+  );
+  const normalizedSavedSecrets = React.useMemo(
+    () => normalizeSecretValues(savedSecretValues),
+    [savedSecretValues],
+  );
+  const normalizedSecretDrafts = React.useMemo(
+    () => normalizeSecretValues(secretDraftValues),
+    [secretDraftValues],
+  );
+  const hasUnsavedSecretChanges = React.useMemo(
+    () => !secretMapsEqual(normalizedSavedSecrets, normalizedSecretDrafts),
+    [normalizedSavedSecrets, normalizedSecretDrafts],
+  );
+  const savedSecretKeys = React.useMemo(
+    () => Object.keys(normalizedSavedSecrets).sort((a, b) => a.localeCompare(b)),
+    [normalizedSavedSecrets],
+  );
+  const selectedSecretKeys = React.useMemo(
+    () => Array.from(new Set(
+      mcpDetailList
+        .filter((item) => selectedMcpDetails[item.id])
+        .flatMap((item) => item.requiredSecrets || []),
+    )).sort((a, b) => a.localeCompare(b)),
+    [mcpDetailList, selectedMcpDetails],
+  );
+  const savedSecretValuesForInstall = React.useMemo(
+    () => Object.fromEntries(
+      selectedSecretKeys
+        .map((key) => [key, normalizedSavedSecrets[key] || ''])
+        .filter(([, value]) => Boolean(value)),
+    ),
+    [normalizedSavedSecrets, selectedSecretKeys],
+  );
+  const missingSelectedSecretKeys = React.useMemo(
+    () => selectedSecretKeys.filter((key) => !normalizedSavedSecrets[key]),
+    [normalizedSavedSecrets, selectedSecretKeys],
+  );
   const selectedSkillIds = React.useMemo(
     () => skillDetailList.filter((item) => selectedSkillDetails[item.id]).map((item) => item.id),
     [skillDetailList, selectedSkillDetails],
+  );
+  const selectedRecommendedSkillCount = React.useMemo(
+    () => skillDetailList.filter((item) => selectedSkillDetails[item.id] && recommendedSkillIdSet.has(item.id)).length,
+    [recommendedSkillIdSet, selectedSkillDetails, skillDetailList],
+  );
+  const recommendedSkillCount = React.useMemo(
+    () => skillDetailList.filter((item) => recommendedSkillIdSet.has(item.id)).length,
+    [skillDetailList, recommendedSkillIdSet],
   );
   const selectedComponentIds = React.useMemo(() => {
     const ids: OptionalComponent[] = [];
@@ -2262,9 +2384,28 @@ function App() {
     () => availableInstallStacks.length > 0 && availableInstallStacks.every((stack) => selectedInstallStacks.includes(stack)),
     [availableInstallStacks, selectedInstallStacks],
   );
+  const additionalInstallStacks = React.useMemo(
+    () => availableInstallStacks.filter((stack) => !recommendedInstallStacks.includes(stack)),
+    [availableInstallStacks, recommendedInstallStacks],
+  );
+  const matchesRecommendedInstallStacks = React.useMemo(
+    () => selectedInstallStacks.length === recommendedInstallStacks.length
+      && selectedInstallStacks.every((stack) => recommendedInstallStacks.includes(stack)),
+    [recommendedInstallStacks, selectedInstallStacks],
+  );
   const hasInstalledForgeBase = Boolean(detection?.configured);
 
+  const restoreRecommendedInstallStacks = React.useCallback(() => {
+    const recommended: StackPack[] = recommendedInstallStacks.length > 0
+      ? recommendedInstallStacks
+      : (availableInstallStacks.length > 0 ? [availableInstallStacks[0]] : ['frontend-web']);
+    setSelectedInstallStacks(recommended);
+  }, [availableInstallStacks, recommendedInstallStacks]);
+
   const applyRecommendedPreset = React.useCallback(() => {
+    restoreRecommendedInstallStacks();
+    setMcpSelectionMode('recommended');
+    setSkillSelectionMode('recommended');
     setSelectedMcpDetails((current) => ({
       ...current,
       ...Object.fromEntries(mcpDetailList.map((item) => [item.id, recommendedMcpIdSet.has(item.id)])),
@@ -2279,10 +2420,38 @@ function App() {
       skills: skillDetailList.some((item) => recommendedSkillIdSet.has(item.id)),
       memory: true,
     }));
-  }, [mcpDetailList, recommendedMcpIdSet, recommendedSkillIdSet, skillDetailList]);
-  const selectAllInstallStacks = React.useCallback(() => {
+  }, [mcpDetailList, recommendedMcpIdSet, recommendedSkillIdSet, restoreRecommendedInstallStacks, skillDetailList]);
+
+  React.useEffect(() => {
+    if (mcpSelectionMode !== 'recommended') return;
+    setSelectedMcpDetails((current) => ({
+      ...current,
+      ...Object.fromEntries(mcpDetailList.map((item) => [item.id, recommendedMcpIdSet.has(item.id)])),
+    }));
+    setSelectedOptional((current) => ({
+      ...current,
+      mcp: mcpDetailList.some((item) => recommendedMcpIdSet.has(item.id)),
+    }));
+  }, [mcpDetailList, mcpSelectionMode, recommendedMcpIdSet]);
+
+  React.useEffect(() => {
+    if (skillSelectionMode !== 'recommended') return;
+    setSelectedSkillDetails((current) => ({
+      ...current,
+      ...Object.fromEntries(skillDetailList.map((item) => [item.id, recommendedSkillIdSet.has(item.id)])),
+    }));
+    setSelectedOptional((current) => ({
+      ...current,
+      skills: skillDetailList.some((item) => recommendedSkillIdSet.has(item.id)),
+    }));
+  }, [recommendedSkillIdSet, skillDetailList, skillSelectionMode]);
+  const toggleInstallStackPreset = React.useCallback(() => {
+    if (allInstallStacksSelected) {
+      restoreRecommendedInstallStacks();
+      return;
+    }
     setSelectedInstallStacks(availableInstallStacks);
-  }, [availableInstallStacks]);
+  }, [allInstallStacksSelected, availableInstallStacks, restoreRecommendedInstallStacks]);
 
   const installLabel = React.useMemo(() => {
     if (detection?.configured && support?.ok) return platformActionLabel('update', activeClient, lang);
@@ -2502,36 +2671,39 @@ function App() {
   const installExternalSkillToCurrent = React.useCallback(async (entry: ExternalSkillResult) => {
     const busyKey = `skill:${entry.id}`;
     setExternalInstallBusy(busyKey);
-    const result = await runForgeJson<{ ok: boolean; installed?: { targetDir?: string } }>(
-      ['external-install-skill', '--client', activeClient, '--source', entry.source, '--skill', entry.skill],
-      workspace,
-    );
-    if (!result?.ok) {
+    const result = await installExternalSkill({
+      client: activeClient,
+      source: entry.source,
+      skill: entry.skill,
+    });
+    if (!result.ok) {
       setResultLog(`${t.externalInstallFailed}\n${entry.skill}`);
       setLogExpanded(true);
       setExternalInstallBusy('');
       return;
     }
-    setResultLog(`${t.externalInstallDone}\n${entry.skill}\n${result.installed?.targetDir || ''}`.trim());
+    const targetDir = result.data && typeof result.data === 'object' && 'targetDir' in result.data
+      ? String(result.data.targetDir ?? '')
+      : '';
+    setResultLog(`${t.externalInstallDone}\n${entry.skill}\n${targetDir}`.trim());
     setSection('platform');
     setSelectedOptional((current) => ({ ...current, skills: true }));
     setSelectedSkillDetails((current) => ({ ...current, [entry.skill]: true }));
     setLogExpanded(true);
     setExternalInstallBusy('');
     await loadState();
-  }, [activeClient, loadState, t.externalInstallDone, t.externalInstallFailed, workspace]);
+  }, [activeClient, loadState, t.externalInstallDone, t.externalInstallFailed]);
 
   const confirmExternalMcpInstall = React.useCallback(async () => {
     if (!pendingExternalMcp) return;
     const { entry, busyKey } = pendingExternalMcp;
     setPendingExternalMcp(null);
     setExternalInstallBusy(busyKey);
-    const specBase64 = encodeBase64Json(entry);
-    const result = await runForgeJson<{ ok: boolean }>(
-      ['external-install-mcp', '--client', activeClient, '--name', entry.installSpec?.name || entry.name, '--spec-base64', specBase64],
-      workspace,
-    );
-    if (!result?.ok) {
+    const result = await installExternalMcp({
+      client: activeClient,
+      spec: entry.installSpec!,
+    });
+    if (!result.ok) {
       setResultLog(`${t.externalInstallFailed}\n${entry.title}`);
       setLogExpanded(true);
       setExternalInstallBusy('');
@@ -2546,12 +2718,12 @@ function App() {
     setLogExpanded(true);
     setExternalInstallBusy('');
     await loadState();
-  }, [activeClient, loadState, pendingExternalMcp, t.externalInstallDone, t.externalInstallFailed, workspace]);
+  }, [activeClient, loadState, pendingExternalMcp, t.externalInstallDone, t.externalInstallFailed]);
 
   const requestExternalMcpInstall = React.useCallback(async (entry: ExternalMcpResult) => {
     if (!entry.installable || !entry.installSpec) {
       if (entry.url) {
-        await openTarget(entry.url);
+        await openExternalTarget(entry.url);
       }
       return;
     }
@@ -2559,31 +2731,59 @@ function App() {
     setPendingExternalMcp({ entry, busyKey });
   }, []);
 
-  const openConfirm = React.useCallback((mode: 'install' | 'repair') => {
-    setConfirmMode(mode);
+  const openConfirm = React.useCallback(() => {
     setConfirmOpen(true);
   }, []);
 
+  const saveSecretValues = React.useCallback(async () => {
+    const next = normalizeSecretValues(secretDraftValues);
+    if (!isTauriRuntime()) {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(BUILT_IN_SECRET_STORAGE_KEY, JSON.stringify(next));
+      }
+      setSavedSecretValues(next);
+      return;
+    }
+    const result = await saveBuiltinMcpSecrets(next);
+    if (!result.ok || !result.data) {
+      setResultLog(result.raw || result.summary || 'Failed to save MCP secrets.');
+      setLogExpanded(true);
+      return;
+    }
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(BUILT_IN_SECRET_STORAGE_KEY, JSON.stringify(next));
+    }
+    setSavedSecretValues(result.data);
+    setSecretDraftValues(result.data);
+  }, [secretDraftValues]);
+
+  const resetSecretValues = React.useCallback(() => {
+    setSecretDraftValues(savedSecretValues);
+  }, [savedSecretValues]);
+
+  const buildPlatformActionPayload = React.useCallback((): ActionPayload => {
+    const encodedSecrets = Object.keys(savedSecretValuesForInstall).length > 0
+      ? encodeBase64Json(savedSecretValuesForInstall)
+      : null;
+    return {
+      client: activeClient,
+      cwd: workspace.trim() || undefined,
+      lang,
+      components: selectedComponentIds,
+      mcpServers: selectedMcpServerIds,
+      skillNames: selectedSkillIds,
+      secretValuesBase64: encodedSecrets,
+    };
+  }, [activeClient, lang, savedSecretValuesForInstall, selectedComponentIds, selectedMcpServerIds, selectedSkillIds, workspace]);
+
+  const runRepairAction = React.useCallback(async () => {
+    await runAction('repair', () => repairClientConfig(buildPlatformActionPayload()));
+  }, [buildPlatformActionPayload, runAction]);
+
   const executeConfirmedAction = React.useCallback(async () => {
-    const args = [
-      confirmMode === 'repair' ? 'repair' : 'install',
-      activeClient,
-      '--non-interactive',
-      '--components',
-      selectedComponentIds.join(','),
-    ];
-    if (selectedMcpServerIds.length) {
-      args.push('--mcp-servers', selectedMcpServerIds.join(','));
-    }
-    if (selectedSkillIds.length) {
-      args.push('--skills-list', selectedSkillIds.join(','));
-    }
-    if (exaKey && selectedMcpServerIds.includes('exa')) {
-      args.push('--exa-api-key', exaKey);
-    }
     setConfirmOpen(false);
-    await runAction(confirmMode === 'repair' ? 'repair' : 'install', args);
-  }, [activeClient, confirmMode, exaKey, runAction, selectedComponentIds, selectedMcpServerIds, selectedSkillIds]);
+    await runAction('install', () => installClientConfig(buildPlatformActionPayload()));
+  }, [buildPlatformActionPayload, runAction]);
 
   const platformTabs = clientOrder.map((client) => ({
     id: client,
@@ -2591,7 +2791,7 @@ function App() {
   }));
   const repairLabel = platformActionLabel('repair', activeClient, lang);
   const confirmTitle = platformConfirmTitle(
-    confirmMode === 'repair' ? 'repair' : detection?.configured ? 'update' : 'install',
+    detection?.configured ? 'update' : 'install',
     activeClient,
     lang,
   );
@@ -2670,7 +2870,7 @@ function App() {
                       <div className="mt-1 text-[11px] text-blue-700">{t.nodeRequiredDisabledHint}</div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <button type="button" onClick={() => void openTarget(nodeDownloadUrl)} className="inline-flex items-center gap-2 rounded-[10px] bg-slate-900 px-3 py-2 text-[12px] font-medium text-white shadow-[0_10px_18px_rgba(15,23,42,0.16)]">
+                      <button type="button" onClick={() => void openExternalTarget(nodeDownloadUrl)} className="inline-flex items-center gap-2 rounded-[10px] bg-slate-900 px-3 py-2 text-[12px] font-medium text-white shadow-[0_10px_18px_rgba(15,23,42,0.16)]">
                         <ExternalLink className="h-3.5 w-3.5" />
                         {t.nodeRequiredAction}
                       </button>
@@ -2756,7 +2956,7 @@ function App() {
                     <div className="grid gap-2">
                       <ActionButton
                         label={t.officialInstall}
-                        onClick={() => void runAction('bootstrap', ['bootstrap-client', activeClient])}
+                        onClick={() => void runAction('bootstrap', () => bootstrapOfficialClient(activeClient))}
                         disabled={isRunning || nodeBlocked || Boolean(detection.detected)}
                         loading={Boolean(isRunning && actionFeedback?.kind === 'bootstrap')}
                         badgeText={actionBadge('bootstrap')?.text}
@@ -2765,19 +2965,16 @@ function App() {
                         compact
                       />
                       <ActionButton
-                        label={installLabel}
-                        primary
-                        onClick={() => openConfirm('install')}
-                        disabled={isRunning || nodeBlocked}
-                        loading={Boolean(isRunning && actionFeedback?.kind === 'install')}
-                        badgeText={actionBadge('install')?.text}
-                        badgeTone={actionBadge('install')?.tone}
-                        icon={<Hammer className="h-3.5 w-3.5" />}
-                        compact
-                      />
-                      <ActionButton
                         label={t.verifyNow}
-                        onClick={() => void runAction('verify', ['verify', '--client', activeClient])}
+                        onClick={() => void runAction('verify', () => verifyClientConfig({
+                          client: activeClient,
+                          cwd: workspace.trim() || undefined,
+                          lang,
+                          components: [],
+                          mcpServers: [],
+                          skillNames: [],
+                          secretValuesBase64: null,
+                        }))}
                         disabled={isRunning || nodeBlocked || !detection.detected}
                         loading={Boolean(isRunning && actionFeedback?.kind === 'verify')}
                         badgeText={actionBadge('verify')?.text}
@@ -2787,7 +2984,7 @@ function App() {
                       />
                       <ActionButton
                         label={repairLabel}
-                        onClick={() => openConfirm('repair')}
+                        onClick={() => void runRepairAction()}
                         disabled={isRunning || nodeBlocked}
                         loading={Boolean(isRunning && actionFeedback?.kind === 'repair')}
                         badgeText={actionBadge('repair')?.text}
@@ -2795,7 +2992,7 @@ function App() {
                         icon={<RefreshCw className="h-3.5 w-3.5" />}
                         compact
                       />
-                      <ActionButton label={t.openConfig} onClick={() => void openTarget(detection.home)} disabled={!detection.home} icon={<FolderOpen className="h-3.5 w-3.5" />} compact />
+                      <ActionButton label={t.openConfig} onClick={() => void openExternalTarget(detection.home)} disabled={!detection.home} icon={<FolderOpen className="h-3.5 w-3.5" />} compact />
                       <ActionButton label={t.openTerminal} onClick={() => void openTerminal(workspace)} disabled={!workspace.trim()} icon={<TerminalSquare className="h-3.5 w-3.5" />} compact />
                     </div>
                     <div className="mt-3 text-[11px] text-slate-500">{t.restartHint}</div>
@@ -2808,90 +3005,216 @@ function App() {
                   <div className="text-[15px] font-semibold text-slate-900">{t.installPersona}</div>
                   <div className="mt-1 text-[12px] text-slate-500">{t.installPersonaHint}</div>
                 </div>
-                <div className="grid gap-4 px-4 py-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_160px]">
-                  <div>
-                    <div className="mb-2 text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.rolePackLabel}</div>
-                    <div className="flex flex-wrap gap-2">
-                      {installRoleOrder.map((role) => (
-                        <button
-                          key={role}
-                          type="button"
-                          onClick={() => selectInstallRole(role)}
-                          className={`relative inline-flex items-center rounded-[10px] border px-3 py-2 pr-7 text-[12px] font-medium transition ${selectedInstallRole === role ? 'border-slate-900 bg-slate-900 text-white shadow-[0_8px_20px_rgba(15,23,42,0.18)] ring-1 ring-slate-900/10' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-white'}`}
-                        >
-                          {roleLabel(role, lang)}
-                          <span className={`absolute right-2 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full transition ${selectedInstallRole === role ? 'bg-white shadow-[0_0_0_3px_rgba(255,255,255,0.2)]' : 'bg-transparent ring-1 ring-slate-300'}`} />
-                        </button>
-                      ))}
-                    </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
-                      <span className={`rounded-full px-2.5 py-1 font-medium ring-1 ${hasInstalledForgeBase ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-slate-100 text-slate-600 ring-slate-200'}`}>
-                        {hasInstalledForgeBase ? t.roleStacksInstalled : t.roleStacksPending}
-                      </span>
-                      {recommendedRoleStackLabelText && (
-                        <span className="text-slate-600">{recommendedRoleStackLabelText}</span>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="mb-2 text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.stackPackLabel}</div>
-                    <div className="flex flex-wrap gap-2">
-                      {availableInstallStacks.map((stack) => (
-                        <button
-                          key={stack}
-                          type="button"
-                          onClick={() => toggleInstallStack(stack)}
-                          className={`relative inline-flex items-center rounded-[10px] border px-3 py-2 pr-7 text-[12px] font-medium transition ${selectedInstallStacks.includes(stack) ? 'border-slate-900 bg-slate-900 text-white shadow-[0_8px_20px_rgba(15,23,42,0.18)] ring-1 ring-slate-900/10' : recommendedInstallStacks.includes(stack) ? 'border-amber-200 bg-amber-50 text-amber-900 hover:border-amber-300' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-white'}`}
-                        >
-                          {stackLabel(stack, lang)}
-                          {!selectedInstallStacks.includes(stack) && recommendedInstallStacks.includes(stack) && (
-                            <span className="rounded-full bg-white/80 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200">
-                              {t.recommendedBadge}
+                <div className="space-y-4 px-4 py-4">
+                  <div className="rounded-[14px] border border-slate-200 bg-slate-50 px-4 py-4">
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                        <div className="min-w-0 space-y-3">
+                          <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.currentPersona}</div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-900">{installRoleLabelText}</span>
+                            <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${hasInstalledForgeBase ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-slate-100 text-slate-600 ring-slate-200'}`}>
+                              {hasInstalledForgeBase ? t.roleStacksInstalled : t.roleStacksPending}
                             </span>
-                          )}
-                          <span className={`absolute right-2 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full transition ${selectedInstallStacks.includes(stack) ? 'bg-white shadow-[0_0_0_3px_rgba(255,255,255,0.2)]' : 'bg-transparent ring-1 ring-slate-300'}`} />
-                        </button>
-                      ))}
+                            <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${matchesRecommendedInstallStacks ? 'bg-amber-50 text-amber-800 ring-amber-200' : 'bg-slate-100 text-slate-700 ring-slate-200'}`}>
+                              {matchesRecommendedInstallStacks ? t.recommendedPreset : t.customStacksLabel}
+                            </span>
+                            {!matchesRecommendedInstallStacks && recommendedRoleStackLabelText && (
+                              <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-800">
+                                {t.recommendedBadge}: {recommendedRoleStackLabelText}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[12px] text-slate-500">{matchesRecommendedInstallStacks ? t.quickApplyHint : t.roleStackModeHint}</div>
+                        </div>
+                        <div className="flex shrink-0 flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={openConfirm}
+                            disabled={isRunning || nodeBlocked}
+                            className="inline-flex items-center justify-center rounded-[10px] bg-slate-900 px-3 py-2.5 text-[12px] font-medium text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)] disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {installLabel}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                        <div className="rounded-[12px] border border-slate-200 bg-white px-3 py-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.rolePackLabel}</div>
+                              <div className="mt-1 text-[12px] text-slate-500">{t.currentPersona}</div>
+                            </div>
+                            <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600">
+                              单选
+                            </span>
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {installRoleOrder.map((role) => (
+                              <RoleChip
+                                key={role}
+                                label={roleLabel(role, lang)}
+                                selected={selectedInstallRole === role}
+                                onClick={() => selectInstallRole(role)}
+                              />
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="rounded-[12px] border border-slate-200 bg-white px-3 py-3">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                              <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.stackPackLabel}</div>
+                              <div className="mt-1 text-[12px] text-slate-500">{t.roleStackModeHint}</div>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              {!matchesRecommendedInstallStacks && (
+                                <button
+                                  type="button"
+                                  onClick={applyRecommendedPreset}
+                                  className="inline-flex items-center justify-center rounded-[10px] bg-white px-3 py-2 text-[12px] font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300"
+                                >
+                                  {t.recommendedPreset}
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={toggleInstallStackPreset}
+                                className="inline-flex items-center justify-center rounded-[10px] bg-white px-3 py-2 text-[12px] font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300"
+                              >
+                                {allInstallStacksSelected ? t.restoreRecommendedStacks : t.stackPackSelectAll}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="mt-3 space-y-3">
+                            <div>
+                              <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-amber-700">{t.recommendedStacksLabel}</div>
+                              <div className="flex flex-wrap gap-2">
+                                {recommendedInstallStacks.map((stack) => (
+                                  <StackChip
+                                    key={stack}
+                                    label={stackLabel(stack, lang)}
+                                    selected={selectedInstallStacks.includes(stack)}
+                                    emphasized
+                                    onClick={() => toggleInstallStack(stack)}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+
+                            {additionalInstallStacks.length > 0 && (
+                              <div>
+                                <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.additionalStacksLabel}</div>
+                                <div className="flex flex-wrap gap-2">
+                                  {additionalInstallStacks.map((stack) => (
+                                    <StackChip
+                                      key={stack}
+                                      label={stackLabel(stack, lang)}
+                                      selected={selectedInstallStacks.includes(stack)}
+                                      onClick={() => toggleInstallStack(stack)}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-medium text-slate-700">
+                          {t.selectedStacksLabel} {selectedInstallStacks.length}/{availableInstallStacks.length}
+                        </span>
+                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-medium text-slate-700">
+                          {t.selectedSkillsLabel} {selectedSkillIds.length}/{skillDetailList.length}
+                        </span>
+                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-medium text-slate-700">
+                          {t.selectedMcpLabel} {selectedMcpServerIds.length}/{mcpDetailList.length}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-end">
-                    <div className="flex w-full flex-col gap-2">
-                      <button type="button" onClick={applyRecommendedPreset} className="inline-flex w-full items-center justify-center rounded-[10px] bg-slate-900 px-3 py-2.5 text-[12px] font-medium text-white">{t.recommendedPreset}</button>
-                      <button
-                        type="button"
-                        onClick={selectAllInstallStacks}
-                        disabled={allInstallStacksSelected}
-                        className={`inline-flex w-full items-center justify-center rounded-[10px] px-3 py-2.5 text-[12px] font-medium transition ${allInstallStacksSelected ? 'bg-slate-100 text-slate-400 ring-1 ring-slate-200' : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 hover:ring-slate-300'}`}
-                      >
-                        {allInstallStacksSelected ? t.stackPackAllSelected : t.stackPackSelectAll}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div className="border-t border-slate-100 px-4 py-3 text-[12px] text-slate-500">
-                  {t.currentPersona}: <span className="font-semibold text-slate-900">{installRoleLabelText}</span> / <span className="font-medium text-slate-700">{installStackLabelText}</span>
                 </div>
               </section>
 
               <FoldSection title={t.exaSection} hint={t.secretsCollapsedHint} expanded={secretExpanded} onToggle={() => setSecretExpanded((value) => !value)}>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">EXA API Key</div>
-                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${exaKey ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-slate-100 text-slate-600 ring-slate-200'}`}>
-                      {exaKey ? t.secretReady : t.secretEmpty}
-                    </span>
+                <div className="space-y-4">
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <SummaryCard label={t.savedSecretsCount} value={String(savedSecretKeys.length)} />
+                    <SummaryCard label={t.selectedSecretsCount} value={String(selectedSecretKeys.length)} />
+                    <SummaryCard label={t.missingSecretsCount} value={String(missingSelectedSecretKeys.length)} />
                   </div>
-                  <input
-                    type="password"
-                    value={exaKey}
-                    onChange={(event) => setExaKey(event.target.value)}
-                    placeholder="EXA_API_KEY"
-                    className="h-12 w-full rounded-[12px] border border-slate-200 bg-slate-50 px-4 font-mono text-[13px] outline-none transition focus:border-slate-400 focus:bg-white"
-                  />
-                  <div className="flex items-center justify-between gap-3 text-[11px] text-slate-500">
-                    <span>{t.exaHint}</span>
-                    {exaKey && <span className="font-mono text-slate-400">{sanitizeToken(exaKey)}</span>}
+                  <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
+                    <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.savedSecretsList}</div>
+                    {savedSecretKeys.length > 0 ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {savedSecretKeys.map((key) => (
+                          <span key={key} className="rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                            {key}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="mt-2 text-[12px] text-slate-500">{t.noSavedSecrets}</div>
+                    )}
                   </div>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="text-[12px] text-slate-500">
+                      {hasUnsavedSecretChanges ? t.secretDirtyHint : t.secretSavedHint}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={resetSecretValues}
+                        disabled={!hasUnsavedSecretChanges}
+                        className="rounded-[10px] border border-slate-200 bg-white px-3 py-2 text-[11px] font-medium text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {t.resetSecrets}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={saveSecretValues}
+                        className="rounded-[10px] bg-slate-900 px-3 py-2 text-[11px] font-medium text-white shadow-[0_10px_24px_rgba(15,23,42,0.16)]"
+                      >
+                        {t.saveSecrets}
+                      </button>
+                    </div>
+                  </div>
+                  {activeSecretFields.length === 0 ? (
+                    <div className="rounded-[12px] border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-[12px] text-slate-500">
+                      {t.noSecretYet}
+                    </div>
+                  ) : (
+                    activeSecretFields.map((field) => {
+                      const draftValue = secretDraftValues[field.key] || '';
+                      const savedValue = normalizedSavedSecrets[field.key] || '';
+                      const pending = draftValue.trim() !== savedValue;
+                      return (
+                        <div key={field.key} className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{field.key}</div>
+                            <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${pending ? 'bg-amber-50 text-amber-700 ring-amber-200' : savedValue ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-slate-100 text-slate-600 ring-slate-200'}`}>
+                              {pending ? t.secretPending : savedValue ? t.secretReady : t.secretEmpty}
+                            </span>
+                          </div>
+                          <input
+                            type="password"
+                            value={draftValue}
+                            onChange={(event) => setSecretDraftValues((current) => ({ ...current, [field.key]: event.target.value }))}
+                            placeholder={field.key}
+                            className="mt-3 h-12 w-full rounded-[12px] border border-slate-200 bg-white px-4 font-mono text-[13px] outline-none transition focus:border-slate-400"
+                          />
+                          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-500">
+                            <span>{t.secretUsedBy}: {field.mcpTitles.join(', ')}</span>
+                            {savedValue && <span className="font-mono text-slate-400">{sanitizeToken(savedValue)}</span>}
+                          </div>
+                          <div className="mt-1 text-[11px] text-slate-400">{t.secretSkipHint}</div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </FoldSection>
 
@@ -2919,30 +3242,43 @@ function App() {
                   t={t}
                   mcpItems={mcpDetailList}
                   selectedMcpDetails={selectedMcpDetails}
-                  onToggleMcp={(id) => setSelectedMcpDetails((current) => ({ ...current, [id]: !current[id] }))}
-                  onToggleAllMcp={() => setSelectedMcpDetails(
-                    Object.fromEntries(
-                      mcpDetailList.map((item) => [
-                        item.id,
-                        !(mcpDetailList.length > 0 && selectedMcpServerIds.length === mcpDetailList.length),
-                      ]),
-                    ),
-                  )}
+                  onToggleMcp={(id) => {
+                    setMcpSelectionMode('custom');
+                    setSelectedMcpDetails((current) => ({ ...current, [id]: !current[id] }));
+                  }}
+                  onToggleAllMcp={() => {
+                    setMcpSelectionMode('custom');
+                    setSelectedMcpDetails(
+                      Object.fromEntries(
+                        mcpDetailList.map((item) => [
+                          item.id,
+                          !(mcpDetailList.length > 0 && selectedMcpServerIds.length === mcpDetailList.length),
+                        ]),
+                      ),
+                    );
+                  }}
                   skillItems={skillDetailList}
                   selectedSkillDetails={selectedSkillDetails}
-                  onToggleSkill={(id) => setSelectedSkillDetails((current) => ({ ...current, [id]: !current[id] }))}
-                  onToggleAllSkill={() => setSelectedSkillDetails(
-                    Object.fromEntries(
-                      skillDetailList.map((item) => [
-                        item.id,
-                        !(skillDetailList.length > 0 && selectedSkillIds.length === skillDetailList.length),
-                      ]),
-                    ),
-                  )}
+                  onToggleSkill={(id) => {
+                    setSkillSelectionMode('custom');
+                    setSelectedSkillDetails((current) => ({ ...current, [id]: !current[id] }));
+                  }}
+                  onToggleAllSkill={() => {
+                    setSkillSelectionMode('custom');
+                    setSelectedSkillDetails(
+                      Object.fromEntries(
+                        skillDetailList.map((item) => [
+                          item.id,
+                          !(skillDetailList.length > 0 && selectedSkillIds.length === skillDetailList.length),
+                        ]),
+                      ),
+                    );
+                  }}
                   memoryEnabled={selectedOptional.memory}
                   onToggleMemory={() => setSelectedOptional((current) => ({ ...current, memory: !current.memory }))}
                   installRoleLabel={installRoleLabelText}
                   installStackLabel={installStackLabelText}
+                  installStackLabels={selectedInstallStackLabels}
                   domainPackLabel={domainPackLabelText}
                   domainPackHint={domainPackLabelText ? t.domainPackHint : null}
                   domainRecommendedMcpLabel={t.domainRecommendedMcpLabel}
@@ -2951,6 +3287,8 @@ function App() {
                   domainRecommendedTools={activeStackRecommendedTools}
                   recommendedMcpIds={recommendedMcpIdSet}
                   recommendedSkillIds={recommendedSkillIdSet}
+                  recommendedMcpCount={recommendedMcpCount}
+                  recommendedSkillCount={recommendedSkillCount}
                   onApplyRecommended={applyRecommendedPreset}
                 />
               )}
@@ -3155,7 +3493,7 @@ function App() {
                                     {t.addToInstallList}
                                   </button>
                                 ) : entry.source ? (
-                                  <button type="button" onClick={() => void openTarget(entry.source!)} className="forge-surface inline-flex items-center gap-2 rounded-[12px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700">
+                                  <button type="button" onClick={() => void openExternalTarget(entry.source!)} className="forge-surface inline-flex items-center gap-2 rounded-[12px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700">
                                     <ExternalLink className="h-4 w-4" />
                                     {t.openRepo}
                                   </button>
@@ -3274,7 +3612,7 @@ function App() {
                                       {t.addToInstallList}
                                     </button>
                                   )}
-                                  <button type="button" onClick={() => void openTarget(entry.url)} className="forge-surface inline-flex items-center gap-2 rounded-[12px] bg-slate-900 px-3 py-2 text-[12px] text-white">
+                                  <button type="button" onClick={() => void openExternalTarget(entry.url)} className="forge-surface inline-flex items-center gap-2 rounded-[12px] bg-slate-900 px-3 py-2 text-[12px] text-white">
                                     <ExternalLink className="h-4 w-4" />
                                     {t.openRepo}
                                   </button>
@@ -3322,7 +3660,7 @@ function App() {
                                 })}
                               </div>
                               <div className="flex justify-end gap-2">
-                                <button type="button" onClick={() => void openTarget(entry.url)} className="forge-surface inline-flex items-center gap-2 rounded-[12px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700">
+                                <button type="button" onClick={() => void openExternalTarget(entry.url)} className="forge-surface inline-flex items-center gap-2 rounded-[12px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700">
                                   <ExternalLink className="h-4 w-4" />
                                   {t.openRepo}
                                 </button>
@@ -3378,7 +3716,7 @@ function App() {
                         >
                           <div className="flex justify-end gap-2">
                             {entry.url && (
-                              <button type="button" onClick={() => void openTarget(entry.url!)} className="forge-surface inline-flex items-center gap-2 rounded-[12px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700">
+                              <button type="button" onClick={() => void openExternalTarget(entry.url!)} className="forge-surface inline-flex items-center gap-2 rounded-[12px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700">
                                 <ExternalLink className="h-4 w-4" />
                                 {t.openRepo}
                               </button>
@@ -3401,7 +3739,7 @@ function App() {
                           meta={source.url}
                         >
                           <div className="flex justify-end">
-                            <button type="button" onClick={() => void openTarget(source.url)} className="forge-surface inline-flex items-center gap-2 rounded-[12px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700">
+                            <button type="button" onClick={() => void openExternalTarget(source.url)} className="forge-surface inline-flex items-center gap-2 rounded-[12px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700">
                               <ExternalLink className="h-4 w-4" />
                               {t.openRepo}
                             </button>
@@ -3431,7 +3769,7 @@ function App() {
                               <div className="text-[12px] text-slate-500">{t.requiresSecrets}: {entry.requiredSecrets.join(', ')}</div>
                             )}
                             <div className="flex justify-end gap-2">
-                              <button type="button" onClick={() => void openTarget(entry.url || 'https://registry.modelcontextprotocol.io/')} className="forge-surface inline-flex items-center gap-2 rounded-[12px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700">
+                              <button type="button" onClick={() => void openExternalTarget(entry.url || 'https://registry.modelcontextprotocol.io/')} className="forge-surface inline-flex items-center gap-2 rounded-[12px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700">
                                 <ExternalLink className="h-4 w-4" />
                                 {t.openRepo}
                               </button>
@@ -3454,7 +3792,7 @@ function App() {
                           meta={source.url}
                         >
                           <div className="flex justify-end">
-                            <button type="button" onClick={() => void openTarget(source.url)} className="forge-surface inline-flex items-center gap-2 rounded-[12px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700">
+                            <button type="button" onClick={() => void openExternalTarget(source.url)} className="forge-surface inline-flex items-center gap-2 rounded-[12px] border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-700">
                               <ExternalLink className="h-4 w-4" />
                               {t.openRepo}
                             </button>
@@ -3493,6 +3831,13 @@ function App() {
                     <div className="mb-3 text-[13px] font-medium text-slate-800">{t.currentWorkspace}</div>
                     <input value={workspace} onChange={(event) => setWorkspace(event.target.value)} className="w-full rounded-[12px] border border-slate-200 bg-slate-50 px-3 py-2.5 font-mono text-[13px] outline-none focus:border-slate-400" />
                   </div>
+                  {runtimeStatus && (
+                    <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-3 py-3">
+                      <div className="text-[13px] font-medium text-slate-800">Preview Runtime</div>
+                      <div className="mt-2 text-[12px] text-slate-600">Isolation: {runtimeStatus.isolated ? 'Enabled' : 'Disabled'}</div>
+                      <div className="mt-1 break-all font-mono text-[11px] text-slate-500">{runtimeStatus.previewRoot}</div>
+                    </div>
+                  )}
                 </div>
               </section>
 
@@ -3931,6 +4276,7 @@ function ConfirmModal({
   onToggleMemory,
   installRoleLabel,
   installStackLabel,
+  installStackLabels,
   domainPackLabel,
   domainPackHint,
   domainRecommendedMcpLabel,
@@ -3939,6 +4285,8 @@ function ConfirmModal({
   domainRecommendedTools,
   recommendedMcpIds,
   recommendedSkillIds,
+  recommendedMcpCount,
+  recommendedSkillCount,
   onApplyRecommended,
 }: {
   title: string;
@@ -3965,6 +4313,7 @@ function ConfirmModal({
   onToggleMemory: () => void;
   installRoleLabel: string;
   installStackLabel: string;
+  installStackLabels: string[];
   domainPackLabel: string | null;
   domainPackHint: string | null;
   domainRecommendedMcpLabel: string;
@@ -3981,6 +4330,8 @@ function ConfirmModal({
   }[];
   recommendedMcpIds: Set<string>;
   recommendedSkillIds: Set<string>;
+  recommendedMcpCount: number;
+  recommendedSkillCount: number;
   onApplyRecommended: () => void;
 }) {
   const [expanded, setExpanded] = React.useState<{ mcp: boolean; skills: boolean; memory: boolean }>({
@@ -3996,6 +4347,8 @@ function ConfirmModal({
   });
   const selectedMcpCount = mcpItems.filter((item) => selectedMcpDetails[item.id]).length;
   const selectedSkillCount = skillItems.filter((item) => selectedSkillDetails[item.id]).length;
+  const selectedRecommendedMcpCount = mcpItems.filter((item) => selectedMcpDetails[item.id] && recommendedMcpIds.has(item.id)).length;
+  const selectedRecommendedSkillCount = skillItems.filter((item) => selectedSkillDetails[item.id] && recommendedSkillIds.has(item.id)).length;
   const allMcpSelected = mcpItems.length > 0 && selectedMcpCount === mcpItems.length;
   const allSkillsSelected = skillItems.length > 0 && selectedSkillCount === skillItems.length;
   const groupedSkillItems = React.useMemo(() => groupSkillsByLayer(skillItems), [skillItems]);
@@ -4003,7 +4356,7 @@ function ConfirmModal({
   return (
     <ModalPortal>
       <div className="forge-modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 p-4 backdrop-blur-[2px]">
-        <div className="forge-modal-panel flex max-h-[calc(100vh-32px)] w-full max-w-[720px] flex-col overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.18)]">
+        <div className="forge-modal-panel flex max-h-[calc(100vh-32px)] w-full max-w-[860px] flex-col overflow-hidden rounded-[16px] border border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.18)]">
           <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-4 py-4">
             <div>
               <div className="text-[18px] font-semibold tracking-[-0.02em]">{title}</div>
@@ -4012,43 +4365,86 @@ function ConfirmModal({
             <button type="button" onClick={onCancel} className="rounded-[10px] border border-slate-200 bg-white p-2 text-slate-500"><X className="h-4 w-4" /></button>
           </div>
           <div className="space-y-4 overflow-y-auto px-4 py-4">
-            <div className="grid gap-3 rounded-[12px] border border-slate-200 bg-slate-50 px-3 py-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-center">
-              <SummaryCard label={t.rolePackLabel} value={installRoleLabel} />
-              <SummaryCard label={t.stackPackLabel} value={installStackLabel} />
-              <button type="button" onClick={onApplyRecommended} className="justify-self-start rounded-[10px] border border-slate-200 bg-white px-3 py-2 text-[12px] font-medium text-slate-700 shadow-[0_8px_18px_rgba(15,23,42,0.05)]">
-                {t.recommendedPreset}
-              </button>
+            <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0 space-y-3">
+                    <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.currentPersona}</div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-900">{installRoleLabel}</span>
+                      {domainPackLabel && (
+                        <span className="rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-[11px] font-medium text-indigo-700">
+                          {t.domainPackLabel}: {domainPackLabel}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <button type="button" onClick={onApplyRecommended} className="shrink-0 rounded-[10px] bg-slate-900 px-3 py-2 text-[12px] font-medium text-white shadow-[0_8px_18px_rgba(15,23,42,0.12)]">
+                    {t.recommendedPreset}
+                  </button>
+                </div>
+
+                <div className="grid gap-2 md:grid-cols-3">
+                  <SelectionMetricCard
+                    label={t.selectedStacksLabel}
+                    value={`${installStackLabels.length}`}
+                    hint={installStackLabel || undefined}
+                  />
+                  <SelectionMetricCard
+                    label={t.selectedSkillsLabel}
+                    value={`${selectedSkillCount}/${skillItems.length}`}
+                    hint={`${t.recommendedBadge} ${selectedRecommendedSkillCount}/${recommendedSkillCount}`}
+                  />
+                  <SelectionMetricCard
+                    label={t.selectedMcpLabel}
+                    value={`${selectedMcpCount}/${mcpItems.length}`}
+                    hint={`${t.recommendedBadge} ${selectedRecommendedMcpCount}/${recommendedMcpCount}`}
+                  />
+                </div>
+
+                {installStackLabels.length > 0 && (
+                  <div className="rounded-[10px] border border-slate-200 bg-white px-3 py-3">
+                    <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.stackPackLabel}</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {installStackLabels.map((label) => (
+                        <span key={label} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[12px] font-medium text-slate-700">
+                          {label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             {domainPackLabel && (
-              <div className="rounded-[10px] border border-indigo-200 bg-indigo-50/60 px-3 py-3">
-                <div className="flex flex-wrap items-center gap-2 text-[12px] text-slate-600">
-                  <span className="rounded-full border border-indigo-200 bg-white px-2.5 py-1 font-medium text-slate-700">{t.domainPackLabel}: {domainPackLabel}</span>
-                </div>
+              <div className="rounded-[12px] border border-indigo-200 bg-indigo-50/60 px-4 py-4">
                 {domainPackHint && <div className="mt-2 text-[12px] text-slate-500">{domainPackHint}</div>}
-                {domainRecommendedMcp.length > 0 && (
-                  <div className="mt-3">
-                    <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-indigo-500">{domainRecommendedMcpLabel}</div>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {domainRecommendedMcp.map((entry) => (
-                        <span key={entry.id} className="rounded-full border border-indigo-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
-                          {entry.label}
-                        </span>
-                      ))}
+                <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                  {domainRecommendedMcp.length > 0 && (
+                    <div className="rounded-[10px] border border-indigo-200/70 bg-white/70 px-3 py-3">
+                      <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-indigo-500">{domainRecommendedMcpLabel}</div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {domainRecommendedMcp.map((entry) => (
+                          <span key={entry.id} className="rounded-full border border-indigo-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                            {entry.label}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-                {domainRecommendedTools.length > 0 && (
-                  <div className="mt-3">
-                    <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{domainRecommendedToolsLabel}</div>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {domainRecommendedTools.map((tool) => (
-                        <span key={tool.id} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
-                          {tool.label}
-                        </span>
-                      ))}
+                  )}
+                  {domainRecommendedTools.length > 0 && (
+                    <div className="rounded-[10px] border border-slate-200 bg-white/70 px-3 py-3">
+                      <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{domainRecommendedToolsLabel}</div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {domainRecommendedTools.map((tool) => (
+                          <span key={tool.id} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                            {tool.label}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             )}
             <div>
@@ -4269,6 +4665,72 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
       <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{label}</div>
       <div className="mt-2 break-words text-[13px] font-medium text-slate-900">{value}</div>
     </div>
+  );
+}
+
+function SelectionMetricCard({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+}) {
+  return (
+    <div className="rounded-[10px] border border-slate-200 bg-white px-3 py-3">
+      <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{label}</div>
+      <div className="mt-2 text-[16px] font-semibold tracking-[-0.02em] text-slate-900">{value}</div>
+      {hint && <div className="mt-1 text-[11px] text-slate-500">{hint}</div>}
+    </div>
+  );
+}
+
+function RoleChip({
+  label,
+  selected,
+  onClick,
+}: {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex min-h-[36px] items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition ${selected ? 'border-slate-900 bg-slate-900 text-white shadow-[0_8px_20px_rgba(15,23,42,0.14)]' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'}`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function StackChip({
+  label,
+  selected,
+  emphasized,
+  onClick,
+}: {
+  label: string;
+  selected: boolean;
+  emphasized?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex min-h-[34px] items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition ${
+        selected
+          ? 'border-slate-900 bg-slate-900 text-white shadow-[0_8px_20px_rgba(15,23,42,0.14)]'
+          : emphasized
+            ? 'border-amber-200 bg-amber-50 text-amber-900 hover:border-amber-300'
+            : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 

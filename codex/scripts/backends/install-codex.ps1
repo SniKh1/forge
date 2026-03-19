@@ -10,6 +10,8 @@ $ErrorActionPreference = "Stop"
 $BackendDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ScriptDir = Split-Path -Parent (Split-Path -Parent $BackendDir)
 $RootDir = Split-Path -Parent $ScriptDir
+. (Join-Path $RootDir "scripts\lib\powershell-utf8.ps1")
+Initialize-ForgeEncoding
 $CodexHome = Join-Path $env:USERPROFILE ".codex"
 $ForgeHome = Join-Path $CodexHome "forge"
 $BackupDir = Join-Path $env:USERPROFILE (".codex-forge-backup-" + (Get-Date -Format "yyyyMMdd-HHmmss"))
@@ -116,7 +118,7 @@ function Initialize-WorkspaceMemory {
 
     $memoryFile = Join-Path $memoryDir "MEMORY.md"
     if (-not (Test-Path $memoryFile)) {
-        @"
+        $memoryContent = @"
 # Workspace Memory
 
 - Workspace: `$workspaceAbs`
@@ -133,12 +135,13 @@ function Initialize-WorkspaceMemory {
 ## Risks
 
 - (track unresolved risks)
-"@ | Set-Content -Path $memoryFile
+"@
+        Write-Utf8File $memoryFile $memoryContent
     }
 
     $projectMemoryFile = Join-Path $memoryDir "PROJECT-MEMORY.md"
     if (-not (Test-Path $projectMemoryFile)) {
-        @"
+        $projectMemoryContent = @"
 # Project Memory
 
 > Workspace summary and durable knowledge.
@@ -160,7 +163,8 @@ function Initialize-WorkspaceMemory {
 ## Known Issues
 
 -
-"@ | Set-Content -Path $projectMemoryFile
+"@
+        Write-Utf8File $projectMemoryFile $projectMemoryContent
     }
 }
 
@@ -233,7 +237,7 @@ function Install-Assets {
 
     $skillCount = 0
     if (Has-Component "skills") {
-        $syncScript = Join-Path $RootDir "scripts\sync-runtime-skills.js"
+        $syncScript = Join-Path $RootDir "scripts\sync-runtime-skills.cjs"
         if ((Get-Command node -ErrorAction SilentlyContinue) -and (Test-Path $syncScript)) {
             $syncArgs = @($syncScript, $RootDir, (Join-Path $CodexHome "skills"), "--mode", $InstallMode)
             if ($env:FORGE_SKILLS) { $syncArgs += @("--selected", $env:FORGE_SKILLS) }
@@ -268,10 +272,10 @@ function Generate-Agents {
     New-Item -ItemType Directory -Path $CodexHome -Force | Out-Null
 
     $template = Join-Path $ScriptDir "AGENTS.md.template"
-    $content = Get-Content $template -Raw
+    $content = Read-Utf8File $template
     $content = $content -replace '\{\{CODEX_HOME\}\}', ($CodexHome -replace '\\', '/')
     $content = $content -replace '\{\{FORGE_HOME\}\}', ($ForgeHome -replace '\\', '/')
-    Set-Content -Path (Join-Path $CodexHome "AGENTS.md") -Value $content
+    Write-Utf8File (Join-Path $CodexHome "AGENTS.md") $content
 
     Write-Ok "$CodexHome\AGENTS.md generated"
     Write-Host ""

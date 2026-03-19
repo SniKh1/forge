@@ -1,4 +1,6 @@
 $ErrorActionPreference = "Continue"
+. (Join-Path $PSScriptRoot "lib\powershell-utf8.ps1")
+Initialize-ForgeEncoding
 
 $Stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $Desktop = [Environment]::GetFolderPath("Desktop")

@@ -1,5 +1,8 @@
 # Forge Codex Verification (Windows)
 $ErrorActionPreference = "SilentlyContinue"
+$RepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+. (Join-Path $RepoRoot "scripts\lib\powershell-utf8.ps1")
+Initialize-ForgeEncoding
 
 $CodexHome = Join-Path $HOME ".codex"
 $ForgeHome = Join-Path $CodexHome "forge"
@@ -37,7 +40,7 @@ if (Test-Path $skills) {
   Fail "skills directory missing"
 }
 
-$dupScript = Join-Path $ForgeHome "scripts\check-runtime-skill-duplicates.js"
+$dupScript = Join-Path $ForgeHome "scripts\check-runtime-skill-duplicates.cjs"
 if ((Get-Command node -ErrorAction SilentlyContinue) -and (Test-Path $dupScript) -and (Test-Path $skills)) {
   $dupJson = node $dupScript --json --warn-only $skills
   $dupData = $dupJson | ConvertFrom-Json

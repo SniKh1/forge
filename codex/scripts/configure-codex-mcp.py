@@ -7,7 +7,7 @@ import tomllib
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
-from forge_core import ensure_uvx, resolve_servers  # noqa: E402
+from forge_core import decode_secret_values, dump_toml_document, ensure_uvx, resolve_servers  # noqa: E402
 
 
 def load_config(path: Path):
@@ -16,61 +16,11 @@ def load_config(path: Path):
     with path.open("rb") as fh:
         return tomllib.load(fh)
 
-
-def format_scalar(value):
-    if isinstance(value, bool):
-        return "true" if value else "false"
-    if isinstance(value, (int, float)):
-        return str(value)
-    escaped = str(value).replace("\\", "\\\\").replace('"', '\\"')
-    return f'"{escaped}"'
-
-
-def format_array(values):
-    return "[" + ", ".join(format_scalar(v) for v in values) + "]"
-
-
-def dump_config(data):
-    lines = []
-
-    for key, value in data.items():
-        if key == "mcp_servers":
-            continue
-        if isinstance(value, list):
-            lines.append(f"{key} = {format_array(value)}")
-        else:
-            lines.append(f"{key} = {format_scalar(value)}")
-
-    if lines:
-        lines.append("")
-
-    lines.append("[mcp_servers]")
-    lines.append("")
-
-    for name, server in data.get("mcp_servers", {}).items():
-        lines.append(f"[mcp_servers.{name}]")
-        for key, value in server.items():
-            if key == "env":
-                continue
-            if isinstance(value, list):
-                lines.append(f"{key} = {format_array(value)}")
-            else:
-                lines.append(f"{key} = {format_scalar(value)}")
-        env = server.get("env")
-        if isinstance(env, dict) and env:
-            lines.append("")
-            lines.append(f"[mcp_servers.{name}.env]")
-            for env_key, env_value in env.items():
-                lines.append(f"{env_key} = {format_scalar(env_value)}")
-        lines.append("")
-
-    return "\n".join(lines).rstrip() + "\n"
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default=os.path.expanduser("~/.codex/config.toml"))
     parser.add_argument("--exa-key", default=os.environ.get("FORGE_CODEX_EXA_KEY", ""))
+    parser.add_argument("--secret-values-base64", default=os.environ.get("FORGE_SECRET_VALUES_BASE64", ""))
     parser.add_argument("--with-pencil", action="store_true")
     parser.add_argument("--with-exa", action="store_true")
     parser.add_argument("--install-uv", action="store_true")
@@ -90,6 +40,7 @@ def main():
         exa_key=args.exa_key if args.with_exa else "",
         include_optional=True,
         selected_servers=[item.strip() for item in args.servers.split(",") if item.strip()],
+        secret_values=decode_secret_values(args.secret_values_base64),
     )
 
     if not args.with_pencil and "pencil" in resolved:
@@ -99,7 +50,7 @@ def main():
         mcp_servers[name] = server
 
     data["mcp_servers"] = mcp_servers
-    config_path.write_text(dump_config(data), encoding="utf-8")
+    config_path.write_text(dump_toml_document(data), encoding="utf-8")
     print(f"WROTE {config_path}")
     print("SERVERS " + ", ".join(sorted(mcp_servers.keys())))
 
