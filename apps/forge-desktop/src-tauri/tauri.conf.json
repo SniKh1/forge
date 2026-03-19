@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Forge",
+  "productName": "Forge Preview",
   "version": "0.4.6",
-  "identifier": "com.forge.desktop",
+  "identifier": "com.forge.desktop.preview",
   "build": {
     "beforeDevCommand": "npm run dev:tauri",
     "beforeBuildCommand": "npm run build",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Forge",
+        "title": "Forge Preview",
         "width": 1440,
         "height": 920,
         "resizable": true,
@@ -24,7 +24,6 @@
     "active": true,
     "targets": "all",
     "resources": [
-      "../../../packages/forge-cli/**/*",
       "../../../scripts/**/*",
       "../../../codex/**/*",
       "../../../gemini/**/*",
