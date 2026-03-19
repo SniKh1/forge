@@ -8,7 +8,7 @@ import tomllib
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from forge_core import load_json, write_claude_mcp_config  # noqa: E402
+from forge_core import dump_toml_document, load_json, write_claude_mcp_config  # noqa: E402
 
 
 def load_codex_config(path: Path):
@@ -16,51 +16,6 @@ def load_codex_config(path: Path):
         return {}
     with path.open('rb') as fh:
         return tomllib.load(fh)
-
-
-def format_scalar(value):
-    if isinstance(value, bool):
-        return 'true' if value else 'false'
-    if isinstance(value, (int, float)):
-        return str(value)
-    escaped = str(value).replace('\\', '\\\\').replace('"', '\\"')
-    return f'"{escaped}"'
-
-
-def format_array(values):
-    return '[' + ', '.join(format_scalar(v) for v in values) + ']'
-
-
-def dump_codex_config(data):
-    lines = []
-    for key, value in data.items():
-        if key == 'mcp_servers':
-            continue
-        if isinstance(value, list):
-            lines.append(f'{key} = {format_array(value)}')
-        else:
-            lines.append(f'{key} = {format_scalar(value)}')
-    if lines:
-        lines.append('')
-    lines.append('[mcp_servers]')
-    lines.append('')
-    for name, server in data.get('mcp_servers', {}).items():
-        lines.append(f'[mcp_servers.{name}]')
-        for key, value in server.items():
-            if key == 'env':
-                continue
-            if isinstance(value, list):
-                lines.append(f'{key} = {format_array(value)}')
-            else:
-                lines.append(f'{key} = {format_scalar(value)}')
-        env = server.get('env')
-        if isinstance(env, dict) and env:
-            lines.append('')
-            lines.append(f'[mcp_servers.{name}.env]')
-            for env_key, env_value in env.items():
-                lines.append(f'{env_key} = {format_scalar(env_value)}')
-        lines.append('')
-    return '\n'.join(lines).rstrip() + '\n'
 
 def main():
     parser = argparse.ArgumentParser()
@@ -129,7 +84,7 @@ def main():
         item['env'] = env
     mcp_servers[server_name] = item
     data['mcp_servers'] = mcp_servers
-    config_path.write_text(dump_codex_config(data), encoding='utf-8')
+    config_path.write_text(dump_toml_document(data), encoding='utf-8')
     print(f'WROTE {config_path}')
     print(f'SERVER {server_name}')
 

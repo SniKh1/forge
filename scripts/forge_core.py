@@ -106,6 +106,52 @@ def load_json(path):
         return json.load(fh)
 
 
+def format_toml_scalar(value):
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float)):
+        return str(value)
+    escaped = str(value).replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{escaped}"'
+
+
+def format_toml_array(values):
+    return "[" + ", ".join(format_toml_scalar(v) for v in values) + "]"
+
+
+def _collect_toml_sections(mapping, prefix=()):
+    sections = []
+    scalar_lines = []
+    child_tables = []
+
+    for key, value in mapping.items():
+        if isinstance(value, dict):
+            child_tables.append((key, value))
+            continue
+        if isinstance(value, list):
+            scalar_lines.append(f"{key} = {format_toml_array(value)}")
+            continue
+        scalar_lines.append(f"{key} = {format_toml_scalar(value)}")
+
+    if prefix:
+        if scalar_lines or not child_tables:
+            sections.append([f"[{'.'.join(prefix)}]", *scalar_lines])
+    elif scalar_lines:
+        sections.append(scalar_lines)
+
+    for key, value in child_tables:
+        sections.extend(_collect_toml_sections(value, prefix + (key,)))
+
+    return sections
+
+
+def dump_toml_document(data):
+    sections = _collect_toml_sections(data)
+    if not sections:
+        return ""
+    return "\n\n".join("\n".join(section) for section in sections) + "\n"
+
+
 def write_claude_mcp_config(claude_home, payload):
     claude_home = Path(claude_home).expanduser()
     primary_path = claude_home / ".mcp.json"
