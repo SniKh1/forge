@@ -28,6 +28,7 @@ import './styles.css';
 import { forgeSkillOptions } from './generated-catalog';
 import { forgeRoleMcpMatrix } from './generated-role-mcp';
 import { forgeDomainMcpMatrix } from './generated-domain-mcp';
+import builtInMcpCatalogJson from '../../../core/mcp-servers.json';
 import forgeBloomIcon from './assets/forge-bloom.png';
 import claudeIcon from './assets/platform-icons/claude.png';
 import codexIcon from './assets/platform-icons/codex.png';
@@ -136,6 +137,7 @@ type DetailOption = {
   summary: string;
   note?: string;
   clients: readonly Client[];
+  requiredSecrets?: readonly string[];
   layer?: string;
   primaryFor?: readonly string[];
   recommendedByRole?: readonly string[];
@@ -156,6 +158,28 @@ type CommunityEntry = {
   kind: CommunityKind;
   clients: Client[];
   note: string;
+};
+
+type BuiltInMcpCatalogEntry = {
+  optional?: boolean;
+  summary?: string;
+  note?: string;
+  clients: Client[];
+  platforms?: string[];
+  config: {
+    env?: Record<string, string>;
+  };
+};
+
+type BuiltInMcpCatalog = {
+  servers: Record<string, BuiltInMcpCatalogEntry>;
+};
+
+type BuiltInSecretField = {
+  key: string;
+  clients: readonly Client[];
+  mcpIds: readonly string[];
+  mcpTitles: readonly string[];
 };
 
 type ExternalSkillResult = {
@@ -1034,6 +1058,18 @@ const messages: Record<Lang, Messages> = {
     exaKey: 'EXA API Key',
     exaHint: '仅在你勾选 MCP 时写入当前平台配置。输出和日志会自动脱敏。',
     exaSection: '密钥与令牌',
+    saveSecrets: '保存令牌配置',
+    resetSecrets: '恢复已保存',
+    secretPending: '未保存',
+    secretSavedHint: '已保存的令牌会在安装 Forge 内置 MCP 时自动注入当前客户端配置。',
+    secretDirtyHint: '你有未保存的令牌修改；当前安装仍只会使用上次保存的值。',
+    secretUsedBy: '用于',
+    secretSkipHint: '未填写时，依赖该令牌的内置 MCP 会在安装时自动跳过。',
+    savedSecretsCount: '已保存令牌',
+    selectedSecretsCount: '当前安装依赖',
+    missingSecretsCount: '当前仍缺少',
+    savedSecretsList: '已保存项',
+    noSavedSecrets: '当前还没有保存任何内置 MCP 的 token。',
     logSection: '命令日志',
     confirmTitleInstall: '确认安装当前平台配置',
     confirmTitleUpdate: '确认更新当前平台配置',
@@ -1224,6 +1260,18 @@ const messages: Record<Lang, Messages> = {
     exaKey: 'EXA API Key',
     exaHint: 'Only written to the current platform when MCP is selected. Output and logs stay redacted.',
     exaSection: 'Secrets and tokens',
+    saveSecrets: 'Save token settings',
+    resetSecrets: 'Reset to saved',
+    secretPending: 'Unsaved',
+    secretSavedHint: 'Saved tokens are injected automatically when Forge installs built-in MCP servers.',
+    secretDirtyHint: 'You have unsaved token changes. The current install still uses the last saved values.',
+    secretUsedBy: 'Used by',
+    secretSkipHint: 'If left empty, built-in MCP servers that require this token are skipped during install.',
+    savedSecretsCount: 'Saved tokens',
+    selectedSecretsCount: 'Required now',
+    missingSecretsCount: 'Still missing',
+    savedSecretsList: 'Saved items',
+    noSavedSecrets: 'No built-in MCP token has been saved yet.',
     logSection: 'Command log',
     confirmTitleInstall: 'Confirm current client install',
     confirmTitleUpdate: 'Confirm current client update',
@@ -1414,6 +1462,18 @@ const messages: Record<Lang, Messages> = {
     exaKey: 'EXA API Key',
     exaHint: 'MCP を選択したときだけ現在のプラットフォーム設定へ書き込みます。出力とログは自動的にマスクされます。',
     exaSection: 'シークレットとトークン',
+    saveSecrets: 'トークン設定を保存',
+    resetSecrets: '保存済みに戻す',
+    secretPending: '未保存',
+    secretSavedHint: '保存済みトークンは Forge 内蔵 MCP の導入時に自動で現在のクライアント設定へ注入されます。',
+    secretDirtyHint: '未保存のトークン変更があります。現在の導入では最後に保存した値だけを使います。',
+    secretUsedBy: '対象',
+    secretSkipHint: '未入力の場合、そのトークンが必要な内蔵 MCP は導入時に自動でスキップされます。',
+    savedSecretsCount: '保存済みトークン',
+    selectedSecretsCount: '今回必要',
+    missingSecretsCount: '未充足',
+    savedSecretsList: '保存済み項目',
+    noSavedSecrets: '内蔵 MCP 用トークンはまだ保存されていません。',
     logSection: 'コマンドログ',
     confirmTitleInstall: '現在のクライアント設定の導入確認',
     confirmTitleUpdate: '現在のクライアント設定の更新確認',
@@ -1574,16 +1634,52 @@ const baseOptions: InstallOption[] = [
   },
 ];
 
-const mcpDetailOptions: DetailOption[] = [
-  { id: 'sequential-thinking', title: 'sequential-thinking', summary: '复杂问题分步推理。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'context7', title: 'context7', summary: '文档与示例检索。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'memory', title: 'memory', summary: '跨会话记忆。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'fetch', title: 'fetch', summary: '通用 HTTP 抓取。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'playwright', title: 'playwright', summary: '浏览器自动化与网页验证。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'deepwiki', title: 'deepwiki', summary: '开源仓库说明与结构检索。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'exa', title: 'exa', summary: '联网搜索，需要 EXA key。', note: '未填写 EXA key 时不会写入。', clients: ['claude', 'codex', 'gemini'] },
-  { id: 'pencil', title: 'pencil', summary: '设计画布与视觉编辑。', note: '仅在 Codex / Gemini 的 macOS 环境可用。', clients: ['codex', 'gemini'] },
-];
+const builtInMcpCatalog = builtInMcpCatalogJson as BuiltInMcpCatalog;
+const BUILT_IN_SECRET_STORAGE_KEY = 'forge.desktop.built-in-secrets.v1';
+const SECRET_PLACEHOLDER_PATTERN = /^\{\{\s*([A-Z0-9_]+)\s*\}\}$/;
+
+function extractRequiredSecrets(env?: Record<string, string>) {
+  if (!env) return [] as string[];
+  const secrets = new Set<string>();
+  Object.values(env).forEach((value) => {
+    const match = typeof value === 'string' ? value.match(SECRET_PLACEHOLDER_PATTERN) : null;
+    if (match?.[1]) secrets.add(match[1]);
+  });
+  return Array.from(secrets);
+}
+
+const mcpDetailOptions: DetailOption[] = Object.entries(builtInMcpCatalog.servers).map(([id, entry]) => ({
+  id,
+  title: id,
+  summary: entry.summary || `${id} MCP`,
+  note: entry.note,
+  clients: entry.clients,
+  requiredSecrets: extractRequiredSecrets(entry.config.env),
+}));
+
+const builtInSecretFields: BuiltInSecretField[] = Array.from(
+  Object.entries(builtInMcpCatalog.servers).reduce((map, [id, entry]) => {
+    const requiredSecrets = extractRequiredSecrets(entry.config.env);
+    requiredSecrets.forEach((key) => {
+      const existing = map.get(key) || {
+        key,
+        clients: new Set<Client>(),
+        mcpIds: new Set<string>(),
+        mcpTitles: new Set<string>(),
+      };
+      entry.clients.forEach((client) => existing.clients.add(client));
+      existing.mcpIds.add(id);
+      existing.mcpTitles.add(id);
+      map.set(key, existing);
+    });
+    return map;
+  }, new Map<string, { key: string; clients: Set<Client>; mcpIds: Set<string>; mcpTitles: Set<string> }>()),
+).map(([, value]) => ({
+  key: value.key,
+  clients: Array.from(value.clients),
+  mcpIds: Array.from(value.mcpIds),
+  mcpTitles: Array.from(value.mcpTitles).sort((a, b) => a.localeCompare(b)),
+})).sort((a, b) => a.key.localeCompare(b.key));
 
 const skillDetailOptions: DetailOption[] = forgeSkillOptions.map((item) => ({ ...item }));
 
@@ -1708,6 +1804,38 @@ function sanitizeToken(value: string) {
   return `${value.slice(0, 4)}...${value.slice(-4)}`;
 }
 
+function normalizeSecretValues(values: Record<string, string>) {
+  return Object.fromEntries(
+    Object.entries(values)
+      .map(([key, value]) => [key, value.trim()])
+      .filter(([, value]) => value.length > 0),
+  );
+}
+
+function secretMapsEqual(left: Record<string, string>, right: Record<string, string>) {
+  const leftKeys = Object.keys(left).sort();
+  const rightKeys = Object.keys(right).sort();
+  if (leftKeys.length !== rightKeys.length) return false;
+  return leftKeys.every((key, index) => key === rightKeys[index] && left[key] === right[key]);
+}
+
+function loadStoredBuiltInSecrets() {
+  if (typeof window === 'undefined') return {} as Record<string, string>;
+  try {
+    const raw = window.localStorage.getItem(BUILT_IN_SECRET_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return {};
+    return Object.fromEntries(
+      Object.entries(parsed)
+        .filter(([key, value]) => typeof key === 'string' && typeof value === 'string')
+        .map(([key, value]) => [key, value]),
+    ) as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
 function toneForStatus(status: 'healthy' | 'needs-repair' | 'unknown') {
   if (status === 'healthy') return 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200';
   if (status === 'needs-repair') return 'bg-amber-50 text-amber-700 ring-1 ring-amber-200';
@@ -1822,11 +1950,11 @@ function App() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [isRunning, setIsRunning] = React.useState(false);
   const [lastUpdated, setLastUpdated] = React.useState<string>('');
-  const [exaKey, setExaKey] = React.useState('');
+  const [savedSecretValues, setSavedSecretValues] = React.useState<Record<string, string>>(() => loadStoredBuiltInSecrets());
+  const [secretDraftValues, setSecretDraftValues] = React.useState<Record<string, string>>(() => loadStoredBuiltInSecrets());
   const [logExpanded, setLogExpanded] = React.useState(false);
   const [secretExpanded, setSecretExpanded] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
-  const [confirmMode, setConfirmMode] = React.useState<'install' | 'repair'>('install');
   const [pendingExternalMcp, setPendingExternalMcp] = React.useState<ExternalMcpConfirmData | null>(null);
   const [resultLog, setResultLog] = React.useState('Ready.');
   const [copiedKey, setCopiedKey] = React.useState('');
@@ -2067,7 +2195,7 @@ function App() {
       detail: '',
     });
     const result = await runForgeResult(args, workspace);
-    const output = result.output || 'Completed without output.';
+    const output = stripAnsi(result.output || 'Completed without output.');
     const nextRuntimeBlocker = detectRuntimeBlocker(output);
 
     // For bootstrap, parse JSON result to determine true success/failure
@@ -2086,6 +2214,7 @@ function App() {
         bootstrapOk = result.ok;
       }
     }
+    displayOutput = stripAnsi(displayOutput);
     const effectiveOk = kind === 'bootstrap' ? bootstrapOk : result.ok;
     const detail = extractOutputSummary(displayOutput);
 
@@ -2246,6 +2375,46 @@ function App() {
   const selectedMcpServerIds = React.useMemo(
     () => mcpDetailList.filter((item) => selectedMcpDetails[item.id]).map((item) => item.id),
     [mcpDetailList, selectedMcpDetails],
+  );
+  const activeSecretFields = React.useMemo(
+    () => builtInSecretFields.filter((field) => field.clients.includes(activeClient)),
+    [activeClient],
+  );
+  const normalizedSavedSecrets = React.useMemo(
+    () => normalizeSecretValues(savedSecretValues),
+    [savedSecretValues],
+  );
+  const normalizedSecretDrafts = React.useMemo(
+    () => normalizeSecretValues(secretDraftValues),
+    [secretDraftValues],
+  );
+  const hasUnsavedSecretChanges = React.useMemo(
+    () => !secretMapsEqual(normalizedSavedSecrets, normalizedSecretDrafts),
+    [normalizedSavedSecrets, normalizedSecretDrafts],
+  );
+  const savedSecretKeys = React.useMemo(
+    () => Object.keys(normalizedSavedSecrets).sort((a, b) => a.localeCompare(b)),
+    [normalizedSavedSecrets],
+  );
+  const selectedSecretKeys = React.useMemo(
+    () => Array.from(new Set(
+      mcpDetailList
+        .filter((item) => selectedMcpDetails[item.id])
+        .flatMap((item) => item.requiredSecrets || []),
+    )).sort((a, b) => a.localeCompare(b)),
+    [mcpDetailList, selectedMcpDetails],
+  );
+  const savedSecretValuesForInstall = React.useMemo(
+    () => Object.fromEntries(
+      selectedSecretKeys
+        .map((key) => [key, normalizedSavedSecrets[key] || ''])
+        .filter(([, value]) => Boolean(value)),
+    ),
+    [normalizedSavedSecrets, selectedSecretKeys],
+  );
+  const missingSelectedSecretKeys = React.useMemo(
+    () => selectedSecretKeys.filter((key) => !normalizedSavedSecrets[key]),
+    [normalizedSavedSecrets, selectedSecretKeys],
   );
   const selectedSkillIds = React.useMemo(
     () => skillDetailList.filter((item) => selectedSkillDetails[item.id]).map((item) => item.id),
@@ -2559,14 +2728,25 @@ function App() {
     setPendingExternalMcp({ entry, busyKey });
   }, []);
 
-  const openConfirm = React.useCallback((mode: 'install' | 'repair') => {
-    setConfirmMode(mode);
+  const openConfirm = React.useCallback(() => {
     setConfirmOpen(true);
   }, []);
 
-  const executeConfirmedAction = React.useCallback(async () => {
+  const saveSecretValues = React.useCallback(() => {
+    const next = normalizeSecretValues(secretDraftValues);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(BUILT_IN_SECRET_STORAGE_KEY, JSON.stringify(next));
+    }
+    setSavedSecretValues(next);
+  }, [secretDraftValues]);
+
+  const resetSecretValues = React.useCallback(() => {
+    setSecretDraftValues(savedSecretValues);
+  }, [savedSecretValues]);
+
+  const buildPlatformActionArgs = React.useCallback((kind: 'install' | 'repair') => {
     const args = [
-      confirmMode === 'repair' ? 'repair' : 'install',
+      kind,
       activeClient,
       '--non-interactive',
       '--components',
@@ -2578,12 +2758,20 @@ function App() {
     if (selectedSkillIds.length) {
       args.push('--skills-list', selectedSkillIds.join(','));
     }
-    if (exaKey && selectedMcpServerIds.includes('exa')) {
-      args.push('--exa-api-key', exaKey);
+    if (Object.keys(savedSecretValuesForInstall).length > 0) {
+      args.push('--secret-values-base64', encodeBase64Json(savedSecretValuesForInstall));
     }
+    return args;
+  }, [activeClient, savedSecretValuesForInstall, selectedComponentIds, selectedMcpServerIds, selectedSkillIds]);
+
+  const runRepairAction = React.useCallback(async () => {
+    await runAction('repair', buildPlatformActionArgs('repair'));
+  }, [buildPlatformActionArgs, runAction]);
+
+  const executeConfirmedAction = React.useCallback(async () => {
     setConfirmOpen(false);
-    await runAction(confirmMode === 'repair' ? 'repair' : 'install', args);
-  }, [activeClient, confirmMode, exaKey, runAction, selectedComponentIds, selectedMcpServerIds, selectedSkillIds]);
+    await runAction('install', buildPlatformActionArgs('install'));
+  }, [buildPlatformActionArgs, runAction]);
 
   const platformTabs = clientOrder.map((client) => ({
     id: client,
@@ -2591,7 +2779,7 @@ function App() {
   }));
   const repairLabel = platformActionLabel('repair', activeClient, lang);
   const confirmTitle = platformConfirmTitle(
-    confirmMode === 'repair' ? 'repair' : detection?.configured ? 'update' : 'install',
+    detection?.configured ? 'update' : 'install',
     activeClient,
     lang,
   );
@@ -2767,7 +2955,7 @@ function App() {
                       <ActionButton
                         label={installLabel}
                         primary
-                        onClick={() => openConfirm('install')}
+                        onClick={() => openConfirm()}
                         disabled={isRunning || nodeBlocked}
                         loading={Boolean(isRunning && actionFeedback?.kind === 'install')}
                         badgeText={actionBadge('install')?.text}
@@ -2787,7 +2975,7 @@ function App() {
                       />
                       <ActionButton
                         label={repairLabel}
-                        onClick={() => openConfirm('repair')}
+                        onClick={() => void runRepairAction()}
                         disabled={isRunning || nodeBlocked}
                         loading={Boolean(isRunning && actionFeedback?.kind === 'repair')}
                         badgeText={actionBadge('repair')?.text}
@@ -2874,24 +3062,81 @@ function App() {
               </section>
 
               <FoldSection title={t.exaSection} hint={t.secretsCollapsedHint} expanded={secretExpanded} onToggle={() => setSecretExpanded((value) => !value)}>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">EXA API Key</div>
-                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${exaKey ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-slate-100 text-slate-600 ring-slate-200'}`}>
-                      {exaKey ? t.secretReady : t.secretEmpty}
-                    </span>
+                <div className="space-y-4">
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <SummaryCard label={t.savedSecretsCount} value={String(savedSecretKeys.length)} />
+                    <SummaryCard label={t.selectedSecretsCount} value={String(selectedSecretKeys.length)} />
+                    <SummaryCard label={t.missingSecretsCount} value={String(missingSelectedSecretKeys.length)} />
                   </div>
-                  <input
-                    type="password"
-                    value={exaKey}
-                    onChange={(event) => setExaKey(event.target.value)}
-                    placeholder="EXA_API_KEY"
-                    className="h-12 w-full rounded-[12px] border border-slate-200 bg-slate-50 px-4 font-mono text-[13px] outline-none transition focus:border-slate-400 focus:bg-white"
-                  />
-                  <div className="flex items-center justify-between gap-3 text-[11px] text-slate-500">
-                    <span>{t.exaHint}</span>
-                    {exaKey && <span className="font-mono text-slate-400">{sanitizeToken(exaKey)}</span>}
+                  <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
+                    <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{t.savedSecretsList}</div>
+                    {savedSecretKeys.length > 0 ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {savedSecretKeys.map((key) => (
+                          <span key={key} className="rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                            {key}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="mt-2 text-[12px] text-slate-500">{t.noSavedSecrets}</div>
+                    )}
                   </div>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="text-[12px] text-slate-500">
+                      {hasUnsavedSecretChanges ? t.secretDirtyHint : t.secretSavedHint}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={resetSecretValues}
+                        disabled={!hasUnsavedSecretChanges}
+                        className="rounded-[10px] border border-slate-200 bg-white px-3 py-2 text-[11px] font-medium text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {t.resetSecrets}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={saveSecretValues}
+                        className="rounded-[10px] bg-slate-900 px-3 py-2 text-[11px] font-medium text-white shadow-[0_10px_24px_rgba(15,23,42,0.16)]"
+                      >
+                        {t.saveSecrets}
+                      </button>
+                    </div>
+                  </div>
+                  {activeSecretFields.length === 0 ? (
+                    <div className="rounded-[12px] border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-[12px] text-slate-500">
+                      {t.noSecretYet}
+                    </div>
+                  ) : (
+                    activeSecretFields.map((field) => {
+                      const draftValue = secretDraftValues[field.key] || '';
+                      const savedValue = normalizedSavedSecrets[field.key] || '';
+                      const pending = draftValue.trim() !== savedValue;
+                      return (
+                        <div key={field.key} className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">{field.key}</div>
+                            <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${pending ? 'bg-amber-50 text-amber-700 ring-amber-200' : savedValue ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-slate-100 text-slate-600 ring-slate-200'}`}>
+                              {pending ? t.secretPending : savedValue ? t.secretReady : t.secretEmpty}
+                            </span>
+                          </div>
+                          <input
+                            type="password"
+                            value={draftValue}
+                            onChange={(event) => setSecretDraftValues((current) => ({ ...current, [field.key]: event.target.value }))}
+                            placeholder={field.key}
+                            className="mt-3 h-12 w-full rounded-[12px] border border-slate-200 bg-white px-4 font-mono text-[13px] outline-none transition focus:border-slate-400"
+                          />
+                          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-500">
+                            <span>{t.secretUsedBy}: {field.mcpTitles.join(', ')}</span>
+                            {savedValue && <span className="font-mono text-slate-400">{sanitizeToken(savedValue)}</span>}
+                          </div>
+                          <div className="mt-1 text-[11px] text-slate-400">{t.secretSkipHint}</div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </FoldSection>
 

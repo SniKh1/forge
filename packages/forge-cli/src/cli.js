@@ -39,6 +39,7 @@ function parseArgs(argv) {
     skill: '',
     specBase64: '',
     name: '',
+    secretValuesBase64: '',
   };
 
   const positional = [];
@@ -82,6 +83,8 @@ function parseArgs(argv) {
       options.specBase64 = rest[++i] || '';
     } else if (token === '--name') {
       options.name = rest[++i] || '';
+    } else if (token === '--secret-values-base64') {
+      options.secretValuesBase64 = rest[++i] || '';
     } else {
       positional.push(token);
     }

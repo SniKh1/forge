@@ -2,6 +2,7 @@
   "servers": {
     "sequential-thinking": {
       "optional": false,
+      "summary": "复杂问题分步推理。",
       "clients": ["claude", "codex", "gemini"],
       "config": {
         "type": "stdio",
@@ -11,6 +12,7 @@
     },
     "context7": {
       "optional": false,
+      "summary": "文档与示例检索。",
       "clients": ["claude", "codex", "gemini"],
       "config": {
         "type": "stdio",
@@ -20,6 +22,7 @@
     },
     "memory": {
       "optional": false,
+      "summary": "跨会话记忆。",
       "clients": ["claude", "codex", "gemini"],
       "config": {
         "type": "stdio",
@@ -29,6 +32,7 @@
     },
     "fetch": {
       "optional": false,
+      "summary": "通用 HTTP 抓取。",
       "clients": ["claude", "codex", "gemini"],
       "config": {
         "type": "stdio",
@@ -38,6 +42,7 @@
     },
     "playwright": {
       "optional": false,
+      "summary": "浏览器自动化与网页验证。",
       "clients": ["claude", "codex", "gemini"],
       "config": {
         "type": "stdio",
@@ -52,6 +57,7 @@
     },
     "deepwiki": {
       "optional": false,
+      "summary": "开源仓库说明与结构检索。",
       "clients": ["claude", "codex", "gemini"],
       "config": {
         "type": "stdio",
@@ -66,6 +72,7 @@
     },
     "exa": {
       "optional": true,
+      "summary": "联网搜索，需要 EXA key。",
       "clients": ["claude", "codex", "gemini"],
       "config": {
         "type": "stdio",
@@ -78,12 +85,74 @@
     },
     "pencil": {
       "optional": true,
+      "summary": "设计画布与视觉编辑。",
+      "note": "仅在 Codex / Gemini 的 macOS 环境可用。",
       "clients": ["codex", "gemini"],
       "platforms": ["darwin"],
       "config": {
         "type": "stdio",
         "command": "/Applications/Pencil.app/Contents/Resources/app.asar.unpacked/out/mcp-server-darwin-arm64",
         "args": ["--app", "desktop"]
+      }
+    },
+    "bing-search": {
+      "optional": true,
+      "summary": "Bing 搜索，需要 Bing API key。",
+      "clients": ["claude", "codex", "gemini"],
+      "config": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@lebrunel/mcp-bing-search"],
+        "env": {
+          "BING_API_KEY": "{{BING_API_KEY}}"
+        }
+      }
+    },
+    "firecrawl": {
+      "optional": true,
+      "summary": "Firecrawl 网页抓取，需要 Firecrawl API key。",
+      "clients": ["claude", "codex", "gemini"],
+      "config": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "firecrawl-mcp"],
+        "env": {
+          "FIRECRAWL_API_KEY": "{{FIRECRAWL_API_KEY}}"
+        }
+      }
+    },
+    "n8n": {
+      "optional": true,
+      "summary": "n8n 工作流接入，需要 API URL 和 API key。",
+      "clients": ["claude", "codex", "gemini"],
+      "config": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@n8n/n8n-mcp"],
+        "env": {
+          "N8N_API_URL": "{{N8N_API_URL}}",
+          "N8N_API_KEY": "{{N8N_API_KEY}}"
+        }
+      }
+    },
+    "trendradar": {
+      "optional": true,
+      "summary": "趋势雷达与话题跟踪。",
+      "clients": ["claude", "codex", "gemini"],
+      "config": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "trendradar-mcp"]
+      }
+    },
+    "drawio": {
+      "optional": true,
+      "summary": "draw.io 图表与流程图编辑。",
+      "clients": ["claude", "codex", "gemini"],
+      "config": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "drawio-mcp"]
       }
     }
   }

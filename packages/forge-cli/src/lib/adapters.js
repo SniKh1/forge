@@ -21,6 +21,7 @@ function buildEnv(options, client) {
     FORGE_COMPONENTS: (options.components || []).join(','),
     FORGE_MCP_SERVERS: (options.mcpServers || []).join(','),
     FORGE_SKILLS: (options.skillNames || []).join(','),
+    FORGE_SECRET_VALUES_BASE64: options.secretValuesBase64 || '',
   };
 }
 

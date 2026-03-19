@@ -39,8 +39,8 @@ done
 
 if has_component "skills"; then
   mkdir -p "$GEMINI_HOME/skills"
-  if command -v node >/dev/null 2>&1 && [ -f "$ROOT_DIR/scripts/sync-runtime-skills.js" ]; then
-    sync_args=("$ROOT_DIR/scripts/sync-runtime-skills.js" "$ROOT_DIR" "$GEMINI_HOME/skills" "--mode" "full")
+  if command -v node >/dev/null 2>&1 && [ -f "$ROOT_DIR/scripts/sync-runtime-skills.cjs" ]; then
+    sync_args=("$ROOT_DIR/scripts/sync-runtime-skills.cjs" "$ROOT_DIR" "$GEMINI_HOME/skills" "--mode" "full")
     if [ -n "$FORGE_SKILLS" ]; then
       sync_args+=("--selected" "$FORGE_SKILLS")
     fi

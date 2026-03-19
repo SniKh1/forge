@@ -7,7 +7,7 @@ import tomllib
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
-from forge_core import dump_toml_document, ensure_uvx, resolve_servers  # noqa: E402
+from forge_core import decode_secret_values, dump_toml_document, ensure_uvx, resolve_servers  # noqa: E402
 
 
 def load_config(path: Path):
@@ -20,6 +20,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default=os.path.expanduser("~/.codex/config.toml"))
     parser.add_argument("--exa-key", default=os.environ.get("FORGE_CODEX_EXA_KEY", ""))
+    parser.add_argument("--secret-values-base64", default=os.environ.get("FORGE_SECRET_VALUES_BASE64", ""))
     parser.add_argument("--with-pencil", action="store_true")
     parser.add_argument("--with-exa", action="store_true")
     parser.add_argument("--install-uv", action="store_true")
@@ -39,6 +40,7 @@ def main():
         exa_key=args.exa_key if args.with_exa else "",
         include_optional=True,
         selected_servers=[item.strip() for item in args.servers.split(",") if item.strip()],
+        secret_values=decode_secret_values(args.secret_values_base64),
     )
 
     if not args.with_pencil and "pencil" in resolved:

@@ -36,7 +36,7 @@ $RulesDir = Join-Path $ClaudeDir "rules"
 $StacksDir = Join-Path $ClaudeDir "stacks"
 $SkillsDir = Join-Path $ClaudeDir "skills"
 $CommandsDir = Join-Path $ClaudeDir "commands"
-$DupScript = Join-Path $PSScriptRoot "check-runtime-skill-duplicates.js"
+$DupScript = Join-Path $PSScriptRoot "check-runtime-skill-duplicates.cjs"
 
 # ============================================================================
 # Helper Functions

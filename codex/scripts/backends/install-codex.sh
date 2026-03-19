@@ -251,8 +251,8 @@ install_assets() {
 
   local skills=0
   if has_component "skills"; then
-    if command -v node >/dev/null 2>&1 && [ -f "$ROOT_DIR/scripts/sync-runtime-skills.js" ]; then
-      sync_args=("$ROOT_DIR/scripts/sync-runtime-skills.js" "$ROOT_DIR" "$CODEX_HOME/skills" "--mode" "$INSTALL_MODE")
+    if command -v node >/dev/null 2>&1 && [ -f "$ROOT_DIR/scripts/sync-runtime-skills.cjs" ]; then
+      sync_args=("$ROOT_DIR/scripts/sync-runtime-skills.cjs" "$ROOT_DIR" "$CODEX_HOME/skills" "--mode" "$INSTALL_MODE")
       if [ -n "$FORGE_SKILLS" ]; then
         sync_args+=("--selected" "$FORGE_SKILLS")
       fi

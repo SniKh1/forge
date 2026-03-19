@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import base64
 import json
 import os
 import shutil
@@ -48,11 +49,27 @@ def ensure_uvx(install_uv):
         return
     subprocess.run("curl -LsSf https://astral.sh/uv/install.sh | sh", shell=True, check=True)
 
+def decode_secret_values(encoded):
+    if not encoded:
+        return {}
+    payload = encoded.strip()
+    if not payload:
+        return {}
+    decoded = base64.b64decode(payload)
+    data = json.loads(decoded.decode("utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError("Secret payload must decode to an object")
+    return {str(key): str(value) for key, value in data.items() if value is not None and str(value).strip()}
 
-def resolve_servers(client, exa_key="", include_optional=True, selected_servers=None):
+
+def resolve_servers(client, exa_key="", include_optional=True, selected_servers=None, secret_values=None):
     catalog = load_mcp_catalog()["servers"]
     resolved = {}
     selected = set(selected_servers or [])
+    merged_secret_values = {str(key): str(value) for key, value in (secret_values or {}).items() if value is not None and str(value).strip()}
+
+    if exa_key and not merged_secret_values.get("EXA_API_KEY"):
+        merged_secret_values["EXA_API_KEY"] = exa_key
 
     for name, item in catalog.items():
         if client not in item.get("clients", []):
@@ -69,14 +86,23 @@ def resolve_servers(client, exa_key="", include_optional=True, selected_servers=
             override = item["overrides"][client]
             config.update(deepcopy(override))
 
-        if name == "exa":
-            if not exa_key:
+        env = config.get("env", {})
+        missing_secrets = set()
+        if isinstance(env, dict) and env:
+            next_env = {}
+            for key, value in env.items():
+                if isinstance(value, str) and value.startswith("{{") and value.endswith("}}"):
+                    secret_name = value[2:-2].strip()
+                    secret_value = merged_secret_values.get(secret_name, "")
+                    if secret_value:
+                        next_env[key] = secret_value
+                    else:
+                        missing_secrets.add(secret_name)
+                else:
+                    next_env[key] = value
+            if missing_secrets:
                 continue
-            env = config.get("env", {})
-            for key, value in list(env.items()):
-                if value == "{{EXA_API_KEY}}":
-                    env[key] = exa_key
-            config["env"] = env
+            config["env"] = next_env
 
         if name == "pencil" and not Path(config["command"]).exists():
             continue

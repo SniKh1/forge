@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
-from forge_core import dump_json, ensure_uvx, resolve_servers  # noqa: E402
+from forge_core import decode_secret_values, dump_json, ensure_uvx, resolve_servers  # noqa: E402
 
 
 def load_json(path):
@@ -20,6 +20,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--gemini-home", default=os.path.expanduser("~/.gemini"))
     parser.add_argument("--exa-key", default=os.environ.get("FORGE_GEMINI_EXA_KEY", ""))
+    parser.add_argument("--secret-values-base64", default=os.environ.get("FORGE_SECRET_VALUES_BASE64", ""))
     parser.add_argument("--install-uv", action="store_true")
     parser.add_argument("--servers", default="")
     args = parser.parse_args()
@@ -37,6 +38,7 @@ def main():
         exa_key=args.exa_key,
         include_optional=True,
         selected_servers=[item.strip() for item in args.servers.split(",") if item.strip()],
+        secret_values=decode_secret_values(args.secret_values_base64),
     )
     for name, config in servers.items():
         item = {

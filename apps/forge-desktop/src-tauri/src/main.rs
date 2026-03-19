@@ -37,6 +37,15 @@ fn source_repo_root() -> PathBuf {
 fn candidate_repo_roots(app: &AppHandle) -> Vec<PathBuf> {
     let mut candidates = Vec::new();
 
+    if let Some(value) = std::env::var_os("FORGE_DESKTOP_REPO_ROOT") {
+        candidates.push(PathBuf::from(value));
+    }
+
+    let source_root = source_repo_root();
+    if cfg!(debug_assertions) {
+        candidates.push(source_root.clone());
+    }
+
     if let Ok(resource_dir) = app.path().resource_dir() {
         candidates.push(resource_dir.clone());
         candidates.push(resource_dir.join("_up_"));
@@ -55,7 +64,9 @@ fn candidate_repo_roots(app: &AppHandle) -> Vec<PathBuf> {
         }
     }
 
-    candidates.push(source_repo_root());
+    if !cfg!(debug_assertions) {
+        candidates.push(source_root);
+    }
     candidates
 }
 

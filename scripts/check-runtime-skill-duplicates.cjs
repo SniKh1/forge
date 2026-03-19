@@ -9,7 +9,7 @@ const cleanArgs = args.filter((arg) => !['--json', '--warn-only'].includes(arg))
 const targetDir = cleanArgs[0];
 
 if (!targetDir) {
-  console.error('Usage: check-runtime-skill-duplicates.js [--json] [--warn-only] <skills-dir>');
+  console.error('Usage: check-runtime-skill-duplicates.cjs [--json] [--warn-only] <skills-dir>');
   process.exit(1);
 }
 

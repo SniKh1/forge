@@ -6,6 +6,19 @@ The format follows a Keep a Changelog style, adapted for Forge.
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-03-19
+
+### Added
+- Added built-in Forge MCP catalog expansion and desktop token management for built-in MCP secrets, including explicit save/reset controls before install or repair.
+
+### Fixed
+- Fixed Codex MCP configuration updates so existing TOML tables such as `[model_providers.custom]` are preserved instead of being rewritten as invalid quoted strings.
+- Fixed external MCP installs for Codex so they reuse the same TOML serializer and no longer corrupt unrelated Codex config sections while adding `mcp_servers`.
+- Fixed desktop install and repair flows so built-in MCP secrets are injected from saved values and missing secret-backed MCPs are skipped instead of writing broken configuration.
+- Fixed Claude repair and verification flows on macOS and Windows so runtime skill helper scripts are executed as CommonJS `.cjs` files instead of crashing under ESM package boundaries.
+- Fixed desktop dev/runtime resource resolution so packaged `_up_` leftovers no longer override the current source tree during local Tauri runs.
+- Fixed desktop action logs so ANSI escape sequences and raw internal helper output no longer leak directly into the UI.
+
 ## [0.4.5] - 2026-03-19
 
 ### Fixed

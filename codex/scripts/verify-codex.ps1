@@ -37,7 +37,7 @@ if (Test-Path $skills) {
   Fail "skills directory missing"
 }
 
-$dupScript = Join-Path $ForgeHome "scripts\check-runtime-skill-duplicates.js"
+$dupScript = Join-Path $ForgeHome "scripts\check-runtime-skill-duplicates.cjs"
 if ((Get-Command node -ErrorAction SilentlyContinue) -and (Test-Path $dupScript) -and (Test-Path $skills)) {
   $dupJson = node $dupScript --json --warn-only $skills
   $dupData = $dupJson | ConvertFrom-Json

@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from forge_core import ensure_uvx, resolve_servers, write_claude_mcp_config  # noqa: E402
+from forge_core import decode_secret_values, ensure_uvx, resolve_servers, write_claude_mcp_config  # noqa: E402
 
 
 WINDOWS_NO_WINDOW = 0x08000000 if sys.platform.startswith("win") else 0
@@ -78,6 +78,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--claude-home", default=os.path.expanduser("~/.claude"))
     parser.add_argument("--exa-key", default=os.environ.get("FORGE_EXA_KEY", ""))
+    parser.add_argument("--secret-values-base64", default=os.environ.get("FORGE_SECRET_VALUES_BASE64", ""))
     parser.add_argument("--install-uv", action="store_true")
     parser.add_argument("--sync-cli", action="store_true")
     parser.add_argument("--servers", default="")
@@ -89,7 +90,13 @@ def main():
     claude_home.mkdir(parents=True, exist_ok=True)
 
     selected_servers = [item.strip() for item in args.servers.split(",") if item.strip()]
-    servers = resolve_servers("claude", exa_key=args.exa_key, include_optional=True, selected_servers=selected_servers)
+    servers = resolve_servers(
+        "claude",
+        exa_key=args.exa_key,
+        include_optional=True,
+        selected_servers=selected_servers,
+        secret_values=decode_secret_values(args.secret_values_base64),
+    )
     payload = {"mcpServers": {}}
     for name, config in servers.items():
         item = {"command": config["command"], "args": config.get("args", [])}

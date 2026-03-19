@@ -42,7 +42,7 @@ Copy-Item (Join-Path $ScriptDir "scripts\*") -Destination $GeminiScriptsHome -Re
 
 if (Has-Component "skills") {
     New-Item -ItemType Directory -Path (Join-Path $GeminiHome "skills") -Force | Out-Null
-    $syncScript = Join-Path $RootDir "scripts\sync-runtime-skills.js"
+    $syncScript = Join-Path $RootDir "scripts\sync-runtime-skills.cjs"
     if ((Get-Command node -ErrorAction SilentlyContinue) -and (Test-Path $syncScript)) {
         $syncArgs = @($syncScript, $RootDir, (Join-Path $GeminiHome "skills"), "--mode", "full")
         if ($env:FORGE_SKILLS) { $syncArgs += @("--selected", $env:FORGE_SKILLS) }

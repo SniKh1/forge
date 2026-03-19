@@ -233,7 +233,7 @@ function Install-Assets {
 
     $skillCount = 0
     if (Has-Component "skills") {
-        $syncScript = Join-Path $RootDir "scripts\sync-runtime-skills.js"
+        $syncScript = Join-Path $RootDir "scripts\sync-runtime-skills.cjs"
         if ((Get-Command node -ErrorAction SilentlyContinue) -and (Test-Path $syncScript)) {
             $syncArgs = @($syncScript, $RootDir, (Join-Path $CodexHome "skills"), "--mode", $InstallMode)
             if ($env:FORGE_SKILLS) { $syncArgs += @("--selected", $env:FORGE_SKILLS) }

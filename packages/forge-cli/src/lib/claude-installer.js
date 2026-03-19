@@ -18,6 +18,25 @@ function selectedSkills(options) {
   return new Set(Array.isArray(options.skillNames) ? options.skillNames : []);
 }
 
+function syncRuntimeSkills(syncScript, mode, repoRootPath, skillsDest, skillSelection) {
+  const args = [syncScript, repoRootPath, skillsDest, '--mode', mode];
+  if (skillSelection.length) {
+    args.push('--selected', skillSelection.join(','));
+  }
+
+  const result = run(process.execPath, args, { capture: true });
+  if (result.status !== 0) {
+    throw new Error(`${process.execPath} ${args.join(' ')} failed with code ${result.status}`);
+  }
+
+  try {
+    const payload = JSON.parse(result.stdout || '{}');
+    return Number(payload.installed || 0);
+  } catch {
+    return 0;
+  }
+}
+
 function ensureSettingsDefaults(settingsTarget, templatePath) {
   if (!fs.existsSync(templatePath)) return;
   const template = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
@@ -86,14 +105,10 @@ function copyAssets(mode, options) {
   const skillsDest = path.join(homeDir, 'skills');
   ensureDir(skillsDest);
   if (hasOptionalComponent(options, 'skills')) {
-    const syncScript = path.join(repoRoot, 'scripts', 'sync-runtime-skills.js');
+    const syncScript = path.join(repoRoot, 'scripts', 'sync-runtime-skills.cjs');
     const skillSelection = [...selectedSkills(options)];
     if (fs.existsSync(syncScript)) {
-      const args = [syncScript, repoRoot, skillsDest, '--mode', mode];
-      if (skillSelection.length) {
-        args.push('--selected', skillSelection.join(','));
-      }
-      run(process.execPath, args);
+      syncRuntimeSkills(syncScript, mode, repoRoot, skillsDest, skillSelection);
     } else {
       const skillsSrc = path.join(repoRoot, 'skills');
       if (fs.existsSync(skillsSrc)) {
@@ -171,6 +186,7 @@ function installClaude(options) {
     run(python, args, {
       env: {
         FORGE_EXA_KEY: options.exaApiKey || '',
+        FORGE_SECRET_VALUES_BASE64: options.secretValuesBase64 || '',
       },
     });
   }
