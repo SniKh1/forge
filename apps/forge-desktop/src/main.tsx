@@ -1010,7 +1010,7 @@ const messages: Record<Lang, Messages> = {
     hideRolePicker: '收起角色',
     adjustStacks: '调整栈包',
     hideStackAdjustments: '收起栈包',
-    quickApplyHint: '默认会随角色自动应用推荐栈、推荐 Skills 与推荐 MCP。只有需要偏离推荐时再展开调整。',
+    quickApplyHint: '默认会随角色自动应用推荐栈与推荐 Skills。MCP 保持独立选择，只提供建议不自动勾选。',
     additionalStacksLabel: '补充栈',
     customStacksLabel: '自定义栈',
     roleStackModeHint: '角色负责给出默认匹配；栈包只用于补充当前角色没有覆盖到的工作面。',
@@ -1038,11 +1038,11 @@ const messages: Record<Lang, Messages> = {
     systemTheme: '跟随系统',
     exaKey: 'EXA API Key',
     exaHint: '仅在你勾选 MCP 时写入当前平台配置。输出和日志会自动脱敏。',
-    exaSection: '密钥与令牌',
+    exaSection: 'MCP 与令牌',
     saveSecrets: '保存令牌配置',
     resetSecrets: '恢复已保存',
     secretPending: '未保存',
-    secretSavedHint: '已保存的令牌会在安装 Forge 内置 MCP 时自动注入当前客户端配置。',
+    secretSavedHint: '这里统一管理 MCP 需要的令牌；保存后会在安装 Forge 内置 MCP 时自动注入当前客户端配置。',
     secretDirtyHint: '你有未保存的令牌修改；当前安装仍只会使用上次保存的值。',
     secretUsedBy: '用于',
     secretSkipHint: '未填写时，依赖该令牌的内置 MCP 会在安装时自动跳过。',
@@ -1076,7 +1076,7 @@ const messages: Record<Lang, Messages> = {
     noSecretYet: '当前没有额外 token/key。',
     secretEmpty: '未填写',
     secretReady: '已填写',
-    secretsCollapsedHint: '后续更多 MCP 或社区技能需要 key 时，也放在这里。',
+    secretsCollapsedHint: 'MCP 独立于画像管理；这里统一保存内置 MCP 所需的 key 与 token。',
     logCollapsedHint: '默认折叠，需要时再看详细输出。',
     saveSelection: '当前平台会安装',
     restartHint: '安装完成后，如客户端已在运行，建议重启该客户端。',
@@ -1224,7 +1224,7 @@ const messages: Record<Lang, Messages> = {
     hideRolePicker: 'Hide roles',
     adjustStacks: 'Adjust stacks',
     hideStackAdjustments: 'Hide stack adjustments',
-    quickApplyHint: 'Selecting a role automatically applies the recommended stacks, skills, and MCP set. Expand only when you want to diverge.',
+    quickApplyHint: 'Selecting a role automatically applies the recommended stacks and skills. MCP remains independently selected and is only suggested, not auto-applied.',
     additionalStacksLabel: 'Additional stacks',
     customStacksLabel: 'Custom stacks',
     roleStackModeHint: 'The role defines the default match. Use stacks only to extend coverage beyond that role.',
@@ -1252,11 +1252,11 @@ const messages: Record<Lang, Messages> = {
     systemTheme: 'System',
     exaKey: 'EXA API Key',
     exaHint: 'Only written to the current platform when MCP is selected. Output and logs stay redacted.',
-    exaSection: 'Secrets and tokens',
+    exaSection: 'MCP and tokens',
     saveSecrets: 'Save token settings',
     resetSecrets: 'Reset to saved',
     secretPending: 'Unsaved',
-    secretSavedHint: 'Saved tokens are injected automatically when Forge installs built-in MCP servers.',
+    secretSavedHint: 'Manage MCP tokens here. Saved values are injected automatically when Forge installs built-in MCP servers.',
     secretDirtyHint: 'You have unsaved token changes. The current install still uses the last saved values.',
     secretUsedBy: 'Used by',
     secretSkipHint: 'If left empty, built-in MCP servers that require this token are skipped during install.',
@@ -1290,7 +1290,7 @@ const messages: Record<Lang, Messages> = {
     noSecretYet: 'No extra token or key is set yet.',
     secretEmpty: 'Empty',
     secretReady: 'Saved',
-    secretsCollapsedHint: 'Future MCPs or community skills that need keys will also live here.',
+    secretsCollapsedHint: 'MCP is managed independently from persona. Store built-in MCP keys and tokens here.',
     logCollapsedHint: 'Logs stay collapsed by default and only expand when needed.',
     saveSelection: 'Current platform will install',
     restartHint: 'If the client is already running, restart it after installation.',
@@ -1438,7 +1438,7 @@ const messages: Record<Lang, Messages> = {
     hideRolePicker: 'ロールを閉じる',
     adjustStacks: 'スタックを調整',
     hideStackAdjustments: 'スタック調整を閉じる',
-    quickApplyHint: 'ロールを選ぶと推奨 stack・推奨 Skills・推奨 MCP が自動適用されます。推奨から外すときだけ展開してください。',
+    quickApplyHint: 'ロール選択では推奨 stack と Skills のみ自動適用します。MCP は独立選択のままで、自動チェックはしません。',
     additionalStacksLabel: '追加スタック',
     customStacksLabel: 'カスタムスタック',
     roleStackModeHint: 'ロールが標準の組み合わせを決め、stack はそのロールで不足する作業面を補うためにだけ使います。',
@@ -1466,11 +1466,11 @@ const messages: Record<Lang, Messages> = {
     systemTheme: 'システム',
     exaKey: 'EXA API Key',
     exaHint: 'MCP を選択したときだけ現在のプラットフォーム設定へ書き込みます。出力とログは自動的にマスクされます。',
-    exaSection: 'シークレットとトークン',
+    exaSection: 'MCP とトークン',
     saveSecrets: 'トークン設定を保存',
     resetSecrets: '保存済みに戻す',
     secretPending: '未保存',
-    secretSavedHint: '保存済みトークンは Forge 内蔵 MCP の導入時に自動で現在のクライアント設定へ注入されます。',
+    secretSavedHint: 'MCP 用トークンはここで一元管理します。保存済みトークンは Forge 内蔵 MCP の導入時に自動で現在のクライアント設定へ注入されます。',
     secretDirtyHint: '未保存のトークン変更があります。現在の導入では最後に保存した値だけを使います。',
     secretUsedBy: '対象',
     secretSkipHint: '未入力の場合、そのトークンが必要な内蔵 MCP は導入時に自動でスキップされます。',
@@ -1504,7 +1504,7 @@ const messages: Record<Lang, Messages> = {
     noSecretYet: '追加の token / key はまだ設定されていません。',
     secretEmpty: '未入力',
     secretReady: '入力済み',
-    secretsCollapsedHint: '今後 key が必要な MCP やコミュニティ skill もここに置きます。',
+    secretsCollapsedHint: 'MCP は画像設定から独立して管理します。内蔵 MCP に必要な key と token はここにまとめます。',
     logCollapsedHint: 'ログは普段は折りたたみ、必要な時だけ開きます。',
     saveSelection: '現在のプラットフォームへ導入',
     restartHint: 'クライアントが起動中なら、導入後に再起動してください。',
@@ -1924,7 +1924,7 @@ function App() {
   const [selectedSkillDetails, setSelectedSkillDetails] = React.useState<Record<string, boolean>>(() =>
     Object.fromEntries(skillDetailOptions.map((item) => [item.id, false])),
   );
-  const [mcpSelectionMode, setMcpSelectionMode] = React.useState<'recommended' | 'custom'>('recommended');
+  const [mcpSelectionMode, setMcpSelectionMode] = React.useState<'recommended' | 'custom'>('custom');
   const [skillSelectionMode, setSkillSelectionMode] = React.useState<'recommended' | 'custom'>('recommended');
   const [externalSearchLoading, setExternalSearchLoading] = React.useState(false);
   const [externalSearchError, setExternalSearchError] = React.useState('');
@@ -2404,35 +2404,17 @@ function App() {
 
   const applyRecommendedPreset = React.useCallback(() => {
     restoreRecommendedInstallStacks();
-    setMcpSelectionMode('recommended');
     setSkillSelectionMode('recommended');
-    setSelectedMcpDetails((current) => ({
-      ...current,
-      ...Object.fromEntries(mcpDetailList.map((item) => [item.id, recommendedMcpIdSet.has(item.id)])),
-    }));
     setSelectedSkillDetails((current) => ({
       ...current,
       ...Object.fromEntries(skillDetailList.map((item) => [item.id, recommendedSkillIdSet.has(item.id)])),
     }));
     setSelectedOptional((current) => ({
       ...current,
-      mcp: mcpDetailList.some((item) => recommendedMcpIdSet.has(item.id)),
       skills: skillDetailList.some((item) => recommendedSkillIdSet.has(item.id)),
       memory: true,
     }));
-  }, [mcpDetailList, recommendedMcpIdSet, recommendedSkillIdSet, restoreRecommendedInstallStacks, skillDetailList]);
-
-  React.useEffect(() => {
-    if (mcpSelectionMode !== 'recommended') return;
-    setSelectedMcpDetails((current) => ({
-      ...current,
-      ...Object.fromEntries(mcpDetailList.map((item) => [item.id, recommendedMcpIdSet.has(item.id)])),
-    }));
-    setSelectedOptional((current) => ({
-      ...current,
-      mcp: mcpDetailList.some((item) => recommendedMcpIdSet.has(item.id)),
-    }));
-  }, [mcpDetailList, mcpSelectionMode, recommendedMcpIdSet]);
+  }, [recommendedSkillIdSet, restoreRecommendedInstallStacks, skillDetailList]);
 
   React.useEffect(() => {
     if (skillSelectionMode !== 'recommended') return;
@@ -3833,9 +3815,9 @@ function App() {
                   </div>
                   {runtimeStatus && (
                     <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-3 py-3">
-                      <div className="text-[13px] font-medium text-slate-800">Preview Runtime</div>
+                      <div className="text-[13px] font-medium text-slate-800">Runtime Cache</div>
                       <div className="mt-2 text-[12px] text-slate-600">Isolation: {runtimeStatus.isolated ? 'Enabled' : 'Disabled'}</div>
-                      <div className="mt-1 break-all font-mono text-[11px] text-slate-500">{runtimeStatus.previewRoot}</div>
+                      <div className="mt-1 break-all font-mono text-[11px] text-slate-500">{runtimeStatus.runtimeCacheRoot}</div>
                     </div>
                   )}
                 </div>

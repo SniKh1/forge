@@ -6,6 +6,18 @@ The format follows a Keep a Changelog style, adapted for Forge.
 
 ## [Unreleased]
 
+## [0.4.8] - 2026-03-21
+
+### Changed
+- Switched Codex MCP management over to the official `codex mcp add/remove/get/list` registry flow instead of hand-editing `~/.codex/config.toml`.
+- Reframed desktop runtime copy and diagnostics away from `preview` semantics so the UI now reflects native client homes plus the runtime cache explicitly.
+- Decoupled persona quick apply from automatic MCP selection so role changes recommend stacks and skills without silently altering MCP choices.
+
+### Fixed
+- Fixed desktop install, repair, verify, external skill install, and external MCP install flows so they now target real client homes instead of desktop-only preview directories.
+- Fixed external skill installs so Forge passes the active client to `skills add --agent`, rather than hardcoding Codex for every platform.
+- Fixed Codex MCP verification and external MCP installs so they read and update the official Codex MCP registry directly.
+
 ## [0.4.7] - 2026-03-19
 
 ### Changed

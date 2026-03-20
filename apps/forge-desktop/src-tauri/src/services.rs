@@ -39,7 +39,7 @@ pub fn get_app_state(app: &AppHandle) -> Result<ActionResult<AppStatePayload>, S
     let report = build_doctor_report(&paths)?;
     let runtime = build_runtime_status(&paths);
     let summary = format!(
-        "Preview runtime ready. Repo: {}. Preview home: {}.",
+        "Desktop runtime ready. Repo: {}. Runtime cache: {}.",
         paths.repo_root.display(),
         paths.preview_root.display()
     );
@@ -49,7 +49,7 @@ pub fn get_app_state(app: &AppHandle) -> Result<ActionResult<AppStatePayload>, S
         summary: summary.clone(),
         details: vec![
             format!("repo_root={}", paths.repo_root.display()),
-            format!("preview_root={}", paths.preview_root.display()),
+            format!("runtime_cache_root={}", paths.preview_root.display()),
         ],
         warnings: runtime_warnings(&runtime),
         raw: summary,
@@ -63,13 +63,13 @@ pub fn install_client_config(
 ) -> Result<ActionResult<Value>, String> {
     let paths = desktop_paths(app)?;
     let output = match payload.client.as_str() {
-        "claude" => install_claude_preview(&paths, &payload, false)?,
+        "claude" => install_claude_client(&paths, &payload, false)?,
         "codex" | "gemini" => run_backend_install_script(&paths, &payload, false)?,
         other => return Err(format!("Unsupported client: {other}")),
     };
     Ok(action_from_exec(
         output.status == 0,
-        format!("Installed {} preview configuration.", payload.client),
+        format!("Installed {} configuration.", payload.client),
         output,
         None,
     ))
@@ -81,13 +81,13 @@ pub fn repair_client_config(
 ) -> Result<ActionResult<Value>, String> {
     let paths = desktop_paths(app)?;
     let output = match payload.client.as_str() {
-        "claude" => install_claude_preview(&paths, &payload, true)?,
+        "claude" => install_claude_client(&paths, &payload, true)?,
         "codex" | "gemini" => run_backend_install_script(&paths, &payload, true)?,
         other => return Err(format!("Unsupported client: {other}")),
     };
     Ok(action_from_exec(
         output.status == 0,
-        format!("Repaired {} preview configuration.", payload.client),
+        format!("Repaired {} configuration.", payload.client),
         output,
         None,
     ))
@@ -101,7 +101,7 @@ pub fn verify_client_config(
     let output = run_verify_script(&paths, payload.client.as_str())?;
     Ok(action_from_exec(
         output.status == 0,
-        format!("Verified {} preview configuration.", payload.client),
+        format!("Verified {} configuration.", payload.client),
         output,
         None,
     ))
@@ -272,16 +272,26 @@ pub fn search_external_mcp(
 }
 
 pub fn install_external_skill(
-    app: &AppHandle,
+    _app: &AppHandle,
     payload: ExternalSkillInstallPayload,
 ) -> Result<ActionResult<Value>, String> {
-    let paths = desktop_paths(app)?;
     let temp_root = unique_temp_dir("forge-ext-skill");
     fs::create_dir_all(&temp_root).map_err(|err| err.to_string())?;
 
     let output = run_command_capture(
         command_program("npx"),
-        &["-y", "skills", "add", payload.source.as_str(), "--skill", payload.skill.as_str(), "--agent", "codex", "-y", "--copy"],
+        &[
+            "-y",
+            "skills",
+            "add",
+            payload.source.as_str(),
+            "--skill",
+            payload.skill.as_str(),
+            "--agent",
+            payload.client.as_str(),
+            "-y",
+            "--copy",
+        ],
         &[],
         Some(&temp_root),
     )?;
@@ -309,7 +319,7 @@ pub fn install_external_skill(
         });
     }
 
-    let target_dir = preview_client_home(&paths.preview_root, &payload.client).join("skills").join(&payload.skill);
+    let target_dir = client_home(&payload.client)?.join("skills").join(&payload.skill);
     copy_dir_full(&installed_dir, &target_dir)?;
     let _ = fs::remove_dir_all(&temp_root);
 
@@ -354,9 +364,9 @@ pub fn install_external_mcp(
     let script = paths.repo_root.join("scripts").join("install-external-mcp.py");
     let args_json = serde_json::to_string(&payload.spec.args).map_err(|err| err.to_string())?;
     let env_json = serde_json::to_string(&payload.spec.env.unwrap_or_default()).map_err(|err| err.to_string())?;
-    let claude_home = preview_client_home(&paths.preview_root, "claude");
-    let codex_config = preview_client_home(&paths.preview_root, "codex").join("config.toml");
-    let gemini_home = preview_client_home(&paths.preview_root, "gemini");
+    let claude_home = client_home("claude")?;
+    let codex_config = client_home("codex")?.join("config.toml");
+    let gemini_home = client_home("gemini")?;
 
     let args = vec![
         script.display().to_string(),
@@ -378,7 +388,12 @@ pub fn install_external_mcp(
         gemini_home.display().to_string(),
     ];
 
-    let output = run_command_capture(&python, &args.iter().map(String::as_str).collect::<Vec<_>>(), &preview_env(&paths.preview_root, &payload.client), None)?;
+    let output = run_command_capture(
+        &python,
+        &args.iter().map(String::as_str).collect::<Vec<_>>(),
+        &client_runtime_env(&payload.client, None)?,
+        None,
+    )?;
     Ok(action_from_exec(
         output.status == 0,
         format!("Installed external MCP {}.", payload.spec.name),
@@ -396,7 +411,7 @@ fn desktop_paths(app: &AppHandle) -> Result<DesktopPaths, String> {
         .path()
         .app_data_dir()
         .map_err(|err| err.to_string())?
-        .join("preview-home");
+        .join("runtime-cache");
     let cache_root = app
         .path()
         .app_cache_dir()
@@ -463,7 +478,7 @@ fn build_doctor_report(paths: &DesktopPaths) -> Result<DoctorReport, String> {
     let capability_matrix = read_json_value(&paths.repo_root.join("core").join("capability-matrix.json"))?;
     let detection = CLIENTS
         .iter()
-        .map(|client| detect_client(&paths.preview_root, client))
+        .map(|client| detect_client(client))
         .collect::<Vec<_>>();
     let support = CLIENTS
         .iter()
@@ -484,8 +499,8 @@ fn build_runtime_status(paths: &DesktopPaths) -> RuntimeStatus {
         python_available: resolve_python_binary().is_some(),
         git_available: command_exists("git"),
         repo_root: paths.repo_root.display().to_string(),
-        preview_root: paths.preview_root.display().to_string(),
-        isolated: true,
+        runtime_cache_root: paths.preview_root.display().to_string(),
+        isolated: false,
     }
 }
 
@@ -503,8 +518,8 @@ fn runtime_warnings(runtime: &RuntimeStatus) -> Vec<String> {
     warnings
 }
 
-fn detect_client(preview_root: &Path, client: &str) -> DetectionItem {
-    let home = preview_client_home(preview_root, client);
+fn detect_client(client: &str) -> DetectionItem {
+    let home = client_home(client).unwrap_or_else(|_| fallback_client_home(client));
     let marker = match client {
         "claude" => home.join("CLAUDE.md"),
         "codex" => home.join("AGENTS.md"),
@@ -516,7 +531,7 @@ fn detect_client(preview_root: &Path, client: &str) -> DetectionItem {
     DetectionItem {
         name: client.into(),
         home: home.display().to_string(),
-        home_label: format!("Preview · {}", home.display()),
+        home_label: format!("Native · {}", home.display()),
         detected: command_available,
         configured: marker.exists(),
         home_exists: home.exists(),
@@ -545,21 +560,8 @@ fn verify_support(paths: &DesktopPaths, client: &str) -> SupportItem {
 
 fn run_verify_script(paths: &DesktopPaths, client: &str) -> Result<ExecOutput, String> {
     let script = verify_script_path(paths, client)?;
-    let client_home = preview_client_home(&paths.preview_root, client);
-    let mut env = preview_env(&paths.preview_root, client);
-    match client {
-        "claude" => {
-            env.push(("CLAUDE_HOME".into(), client_home.display().to_string()));
-        }
-        "codex" => {
-            env.push(("CODEX_HOME".into(), client_home.display().to_string()));
-        }
-        "gemini" => {
-            env.push(("GEMINI_HOME".into(), client_home.display().to_string()));
-        }
-        _ => {}
-    }
-
+    let client_home = client_home(client)?;
+    let env = client_runtime_env(client, Some(client_home.as_path()))?;
     run_script_capture(&script, &env)
 }
 
@@ -591,12 +593,12 @@ fn verify_script_path(paths: &DesktopPaths, client: &str) -> Result<PathBuf, Str
     Ok(path)
 }
 
-fn install_claude_preview(
+fn install_claude_client(
     paths: &DesktopPaths,
     payload: &ActionPayload,
     repair_mode: bool,
 ) -> Result<ExecOutput, String> {
-    let claude_home = preview_client_home(&paths.preview_root, "claude");
+    let claude_home = client_home("claude")?;
     fs::create_dir_all(&claude_home).map_err(|err| err.to_string())?;
 
     let mode = if repair_mode { "incremental" } else { "full" };
@@ -694,7 +696,8 @@ fn run_backend_install_script(
 ) -> Result<ExecOutput, String> {
     let script = backend_install_script(paths, payload.client.as_str())?;
     let install_mode = if repair_mode { "incremental" } else { "full" };
-    let mut env = preview_env(&paths.preview_root, payload.client.as_str());
+    let target_home = client_home(payload.client.as_str())?;
+    let mut env = client_runtime_env(payload.client.as_str(), Some(target_home.as_path()))?;
     env.extend(vec![
         ("FORGE_NONINTERACTIVE".into(), "1".into()),
         ("FORGE_SKIP_BACKUP".into(), if repair_mode { "1" } else { "0" }.into()),
@@ -712,13 +715,6 @@ fn run_backend_install_script(
             payload.secret_values_base64.clone().unwrap_or_default(),
         ),
     ]);
-
-    if payload.client == "codex" {
-        env.push(("CODEX_HOME".into(), preview_client_home(&paths.preview_root, "codex").display().to_string()));
-    }
-    if payload.client == "gemini" {
-        env.push(("GEMINI_HOME".into(), preview_client_home(&paths.preview_root, "gemini").display().to_string()));
-    }
 
     run_script_capture(&script, &env)
 }
@@ -785,7 +781,7 @@ fn scaffold_workspace_memory(claude_home: &Path, cwd: &str) -> Result<(), String
     if !memory_path.exists() {
         fs::write(
             &memory_path,
-            format!("# Workspace Memory\n\n- Workspace: `{cwd}`\n- Updated by: Forge Preview\n\n## Active Focus\n\n- (fill in current priorities)\n"),
+            format!("# Workspace Memory\n\n- Workspace: `{cwd}`\n- Updated by: Forge Desktop\n\n## Active Focus\n\n- (fill in current priorities)\n"),
         )
         .map_err(|err| err.to_string())?;
     }
@@ -1192,26 +1188,52 @@ fn read_json_value(path: &Path) -> Result<Value, String> {
     serde_json::from_str(&text).map_err(|err| err.to_string())
 }
 
-fn preview_client_home(preview_root: &Path, client: &str) -> PathBuf {
-    preview_root.join(format!(".{client}"))
+fn client_home(client: &str) -> Result<PathBuf, String> {
+    let env_key = match client {
+        "claude" => "CLAUDE_HOME",
+        "codex" => "CODEX_HOME",
+        "gemini" => "GEMINI_HOME",
+        other => return Err(format!("Unsupported client: {other}")),
+    };
+    if let Some(value) = std::env::var_os(env_key) {
+        let path = PathBuf::from(value);
+        if !path.as_os_str().is_empty() {
+            return Ok(path);
+        }
+    }
+    Ok(fallback_client_home(client))
 }
 
-fn preview_env(preview_root: &Path, client: &str) -> Vec<(String, String)> {
-    let mut env = vec![
-        ("HOME".into(), preview_root.display().to_string()),
-        ("USERPROFILE".into(), preview_root.display().to_string()),
-        ("FORGE_DESKTOP_PREVIEW".into(), "1".into()),
-    ];
-    if client == "codex" {
-        env.push(("CODEX_HOME".into(), preview_client_home(preview_root, "codex").display().to_string()));
+fn fallback_client_home(client: &str) -> PathBuf {
+    user_home_dir()
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join(format!(".{client}"))
+}
+
+fn user_home_dir() -> Option<PathBuf> {
+    #[cfg(target_os = "windows")]
+    {
+        std::env::var_os("USERPROFILE").map(PathBuf::from)
     }
-    if client == "gemini" {
-        env.push(("GEMINI_HOME".into(), preview_client_home(preview_root, "gemini").display().to_string()));
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        std::env::var_os("HOME").map(PathBuf::from)
     }
-    if client == "claude" {
-        env.push(("CLAUDE_HOME".into(), preview_client_home(preview_root, "claude").display().to_string()));
+}
+
+fn client_runtime_env(client: &str, explicit_home: Option<&Path>) -> Result<Vec<(String, String)>, String> {
+    let home = explicit_home
+        .map(Path::to_path_buf)
+        .unwrap_or(client_home(client)?);
+    let mut env = vec![("FORGE_DESKTOP_RUNTIME".into(), "1".into())];
+    match client {
+        "claude" => env.push(("CLAUDE_HOME".into(), home.display().to_string())),
+        "codex" => env.push(("CODEX_HOME".into(), home.display().to_string())),
+        "gemini" => env.push(("GEMINI_HOME".into(), home.display().to_string())),
+        other => return Err(format!("Unsupported client: {other}")),
     }
-    env
+    Ok(env)
 }
 
 fn run_npm_global_install(package_name: &str) -> Result<ExecOutput, String> {

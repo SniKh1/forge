@@ -160,7 +160,7 @@ function installExternalSkill({ client, source, skill }) {
   if (!clientHomes[client]) throw new Error(`Unknown client: ${client}`);
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'forge-ext-skill-'));
   try {
-    const result = run('npx', ['-y', 'skills', 'add', source, '--skill', skill, '--agent', 'codex', '-y', '--copy'], {
+    const result = run('npx', ['-y', 'skills', 'add', source, '--skill', skill, '--agent', client, '-y', '--copy'], {
       cwd: tempRoot,
       capture: true,
       allowFailure: true,

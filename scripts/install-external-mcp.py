@@ -3,19 +3,12 @@
 import argparse
 import json
 import os
+import subprocess
 import sys
-import tomllib
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from forge_core import dump_toml_document, load_json, write_claude_mcp_config  # noqa: E402
-
-
-def load_codex_config(path: Path):
-    if not path.exists():
-        return {}
-    with path.open('rb') as fh:
-        return tomllib.load(fh)
+from forge_core import load_json, write_claude_mcp_config  # noqa: E402
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--client', required=True, choices=['claude', 'codex', 'gemini'])
@@ -74,17 +67,20 @@ def main():
         print(f'SERVER {server_name}')
         return
 
-    config_path = Path(args.codex_config).expanduser()
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    data = load_codex_config(config_path)
-    mcp_servers = dict(data.get('mcp_servers', {}))
-    item = {'command': command, 'args': argv}
-    if env:
-        item['env'] = env
-    mcp_servers[server_name] = item
-    data['mcp_servers'] = mcp_servers
-    config_path.write_text(dump_toml_document(data), encoding='utf-8')
-    print(f'WROTE {config_path}')
+    remove_proc = subprocess.run(
+        ["codex", "mcp", "remove", server_name],
+        capture_output=True,
+        text=True,
+    )
+    _ = remove_proc
+    cmd = ["codex", "mcp", "add", server_name]
+    for key, value in env.items():
+        cmd += ["--env", f"{key}={value}"]
+    cmd += ["--", command, *argv]
+    add_proc = subprocess.run(cmd, capture_output=True, text=True)
+    if add_proc.returncode != 0:
+        raise RuntimeError((add_proc.stderr or add_proc.stdout or "").strip() or f"codex mcp add failed for {server_name}")
+    print('UPDATED Codex MCP registry via codex mcp')
     print(f'SERVER {server_name}')
 
 

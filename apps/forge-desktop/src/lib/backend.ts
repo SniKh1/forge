@@ -32,7 +32,7 @@ export type RuntimeStatus = {
   pythonAvailable: boolean;
   gitAvailable: boolean;
   repoRoot: string;
-  previewRoot: string;
+  runtimeCacheRoot: string;
   isolated: boolean;
 };
 
