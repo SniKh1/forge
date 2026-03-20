@@ -2,19 +2,44 @@
 
 import argparse
 import os
+import subprocess
 import sys
-import tomllib
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
-from forge_core import decode_secret_values, dump_toml_document, ensure_uvx, resolve_servers  # noqa: E402
+from forge_core import decode_secret_values, ensure_uvx, load_mcp_catalog, resolve_servers  # noqa: E402
 
 
-def load_config(path: Path):
-    if not path.exists():
-        return {}
-    with path.open("rb") as fh:
-        return tomllib.load(fh)
+def codex_cmd():
+    return os.environ.get("CODEX_BIN", "codex")
+
+
+def codex_mcp_remove(name: str):
+    proc = subprocess.run(
+        [codex_cmd(), "mcp", "remove", name],
+        capture_output=True,
+        text=True,
+    )
+    return proc.returncode == 0
+
+
+def codex_mcp_add(name: str, server: dict):
+    base = [codex_cmd(), "mcp", "add", name]
+    if server.get("url"):
+        args = base + ["--url", server["url"]]
+        bearer_env = server.get("bearer_token_env_var")
+        if bearer_env:
+            args += ["--bearer-token-env-var", bearer_env]
+    else:
+        args = list(base)
+        env_map = server.get("env", {}) or {}
+        for key, value in env_map.items():
+            args += ["--env", f"{key}={value}"]
+        args += ["--", server["command"], *server.get("args", [])]
+
+    proc = subprocess.run(args, capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise RuntimeError((proc.stderr or proc.stdout or "").strip() or f"codex mcp add failed for {name}")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -27,13 +52,7 @@ def main():
     parser.add_argument("--servers", default="")
     args = parser.parse_args()
 
-    config_path = Path(args.config).expanduser()
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-
     ensure_uvx(args.install_uv)
-
-    data = load_config(config_path)
-    mcp_servers = dict(data.get("mcp_servers", {}))
 
     resolved = resolve_servers(
         "codex",
@@ -46,13 +65,22 @@ def main():
     if not args.with_pencil and "pencil" in resolved:
         del resolved["pencil"]
 
-    for name, server in resolved.items():
-        mcp_servers[name] = server
+    catalog = load_mcp_catalog()["servers"]
+    managed_names = {
+        name for name, item in catalog.items()
+        if "codex" in item.get("clients", [])
+    }
 
-    data["mcp_servers"] = mcp_servers
-    config_path.write_text(dump_toml_document(data), encoding="utf-8")
-    print(f"WROTE {config_path}")
-    print("SERVERS " + ", ".join(sorted(mcp_servers.keys())))
+    for name in sorted(managed_names):
+        if name not in resolved:
+            codex_mcp_remove(name)
+
+    for name, server in resolved.items():
+        codex_mcp_remove(name)
+        codex_mcp_add(name, server)
+
+    print(f"UPDATED Codex MCP registry via {codex_cmd()}")
+    print("SERVERS " + ", ".join(sorted(resolved.keys())))
 
 
 if __name__ == "__main__":

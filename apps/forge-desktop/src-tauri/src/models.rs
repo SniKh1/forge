@@ -40,7 +40,7 @@ pub struct RuntimeStatus {
     pub python_available: bool,
     pub git_available: bool,
     pub repo_root: String,
-    pub preview_root: String,
+    pub runtime_cache_root: String,
     pub isolated: bool,
 }
 
