@@ -98,3 +98,33 @@ export type ShellSnapshot = {
   skillCount: number;
   primarySkillCount: number;
 };
+
+export type DiagnosticClientStatus = {
+  client: ClientId;
+  home: string;
+  detected: boolean;
+  configured: boolean;
+  homeExists: boolean;
+  commandAvailable: boolean;
+  verifyOk: boolean;
+  verifyExitCode: number;
+  stdout: string;
+  stderr: string;
+};
+
+export type DiagnosticsSnapshot = {
+  repoRoot: string;
+  nodeAvailable: boolean;
+  npmAvailable: boolean;
+  pythonAvailable: boolean;
+  gitAvailable: boolean;
+  clients: DiagnosticClientStatus[];
+};
+
+export type VerifyActionResult = {
+  client: ClientId;
+  ok: boolean;
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+};
