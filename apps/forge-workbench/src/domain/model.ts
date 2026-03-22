@@ -54,6 +54,7 @@ export type PromptPack =
 export type ToolDependency = {
   id: string;
   title: string;
+  summary: string;
   type: 'mcp' | 'local' | 'service';
   status: 'ready' | 'missing' | 'optional';
 };
@@ -69,6 +70,24 @@ export type WorkspaceCard = {
   promptPacks: PromptPack[];
   tools: ToolDependency[];
   status: 'healthy' | 'attention' | 'draft';
+  focus: string;
+};
+
+export type LegacyCapability = {
+  id: string;
+  title: string;
+  summary: string;
+  source: string;
+  targetSection: WorkbenchSection;
+  status: 'mapped' | 'in-progress' | 'planned';
+  nextStep: string;
+};
+
+export type ResearchSource = {
+  id: string;
+  title: string;
+  summary: string;
+  implication: string;
 };
 
 export type ShellSnapshot = {

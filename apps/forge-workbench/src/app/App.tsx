@@ -27,6 +27,8 @@ export function App() {
     })();
   }, []);
 
+  const currentNav = navigation.find((item) => item.id === section);
+
   return (
     <AppShell
       sidebar={(
@@ -39,12 +41,13 @@ export function App() {
       )}
       main={(
         <>
-          <div className="wb-kicker">Greenfield Project</div>
+          <div className="wb-kicker">Greenfield Rewrite</div>
           <div className="mt-2 flex items-start justify-between gap-4">
             <div>
-              <div className="wb-title">{navigation.find((item) => item.id === section)?.title}</div>
+              <div className="wb-title">{currentNav?.title}</div>
               <div className="mt-3 max-w-4xl text-sm leading-6 text-[#5f5953]">
-                当前是全新 greenfield 重写项目。旧项目只保留作功能参考；新的桌面工作台将围绕工作空间、角色、栈包、Skill 与 Prompt 重新组织。
+                Forge Workbench 当前的任务不是复制旧桌面端，而是把旧能力重新放进新的产品结构里。
+                这里的主角是工作空间、角色、Stack、Prompt Pack 和 Skill Cluster，工具层退到工作流之后。
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -54,7 +57,7 @@ export function App() {
           </div>
 
           <section className="mt-6">
-            {section === 'overview' && <OverviewPage snapshot={snapshot} />}
+            {section === 'overview' && <OverviewPage snapshot={snapshot} activeClient={activeClient} />}
             {section === 'workspaces' && <WorkspacesPage />}
             {section === 'roles-stacks' && <RolesStacksPage />}
             {section === 'skills-prompts' && <SkillsPromptsPage />}

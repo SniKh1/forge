@@ -1,6 +1,6 @@
 import { Blocks, Bot, FolderKanban, Gauge, Rocket, Settings2, Sparkles, TerminalSquare } from 'lucide-react';
-import type { ClientId, WorkbenchSection } from '../domain/model';
 import { clients } from '../domain/seed';
+import type { ClientId, WorkbenchSection } from '../domain/model';
 import { navigation } from './routes';
 
 const navIcons = {
@@ -28,15 +28,15 @@ export function Sidebar({
   return (
     <>
       <div>
-        <div className="wb-kicker">Forge Desktop</div>
-        <div className="mt-3 wb-title">新的桌面工作台</div>
+        <div className="wb-kicker">Forge Workbench</div>
+        <div className="mt-3 wb-title">团队 AI 工作台</div>
         <div className="mt-3 text-sm leading-6 text-[#5f5953]">
-          这是一个新的 greenfield 项目。旧项目只保留能力参考，新产品从工作空间、角色、栈包、Prompt Pack 与 Skill Pack 重新组织。
+          当前方向不是继续堆安装页，而是重建一个面向团队的桌面工作台，让角色、Stack、Prompt、Skill 和 Tool 在一个空间内协同。
         </div>
       </div>
 
       <section className="wb-panel rounded-[24px] px-4 py-4">
-        <div className="wb-kicker">当前客户端</div>
+        <div className="wb-kicker">当前客户端视角</div>
         <div className="mt-3 space-y-2">
           {clients.map((client) => (
             <button
@@ -68,6 +68,7 @@ export function Sidebar({
                   <Icon className="h-4 w-4" />
                   <span className="text-sm font-semibold">{item.title}</span>
                 </div>
+                <div className="mt-1 text-xs text-[#6a655f]">{item.summary}</div>
               </button>
             );
           })}
