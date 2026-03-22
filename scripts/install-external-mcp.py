@@ -9,6 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from forge_core import load_json, write_claude_mcp_config  # noqa: E402
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--client', required=True, choices=['claude', 'codex', 'gemini'])
