@@ -6,6 +6,11 @@ The format follows a Keep a Changelog style, adapted for Forge.
 
 ## [Unreleased]
 
+## [0.4.10] - 2026-03-23
+
+### Fixed
+- Fixed release CI after introducing the `forge-workbench` workspace by updating the root npm lockfile so `npm ci` stays in sync with the monorepo workspace graph.
+
 ## [0.4.9] - 2026-03-23
 
 ### Added
