@@ -7,9 +7,11 @@ edition = "2021"
 tauri-build = { version = "2.0", features = [] }
 
 [dependencies]
+base64 = "0.22"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 shell-escape = "0.1"
 tauri = { version = "2.0", features = [] }
+toml = "0.8"
 ureq = { version = "2.10", features = ["json"] }
 urlencoding = "2.1"

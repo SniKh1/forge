@@ -50,6 +50,7 @@ import type {
   ExternalMcpInstallSpec,
   ExternalRegistrySource,
   ExternalSearchPayload,
+  InstalledClientState,
   RuntimeStatus,
   SupportItem,
 } from './lib/backend';
@@ -1007,6 +1008,8 @@ const messages: Record<Lang, Messages> = {
     selectedStacksLabel: '已选栈包',
     selectedSkillsLabel: '已选 Skills',
     selectedMcpLabel: '已选 MCP',
+    installedMcpLabel: '已安装 MCP',
+    skippedMcpLabel: '已跳过 MCP',
     switchRole: '切换角色',
     hideRolePicker: '收起角色',
     adjustStacks: '调整栈包',
@@ -1221,6 +1224,8 @@ const messages: Record<Lang, Messages> = {
     selectedStacksLabel: 'Selected stacks',
     selectedSkillsLabel: 'Selected skills',
     selectedMcpLabel: 'Selected MCP',
+    installedMcpLabel: 'Installed MCP',
+    skippedMcpLabel: 'Skipped MCP',
     switchRole: 'Switch role',
     hideRolePicker: 'Hide roles',
     adjustStacks: 'Adjust stacks',
@@ -1435,6 +1440,8 @@ const messages: Record<Lang, Messages> = {
     selectedStacksLabel: '選択中スタック',
     selectedSkillsLabel: '選択中 Skills',
     selectedMcpLabel: '選択中 MCP',
+    installedMcpLabel: '導入済み MCP',
+    skippedMcpLabel: 'スキップ MCP',
     switchRole: 'ロールを切り替え',
     hideRolePicker: 'ロールを閉じる',
     adjustStacks: 'スタックを調整',
@@ -1900,6 +1907,7 @@ function App() {
   const [activeClient, setActiveClient] = React.useState<Client>('claude');
   const [report, setReport] = React.useState<DoctorReport | null>(null);
   const [runtimeStatus, setRuntimeStatus] = React.useState<RuntimeStatus | null>(null);
+  const [installedByClient, setInstalledByClient] = React.useState<Record<string, InstalledClientState>>({});
   const [statusMessage, setStatusMessage] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(true);
   const [isRunning, setIsRunning] = React.useState(false);
@@ -2090,6 +2098,7 @@ function App() {
       setRuntimeBlocker(null);
       setReport(mockDoctorReport);
       setRuntimeStatus(null);
+      setInstalledByClient({});
       if (!preserveClient) setActiveClient(mockDoctorReport.detection.find((item) => item.detected)?.name || 'claude');
       setStatusMessage(t.detectPreview);
       setLastUpdated(new Date().toLocaleString());
@@ -2109,6 +2118,7 @@ function App() {
 
     const next = result.data.report;
     setRuntimeStatus(result.data.runtime);
+    setInstalledByClient(result.data.installed || {});
     setRuntimeBlocker(result.data.runtime.nodeAvailable ? null : { kind: 'node', detail: 'Node.js runtime is not available.' });
     setReport(next);
     if (!preserveClient) {
@@ -2313,6 +2323,22 @@ function App() {
   const selectedMcpServerIds = React.useMemo(
     () => mcpDetailList.filter((item) => selectedMcpDetails[item.id]).map((item) => item.id),
     [mcpDetailList, selectedMcpDetails],
+  );
+  const activeInstalledState = React.useMemo<InstalledClientState>(
+    () => installedByClient[activeClient] || { mcpServers: [], skills: [] },
+    [activeClient, installedByClient],
+  );
+  const installedMcpIdSet = React.useMemo(
+    () => new Set(activeInstalledState.mcpServers || []),
+    [activeInstalledState.mcpServers],
+  );
+  const installedSelectedMcpCount = React.useMemo(
+    () => selectedMcpServerIds.filter((id) => installedMcpIdSet.has(id)).length,
+    [installedMcpIdSet, selectedMcpServerIds],
+  );
+  const skippedSelectedMcpCount = React.useMemo(
+    () => Math.max(0, selectedMcpServerIds.length - installedSelectedMcpCount),
+    [installedSelectedMcpCount, selectedMcpServerIds.length],
   );
   const selectedRecommendedMcpCount = React.useMemo(
     () => mcpDetailList.filter((item) => selectedMcpDetails[item.id] && recommendedMcpIdSet.has(item.id)).length,
@@ -3116,6 +3142,14 @@ function App() {
                         <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-medium text-slate-700">
                           {t.selectedMcpLabel} {selectedMcpServerIds.length}/{mcpDetailList.length}
                         </span>
+                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[12px] font-medium text-emerald-700">
+                          {t.installedMcpLabel} {installedSelectedMcpCount}
+                        </span>
+                        {skippedSelectedMcpCount > 0 && (
+                          <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-[12px] font-medium text-amber-700">
+                            {t.skippedMcpLabel} {skippedSelectedMcpCount}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

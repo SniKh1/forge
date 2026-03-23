@@ -1,10 +1,11 @@
 use crate::models::{
     ActionPayload, ActionResult, AppStatePayload, BootstrapResultData, DetectionItem, DoctorReport,
     ExternalMcpInstallPayload, ExternalRegistrySource, ExternalSearchPayload,
-    ExternalSkillInstallPayload, RuntimeStatus, SupportItem,
+    ExternalSkillInstallPayload, InstalledClientState, RuntimeStatus, SupportItem,
 };
+use base64::Engine;
 use serde_json::{json, Value};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -34,6 +35,14 @@ struct DesktopPaths {
     cache_root: PathBuf,
 }
 
+#[derive(Debug, Default)]
+struct InstallValidation {
+    details: Vec<String>,
+    warnings: Vec<String>,
+    missing_mcp: Vec<String>,
+    missing_skills: Vec<String>,
+}
+
 pub fn get_app_state(app: &AppHandle) -> Result<ActionResult<AppStatePayload>, String> {
     let paths = desktop_paths(app)?;
     let report = build_doctor_report(&paths)?;
@@ -53,7 +62,11 @@ pub fn get_app_state(app: &AppHandle) -> Result<ActionResult<AppStatePayload>, S
         ],
         warnings: runtime_warnings(&runtime),
         raw: summary,
-        data: Some(AppStatePayload { report, runtime }),
+        data: Some(AppStatePayload {
+            report,
+            runtime,
+            installed: build_installed_state()?,
+        }),
     })
 }
 
@@ -67,12 +80,12 @@ pub fn install_client_config(
         "codex" | "gemini" => run_backend_install_script(&paths, &payload, false)?,
         other => return Err(format!("Unsupported client: {other}")),
     };
-    Ok(action_from_exec(
-        output.status == 0,
+    finalize_install_action(
+        &paths,
+        &payload,
         format!("Installed {} configuration.", payload.client),
         output,
-        None,
-    ))
+    )
 }
 
 pub fn repair_client_config(
@@ -85,12 +98,12 @@ pub fn repair_client_config(
         "codex" | "gemini" => run_backend_install_script(&paths, &payload, true)?,
         other => return Err(format!("Unsupported client: {other}")),
     };
-    Ok(action_from_exec(
-        output.status == 0,
+    finalize_install_action(
+        &paths,
+        &payload,
         format!("Repaired {} configuration.", payload.client),
         output,
-        None,
-    ))
+    )
 }
 
 pub fn verify_client_config(
@@ -394,7 +407,7 @@ pub fn install_external_mcp(
         &client_runtime_env(&payload.client, None)?,
         None,
     )?;
-    Ok(action_from_exec(
+    let mut result = action_from_exec(
         output.status == 0,
         format!("Installed external MCP {}.", payload.spec.name),
         output,
@@ -402,7 +415,29 @@ pub fn install_external_mcp(
             "client": payload.client,
             "name": payload.spec.name,
         })),
-    ))
+    );
+    if result.ok {
+        let installed = installed_mcp_servers(payload.client.as_str())?;
+        if !installed.contains(payload.spec.name.as_str()) {
+            result.ok = false;
+            result.summary = format!(
+                "Installed external MCP {} failed verification.",
+                payload.spec.name
+            );
+            result.details.push(format!(
+                "missing_mcp={}",
+                payload.spec.name
+            ));
+            append_lines(
+                &mut result.raw,
+                &[format!(
+                    "Missing MCP after install: {}",
+                    payload.spec.name
+                )],
+            );
+        }
+    }
+    Ok(result)
 }
 
 fn desktop_paths(app: &AppHandle) -> Result<DesktopPaths, String> {
@@ -502,6 +537,20 @@ fn build_runtime_status(paths: &DesktopPaths) -> RuntimeStatus {
         runtime_cache_root: paths.preview_root.display().to_string(),
         isolated: false,
     }
+}
+
+fn build_installed_state() -> Result<HashMap<String, InstalledClientState>, String> {
+    let mut state = HashMap::new();
+    for client in CLIENTS {
+        state.insert(
+            client.to_string(),
+            InstalledClientState {
+                mcp_servers: installed_mcp_servers(client)?.into_iter().collect(),
+                skills: installed_skill_names(client)?.into_iter().collect(),
+            },
+        );
+    }
+    Ok(state)
 }
 
 fn runtime_warnings(runtime: &RuntimeStatus) -> Vec<String> {
@@ -1173,6 +1222,328 @@ fn action_from_exec<T: serde::Serialize>(
         raw,
         data,
     }
+}
+
+fn finalize_install_action(
+    paths: &DesktopPaths,
+    payload: &ActionPayload,
+    success_summary: String,
+    output: ExecOutput,
+) -> Result<ActionResult<Value>, String> {
+    let mut result = action_from_exec(output.status == 0, success_summary, output, None::<Value>);
+    if !result.ok {
+        return Ok(result);
+    }
+
+    let validation = validate_install(paths, payload)?;
+    result.details.extend(validation.details.clone());
+    result.warnings.extend(validation.warnings.clone());
+    if !validation.warnings.is_empty() {
+        append_lines(
+            &mut result.raw,
+            &validation
+                .warnings
+                .iter()
+                .map(|item| format!("Warning: {item}"))
+                .collect::<Vec<_>>(),
+        );
+    }
+
+    let mut issues = Vec::new();
+    if !validation.missing_mcp.is_empty() {
+        let item = validation.missing_mcp.join(", ");
+        result.details.push(format!("missing_mcp={item}"));
+        issues.push(format!("Missing MCP after install: {item}"));
+    }
+    if !validation.missing_skills.is_empty() {
+        let item = validation.missing_skills.join(", ");
+        result.details.push(format!("missing_skills={item}"));
+        issues.push(format!("Missing skills after install: {item}"));
+    }
+
+    if !issues.is_empty() {
+        result.ok = false;
+        result.summary = format!(
+            "Forge reported success for {}, but post-install verification found missing local assets.",
+            payload.client
+        );
+        append_lines(&mut result.raw, &issues);
+    }
+
+    Ok(result)
+}
+
+fn validate_install(paths: &DesktopPaths, payload: &ActionPayload) -> Result<InstallValidation, String> {
+    let mut validation = InstallValidation::default();
+
+    if payload.components.iter().any(|item| item == "mcp") {
+        let (expected_mcp, warnings) = expected_builtin_mcp_servers(paths, payload)?;
+        validation.warnings.extend(warnings);
+        let installed = installed_mcp_servers(payload.client.as_str())?;
+        validation.details.push(format!(
+            "verified_mcp={} actual={}",
+            join_sorted(&expected_mcp),
+            join_sorted(&installed)
+        ));
+        validation.missing_mcp = expected_mcp
+            .difference(&installed)
+            .cloned()
+            .collect();
+    }
+
+    if payload.components.iter().any(|item| item == "skills") {
+        let installed = installed_skill_names(payload.client.as_str())?;
+        let expected = payload
+            .skill_names
+            .iter()
+            .map(|item| item.trim())
+            .filter(|item| !item.is_empty())
+            .map(str::to_string)
+            .collect::<BTreeSet<_>>();
+        validation.details.push(format!(
+            "verified_skills={} actual={}",
+            join_sorted(&expected),
+            join_sorted(&installed)
+        ));
+        validation.missing_skills = expected
+            .difference(&installed)
+            .cloned()
+            .collect();
+    }
+
+    Ok(validation)
+}
+
+fn expected_builtin_mcp_servers(
+    paths: &DesktopPaths,
+    payload: &ActionPayload,
+) -> Result<(BTreeSet<String>, Vec<String>), String> {
+    let catalog = read_json_value(&paths.repo_root.join("core").join("mcp-servers.json"))?;
+    let servers = catalog
+        .get("servers")
+        .and_then(Value::as_object)
+        .ok_or_else(|| "Invalid MCP catalog: missing servers".to_string())?;
+    let secrets = decode_secret_values(&payload.secret_values_base64);
+    let mut expected = BTreeSet::new();
+    let mut warnings = Vec::new();
+
+    for server_name in &payload.mcp_servers {
+        let Some(server) = servers.get(server_name) else {
+            warnings.push(format!(
+                "Selected MCP {server_name} is not present in the bundled catalog."
+            ));
+            continue;
+        };
+        if !server_supports_client(server, payload.client.as_str()) {
+            warnings.push(format!(
+                "Selected MCP {server_name} is not supported for {} and was skipped.",
+                payload.client
+            ));
+            continue;
+        }
+        if !server_supports_current_platform(server) {
+            warnings.push(format!(
+                "Selected MCP {server_name} is not supported on this platform and was skipped."
+            ));
+            continue;
+        }
+
+        let required_secrets = required_secret_keys(server);
+        let missing_secret_keys = required_secrets
+            .iter()
+            .filter(|key| !secrets.contains_key(*key))
+            .cloned()
+            .collect::<Vec<_>>();
+        if !missing_secret_keys.is_empty() {
+            warnings.push(format!(
+                "Selected MCP {server_name} was skipped because required secrets are missing: {}",
+                missing_secret_keys.join(", ")
+            ));
+            continue;
+        }
+
+        expected.insert(server_name.clone());
+    }
+
+    Ok((expected, warnings))
+}
+
+fn decode_secret_values(secret_values_base64: &Option<String>) -> HashMap<String, String> {
+    let Some(encoded) = secret_values_base64.as_deref() else {
+        return HashMap::new();
+    };
+    let decoded = base64::engine::general_purpose::STANDARD
+        .decode(encoded)
+        .ok()
+        .and_then(|bytes| serde_json::from_slice::<HashMap<String, String>>(&bytes).ok())
+        .unwrap_or_default();
+    normalize_secret_map(decoded)
+}
+
+fn server_supports_client(server: &Value, client: &str) -> bool {
+    server
+        .get("clients")
+        .and_then(Value::as_array)
+        .map(|items| items.iter().filter_map(Value::as_str).any(|item| item == client))
+        .unwrap_or(true)
+}
+
+fn server_supports_current_platform(server: &Value) -> bool {
+    let Some(platforms) = server.get("platforms").and_then(Value::as_array) else {
+        return true;
+    };
+    let current = current_platform_name();
+    platforms
+        .iter()
+        .filter_map(Value::as_str)
+        .any(|item| item == current)
+}
+
+fn current_platform_name() -> &'static str {
+    #[cfg(target_os = "macos")]
+    {
+        "darwin"
+    }
+    #[cfg(target_os = "windows")]
+    {
+        "windows"
+    }
+    #[cfg(all(not(target_os = "macos"), not(target_os = "windows")))]
+    {
+        "linux"
+    }
+}
+
+fn required_secret_keys(server: &Value) -> BTreeSet<String> {
+    let mut values = BTreeSet::new();
+    collect_placeholders(server, &mut values);
+    values
+}
+
+fn collect_placeholders(value: &Value, output: &mut BTreeSet<String>) {
+    match value {
+        Value::String(item) => {
+            if let Some(inner) = item
+                .strip_prefix("{{")
+                .and_then(|rest| rest.strip_suffix("}}"))
+                .map(str::trim)
+                .filter(|rest| !rest.is_empty())
+            {
+                output.insert(inner.to_string());
+            }
+        }
+        Value::Array(items) => {
+            for item in items {
+                collect_placeholders(item, output);
+            }
+        }
+        Value::Object(map) => {
+            for item in map.values() {
+                collect_placeholders(item, output);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn installed_mcp_servers(client: &str) -> Result<BTreeSet<String>, String> {
+    match client {
+        "claude" => installed_claude_mcp_servers(),
+        "codex" => installed_codex_mcp_servers(),
+        "gemini" => installed_gemini_mcp_servers(),
+        other => Err(format!("Unsupported client: {other}")),
+    }
+}
+
+fn installed_claude_mcp_servers() -> Result<BTreeSet<String>, String> {
+    let home = client_home("claude")?;
+    let mut result = BTreeSet::new();
+    for path in [home.join(".mcp.json"), home.parent().unwrap_or(Path::new(".")).join(".claude.json")] {
+        if !path.exists() {
+            continue;
+        }
+        let value = read_json_value(&path)?;
+        if let Some(entries) = value.get("mcpServers").and_then(Value::as_object) {
+            result.extend(entries.keys().cloned());
+        }
+    }
+    Ok(result)
+}
+
+fn installed_codex_mcp_servers() -> Result<BTreeSet<String>, String> {
+    let path = client_home("codex")?.join("config.toml");
+    if !path.exists() {
+        return Ok(BTreeSet::new());
+    }
+    let text = fs::read_to_string(&path).map_err(|err| err.to_string())?;
+    let value = toml::from_str::<toml::Value>(&text).map_err(|err| err.to_string())?;
+    Ok(value
+        .get("mcp_servers")
+        .and_then(toml::Value::as_table)
+        .map(|entries| entries.keys().cloned().collect())
+        .unwrap_or_default())
+}
+
+fn installed_gemini_mcp_servers() -> Result<BTreeSet<String>, String> {
+    let path = client_home("gemini")?.join("settings.json");
+    if !path.exists() {
+        return Ok(BTreeSet::new());
+    }
+    let value = read_json_value(&path)?;
+    Ok(value
+        .get("mcpServers")
+        .and_then(Value::as_object)
+        .map(|entries| entries.keys().cloned().collect())
+        .unwrap_or_default())
+}
+
+fn installed_skill_names(client: &str) -> Result<BTreeSet<String>, String> {
+    let skills_dir = client_home(client)?.join("skills");
+    if !skills_dir.exists() {
+        return Ok(BTreeSet::new());
+    }
+
+    let mut skills = BTreeSet::new();
+    collect_skill_names_from_dir(&skills_dir, &mut skills)?;
+
+    let system_dir = skills_dir.join(".system");
+    if system_dir.exists() {
+        collect_skill_names_from_dir(&system_dir, &mut skills)?;
+    }
+    Ok(skills)
+}
+
+fn collect_skill_names_from_dir(dir: &Path, output: &mut BTreeSet<String>) -> Result<(), String> {
+    for entry in fs::read_dir(dir).map_err(|err| err.to_string())? {
+        let entry = entry.map_err(|err| err.to_string())?;
+        if !entry.file_type().map_err(|err| err.to_string())?.is_dir() {
+            continue;
+        }
+        let name = entry.file_name().to_string_lossy().to_string();
+        if name == "learned" || name.starts_with('.') {
+            continue;
+        }
+        output.insert(name);
+    }
+    Ok(())
+}
+
+fn join_sorted(items: &BTreeSet<String>) -> String {
+    if items.is_empty() {
+        "(none)".into()
+    } else {
+        items.iter().cloned().collect::<Vec<_>>().join(",")
+    }
+}
+
+fn append_lines(target: &mut String, lines: &[String]) {
+    if lines.is_empty() {
+        return;
+    }
+    if !target.trim().is_empty() {
+        target.push('\n');
+    }
+    target.push_str(&lines.join("\n"));
 }
 
 fn combine_output(output: &ExecOutput) -> String {
