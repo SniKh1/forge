@@ -6,6 +6,16 @@ The format follows a Keep a Changelog style, adapted for Forge.
 
 ## [Unreleased]
 
+## [0.4.9] - 2026-03-23
+
+### Added
+- Added the greenfield `forge-workbench` application scaffold, route structure, diagnostics surface, and supporting Tauri shell so the new workbench line can iterate alongside the current desktop product.
+
+### Fixed
+- Fixed desktop install and repair flows so Forge now verifies the real local client result after execution instead of trusting script exit codes alone.
+- Fixed desktop MCP state reporting so the UI can distinguish between selected MCPs, actually installed MCPs, and token-gated MCPs that were skipped.
+- Fixed desktop skill verification so built-in `.system` skills such as `skill-creator` are counted correctly instead of being reported as missing after install.
+
 ## [0.4.8] - 2026-03-21
 
 ### Changed
