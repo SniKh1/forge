@@ -46,9 +46,17 @@ pub struct RuntimeStatus {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct InstalledClientState {
+    pub mcp_servers: Vec<String>,
+    pub skills: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppStatePayload {
     pub report: DoctorReport,
     pub runtime: RuntimeStatus,
+    pub installed: HashMap<String, InstalledClientState>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

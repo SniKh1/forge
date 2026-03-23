@@ -1,12 +1,11 @@
 {
-  "name": "forge",
+  "name": "forge-workbench",
   "private": true,
-  "version": "0.4.9",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:tauri": "node ./scripts/run-dev-server.mjs",
-    "build": "node ./scripts/run-tsc.mjs -b && vite build",
+    "build": "tsc -b && vite build",
     "preview": "vite preview",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",

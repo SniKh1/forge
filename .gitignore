@@ -3,6 +3,8 @@ node_modules/
 apps/forge-desktop/node_modules/
 apps/forge-desktop/dist/
 apps/forge-desktop/src-tauri/target/
+apps/forge-workbench/dist/
+apps/forge-workbench/src-tauri/target/
 
 # Local/generated workspace state
 sessions/

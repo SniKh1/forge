@@ -36,9 +36,15 @@ export type RuntimeStatus = {
   isolated: boolean;
 };
 
+export type InstalledClientState = {
+  mcpServers: string[];
+  skills: string[];
+};
+
 export type AppStatePayload = {
   report: DoctorReport;
   runtime: RuntimeStatus;
+  installed: Record<string, InstalledClientState>;
 };
 
 export type ActionPayload = {
