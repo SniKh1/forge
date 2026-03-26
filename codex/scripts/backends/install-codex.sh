@@ -6,7 +6,7 @@ set -e
 BACKEND_DIR="$(cd "$(dirname "$0")" && pwd)"
 SCRIPT_DIR="$(cd "$BACKEND_DIR/../.." && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-CODEX_HOME="$HOME/.codex"
+CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 FORGE_HOME="$CODEX_HOME/forge"
 BACKUP_DIR="$HOME/.codex-forge-backup-$(date +%Y%m%d-%H%M%S)"
 

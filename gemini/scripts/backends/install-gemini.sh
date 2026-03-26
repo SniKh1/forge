@@ -4,7 +4,7 @@ set -euo pipefail
 BACKEND_DIR="$(cd "$(dirname "$0")" && pwd)"
 SCRIPT_DIR="$(cd "$BACKEND_DIR/../.." && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-GEMINI_HOME="$HOME/.gemini"
+GEMINI_HOME="${GEMINI_HOME:-$HOME/.gemini}"
 FORGE_HOME="$GEMINI_HOME/forge"
 COMPONENTS="${FORGE_COMPONENTS:-mcp,skills,memory}"
 MCP_SERVERS="${FORGE_MCP_SERVERS:-}"

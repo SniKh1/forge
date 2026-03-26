@@ -1,5 +1,5 @@
 [package]
-name = "forge"
+name = "forge-desktop-rebuild"
 version = "0.4.10"
 edition = "2021"
 

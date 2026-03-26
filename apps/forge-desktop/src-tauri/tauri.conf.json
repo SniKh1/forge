@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Forge Preview",
+  "productName": "Forge Desktop Rebuild",
   "version": "0.4.10",
-  "identifier": "com.forge.desktop.preview",
+  "identifier": "com.forge.desktop.rebuild",
   "build": {
     "beforeDevCommand": "npm run dev:tauri",
     "beforeBuildCommand": "npm run build",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Forge Preview",
+        "title": "Forge Desktop Rebuild",
         "width": 1440,
         "height": 920,
         "resizable": true,

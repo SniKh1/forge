@@ -2,7 +2,7 @@ export const forgeSkillOptions = [
   {
     "id": "aesthetic",
     "title": "aesthetic",
-    "summary": "Create aesthetically beautiful interfaces following proven design principles. Use when building UI/UX, analyzing designs from inspiration sites, generating design images with ai-multimodal, implementing visual hierarchy and color theory, ad",
+    "summary": "Create aesthetically beautiful interfaces following proven design principles. Use when building UI/UX, analyzing designs from inspiration sites, generating design images with ai-multimodal, implementing visual hierarchy and color theory, adding micro-interactions, or creating design documentation. Includes workflows for capturing and analyzing inspiration screenshots with chrome-devtools and ai-multimodal, iterative design image generation until aesthetic standards are met, and comprehensive design system guidance covering BEAUTIFUL (aesthetic principles), RIGHT (functionality/accessibility), SATISFYING (micro-interactions), and PEAK (storytelling) stages. Integrates with chrome-devtools, ai-multimodal, media-processing, ui-styling, and web-frameworks skills.",
     "clients": [
       "claude",
       "codex",
@@ -33,7 +33,7 @@ export const forgeSkillOptions = [
   {
     "id": "ai-multimodal",
     "title": "ai-multimodal",
-    "summary": "Process and generate multimedia content using Google Gemini API. Capabilities include analyze audio files (transcription with timestamps, summarization, speech understanding, music/sound analysis up to 9.5 hours), understand images (caption",
+    "summary": "Process and generate multimedia content using Google Gemini API. Capabilities include analyze audio files (transcription with timestamps, summarization, speech understanding, music/sound analysis up to 9.5 hours), understand images (captioning, object detection, OCR, visual Q&A, segmentation), process videos (scene detection, Q&A, temporal analysis, YouTube URLs, up to 6 hours), extract from documents (PDF tables, forms, charts, diagrams, multi-page), generate images (text-to-image, editing, composition, refinement). Use when working with audio/video files, analyzing images or screenshots, processing PDF documents, extracting structured data from media, creating images from text prompts, or implementing multimodal AI features. Supports multiple models (Gemini 2.5/2.0) with context windows up to 2M tokens.",
     "clients": [
       "claude",
       "codex",
@@ -51,9 +51,43 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "a11y-debugging",
+    "title": "a11y-debugging",
+    "summary": "Use when debugging accessibility issues in a web UI, especially semantic structure, accessible names, form labels, keyboard behavior, focus order, contrast, or ARIA problems using Chrome DevTools MCP.",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "frontend-engineer",
+      "ui-designer",
+      "qa-strategist",
+      "developer"
+    ],
+    "recommendedByRole": [
+      "frontend-engineer",
+      "ui-designer",
+      "qa-strategist",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "frontend-web",
+      "design",
+      "qa"
+    ],
+    "overlapGroup": "browser-debugging",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要 accessibility tree、焦点路径、label / ARIA / landmark 级别的证据时。"
+    ]
+  },
+  {
     "id": "algorithmic-art",
     "title": "algorithmic-art",
-    "summary": "Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. Use this when users request creating art using code, generative art, algorithmic art, flow fields, or particle systems. Create original algor",
+    "summary": "Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. Use this when users request creating art using code, generative art, algorithmic art, flow fields, or particle systems. Create original algorithmic art rather than copying existing artists' work to avoid copyright violations.",
     "clients": [
       "claude",
       "codex",
@@ -87,7 +121,7 @@ export const forgeSkillOptions = [
   {
     "id": "artifacts-builder",
     "title": "artifacts-builder",
-    "summary": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components ",
+    "summary": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components - not for simple single-file HTML/JSX artifacts.",
     "clients": [
       "claude",
       "codex",
@@ -104,7 +138,7 @@ export const forgeSkillOptions = [
   {
     "id": "backend-development",
     "title": "backend-development",
-    "summary": "Build robust backend systems with modern technologies (Node.js, Python, Go, Rust), frameworks (NestJS, FastAPI, Django), databases (PostgreSQL, MongoDB, Redis), APIs (REST, GraphQL, gRPC), authentication (OAuth 2.1, JWT), testing strategies",
+    "summary": "Build robust backend systems with modern technologies (Node.js, Python, Go, Rust), frameworks (NestJS, FastAPI, Django), databases (PostgreSQL, MongoDB, Redis), APIs (REST, GraphQL, gRPC), authentication (OAuth 2.1, JWT), testing strategies, security best practices (OWASP Top 10), performance optimization, scalability patterns (microservices, caching, sharding), DevOps practices (Docker, Kubernetes, CI/CD), and monitoring. Use when designing APIs, implementing authentication, optimizing database queries, setting up CI/CD pipelines, handling security vulnerabilities, building microservices, or developing production-ready backend systems.",
     "clients": [
       "claude",
       "codex",
@@ -150,7 +184,7 @@ export const forgeSkillOptions = [
   {
     "id": "better-auth",
     "title": "better-auth",
-    "summary": "Implement authentication and authorization with Better Auth - a framework-agnostic TypeScript authentication framework. Features include email/password authentication with verification, OAuth providers (Google, GitHub, Discord, etc.), two-f",
+    "summary": "Implement authentication and authorization with Better Auth - a framework-agnostic TypeScript authentication framework. Features include email/password authentication with verification, OAuth providers (Google, GitHub, Discord, etc.), two-factor authentication (TOTP, SMS), passkeys/WebAuthn support, session management, role-based access control (RBAC), rate limiting, and database adapters. Use when adding authentication to applications, implementing OAuth flows, setting up 2FA/MFA, managing user sessions, configuring authorization rules, or building secure authentication systems for web applications.",
     "clients": [
       "claude",
       "codex",
@@ -235,7 +269,7 @@ export const forgeSkillOptions = [
   {
     "id": "browser",
     "title": "browser",
-    "summary": "This skill should be used for browser automation tasks using Chrome DevTools Protocol (CDP). Triggers when users need to launch Chrome with remote debugging, navigate pages, execute JavaScript in browser context, capture screenshots, or int",
+    "summary": "This skill should be used for browser automation tasks using Chrome DevTools Protocol (CDP). Triggers when users need to launch Chrome with remote debugging, navigate pages, execute JavaScript in browser context, capture screenshots, or interactively select DOM elements. No MCP server required.",
     "clients": [
       "claude",
       "codex",
@@ -297,7 +331,7 @@ export const forgeSkillOptions = [
   {
     "id": "canvas-design",
     "title": "canvas-design",
-    "summary": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying exis",
+    "summary": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying existing artists' work to avoid copyright violations.",
     "clients": [
       "claude",
       "codex",
@@ -316,7 +350,7 @@ export const forgeSkillOptions = [
   {
     "id": "changelog-generator",
     "title": "changelog-generator",
-    "summary": "Automatically creates user-facing changelogs from git commits by analyzing commit history, categorizing changes, and transforming technical commits into clear, customer-friendly release notes. Turns hours of manual changelog writing into mi",
+    "summary": "Automatically creates user-facing changelogs from git commits by analyzing commit history, categorizing changes, and transforming technical commits into clear, customer-friendly release notes. Turns hours of manual changelog writing into minutes of automated generation.",
     "clients": [
       "claude",
       "codex",
@@ -339,7 +373,7 @@ export const forgeSkillOptions = [
   {
     "id": "chrome-devtools",
     "title": "chrome-devtools",
-    "summary": "Browser automation, debugging, and performance analysis using Puppeteer CLI scripts. Use for automating browsers, taking screenshots, analyzing performance, monitoring network traffic, web scraping, form automation, and JavaScript debugging",
+    "summary": "Browser automation, debugging, and performance analysis using Puppeteer CLI scripts. Use for automating browsers, taking screenshots, analyzing performance, monitoring network traffic, web scraping, form automation, and JavaScript debugging.",
     "clients": [
       "claude",
       "codex",
@@ -401,9 +435,43 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "chrome-devtools-mcp",
+    "title": "chrome-devtools-mcp",
+    "summary": "Use when controlling or debugging a live Chrome session through the Chrome DevTools MCP server, especially for network inspection, console/runtime debugging, screenshots, automation, and performance traces.",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "frontend-engineer",
+      "ui-designer",
+      "qa-strategist"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "frontend-engineer",
+      "ui-designer",
+      "qa-strategist"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "frontend-web",
+      "design",
+      "qa"
+    ],
+    "overlapGroup": "browser-debugging",
+    "clusterRole": "primary",
+    "supportWhen": [
+      "需要 Chrome DevTools 级别的 network、console、trace、runtime、memory 调试时。"
+    ]
+  },
+  {
     "id": "code-review",
     "title": "code-review",
-    "summary": "Use when receiving code review feedback (especially if unclear or technically questionable), when completing tasks or major features requiring review before proceeding, or before making any completion/success claims. Covers three practices ",
+    "summary": "Use when receiving code review feedback (especially if unclear or technically questionable), when completing tasks or major features requiring review before proceeding, or before making any completion/success claims. Covers three practices - receiving feedback with technical rigor over performative agreement, requesting reviews via code-reviewer subagent, and verification gates requiring evidence before any status claims. Essential for subagent-driven development, pull requests, and preventing false completion claims.",
     "clients": [
       "claude",
       "codex",
@@ -683,7 +751,7 @@ export const forgeSkillOptions = [
   {
     "id": "databases",
     "title": "databases",
-    "summary": "Work with MongoDB (document database, BSON documents, aggregation pipelines, Atlas cloud) and PostgreSQL (relational database, SQL queries, psql CLI, pgAdmin). Use when designing database schemas, writing queries and aggregations, optimizin",
+    "summary": "Work with MongoDB (document database, BSON documents, aggregation pipelines, Atlas cloud) and PostgreSQL (relational database, SQL queries, psql CLI, pgAdmin). Use when designing database schemas, writing queries and aggregations, optimizing indexes for performance, performing database migrations, configuring replication and sharding, implementing backup and restore strategies, managing database users and permissions, analyzing query performance, or administering production databases.",
     "clients": [
       "claude",
       "codex",
@@ -736,7 +804,7 @@ export const forgeSkillOptions = [
   {
     "id": "devops",
     "title": "devops",
-    "summary": "Deploy and manage cloud infrastructure on Cloudflare (Workers, R2, D1, KV, Pages, Durable Objects, Browser Rendering), Docker containers, and Google Cloud Platform (Compute Engine, GKE, Cloud Run, App Engine, Cloud Storage). Use when deploy",
+    "summary": "Deploy and manage cloud infrastructure on Cloudflare (Workers, R2, D1, KV, Pages, Durable Objects, Browser Rendering), Docker containers, and Google Cloud Platform (Compute Engine, GKE, Cloud Run, App Engine, Cloud Storage). Use when deploying serverless functions to the edge, configuring edge computing solutions, managing Docker containers and images, setting up CI/CD pipelines, optimizing cloud infrastructure costs, implementing global caching strategies, working with cloud databases, or building cloud-native applications.",
     "clients": [
       "claude",
       "codex",
@@ -792,6 +860,37 @@ export const forgeSkillOptions = [
     "overlapGroup": null,
     "clusterRole": null,
     "supportWhen": []
+  },
+  {
+    "id": "debug-optimize-lcp",
+    "title": "debug-optimize-lcp",
+    "summary": "Use when diagnosing or improving Largest Contentful Paint, Core Web Vitals, slow initial page rendering, hero-image delays, or main-content load speed using Chrome DevTools MCP traces.",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "frontend-engineer",
+      "qa-strategist",
+      "developer"
+    ],
+    "recommendedByRole": [
+      "frontend-engineer",
+      "qa-strategist",
+      "developer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "frontend-web",
+      "qa"
+    ],
+    "overlapGroup": "performance-debugging",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要 LCP / CWV 分析与 trace-based 优化结论时。"
+    ]
   },
   {
     "id": "django-security",
@@ -854,7 +953,7 @@ export const forgeSkillOptions = [
   {
     "id": "doc-coauthoring",
     "title": "doc-coauthoring",
-    "summary": "Guide users through a structured workflow for co-authoring documentation. Use when user wants to write documentation, proposals, technical specs, decision docs, or similar structured content. This workflow helps users efficiently transfer c",
+    "summary": "Guide users through a structured workflow for co-authoring documentation. Use when user wants to write documentation, proposals, technical specs, decision docs, or similar structured content. This workflow helps users efficiently transfer context, refine content through iteration, and verify the doc works for readers. Trigger when user mentions writing docs, creating proposals, drafting specs, or similar documentation tasks.",
     "clients": [
       "claude",
       "codex",
@@ -899,7 +998,7 @@ export const forgeSkillOptions = [
   {
     "id": "docs-seeker",
     "title": "docs-seeker",
-    "summary": "Searching internet for technical documentation using llms.txt standard, GitHub repositories via Repomix, and parallel exploration. Use when user needs: (1) Latest documentation for libraries/frameworks, (2) Documentation in llms.txt format,",
+    "summary": "Searching internet for technical documentation using llms.txt standard, GitHub repositories via Repomix, and parallel exploration. Use when user needs: (1) Latest documentation for libraries/frameworks, (2) Documentation in llms.txt format, (3) GitHub repository analysis, (4) Documentation without direct llms.txt support, (5) Multiple documentation sources in parallel",
     "clients": [
       "claude",
       "codex",
@@ -925,7 +1024,7 @@ export const forgeSkillOptions = [
   {
     "id": "docx",
     "title": "docx",
-    "summary": "Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx files). Triggers include: any mention of 'Word doc', 'word document', '.docx', or requests to produce professional documents with formatting l",
+    "summary": "Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx files). Triggers include: any mention of 'Word doc', 'word document', '.docx', or requests to produce professional documents with formatting like tables of contents, headings, page numbers, or letterheads. Also use when extracting or reorganizing content from .docx files, inserting or replacing images in documents, performing find-and-replace in Word files, working with tracked changes or comments, or converting content into a polished Word document. If the user asks for a 'report', 'memo', 'letter', 'template', or similar deliverable as a Word or .docx file, use this skill. Do NOT use for PDFs, spreadsheets, Google Docs, or general coding tasks unrelated to document generation.",
     "clients": [
       "claude",
       "codex",
@@ -993,7 +1092,7 @@ export const forgeSkillOptions = [
   {
     "id": "find-skills",
     "title": "find-skills",
-    "summary": "Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities. This skill should be used when the user is look",
+    "summary": "Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill.",
     "clients": [
       "claude",
       "codex",
@@ -1052,7 +1151,7 @@ export const forgeSkillOptions = [
   {
     "id": "frontend-design",
     "title": "frontend-design",
-    "summary": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples include websites, landing pages, dashboards, ",
+    "summary": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples include websites, landing pages, dashboards, React components, HTML/CSS layouts, or when styling/beautifying any web UI). Generates creative, polished code and UI design that avoids generic AI aesthetics.",
     "clients": [
       "claude",
       "codex",
@@ -1091,7 +1190,7 @@ export const forgeSkillOptions = [
   {
     "id": "frontend-development",
     "title": "frontend-dev-guidelines",
-    "summary": "Frontend development guidelines for React/TypeScript applications. Modern patterns including Suspense, lazy loading, useSuspenseQuery, file organization with features directory, MUI v7 styling, TanStack Router, performance optimization, and",
+    "summary": "Frontend development guidelines for React/TypeScript applications. Modern patterns including Suspense, lazy loading, useSuspenseQuery, file organization with features directory, MUI v7 styling, TanStack Router, performance optimization, and TypeScript best practices. Use when creating components, pages, features, fetching data, styling, routing, or working with frontend code.",
     "clients": [
       "claude",
       "codex",
@@ -1121,6 +1220,39 @@ export const forgeSkillOptions = [
     "overlapGroup": null,
     "clusterRole": null,
     "supportWhen": []
+  },
+  {
+    "id": "vue-nuxt-patterns",
+    "title": "vue-nuxt-patterns",
+    "summary": "Use when working in Vue 3 or Nuxt 4 codebases, choosing a Vue-first frontend stack, selecting Vue UI frameworks, or building Vue-based desktop shells with Tauri, Electron, or Quasar.",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "frontend-engineer",
+      "developer",
+      "ui-designer"
+    ],
+    "recommendedByRole": [
+      "frontend-engineer",
+      "developer",
+      "ui-designer"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "frontend-web",
+      "frontend-desktop",
+      "design-system"
+    ],
+    "overlapGroup": "frontend-frameworks",
+    "clusterRole": "support",
+    "supportWhen": [
+      "Vue / Nuxt 项目需要与 React / Next 同级的框架、状态、UI 组件库和桌面壳选型时。",
+      "需要为 Vue-first repo 提供明确的默认技术栈、防止误用 React-only 规则时。"
+    ]
   },
   {
     "id": "golang-patterns",
@@ -1182,7 +1314,7 @@ export const forgeSkillOptions = [
   {
     "id": "internal-comms",
     "title": "internal-comms",
-    "summary": "A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Claude should use this skill whenever asked to write some sort of internal communications (status reports, leadership ",
+    "summary": "A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Claude should use this skill whenever asked to write some sort of internal communications (status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates, etc.).",
     "clients": [
       "claude",
       "codex",
@@ -1309,7 +1441,7 @@ export const forgeSkillOptions = [
   {
     "id": "mcp-builder",
     "title": "mcp-builder",
-    "summary": "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, whether in Python (F",
+    "summary": "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, whether in Python (FastMCP) or Node/TypeScript (MCP SDK).",
     "clients": [
       "claude",
       "codex",
@@ -1332,9 +1464,41 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "memory-leak-debugging",
+    "title": "memory-leak-debugging",
+    "summary": "Use when investigating browser memory leaks, steadily growing tab memory, detached DOM nodes, repeated mount/unmount leaks, or long-session frontend memory regressions using Chrome DevTools MCP.",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [
+      "frontend-engineer",
+      "developer",
+      "qa-strategist"
+    ],
+    "recommendedByRole": [
+      "frontend-engineer",
+      "developer",
+      "qa-strategist"
+    ],
+    "recommendedByStack": [
+      "frontend",
+      "frontend-web",
+      "frontend-desktop",
+      "qa"
+    ],
+    "overlapGroup": "browser-debugging",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要追踪浏览器内存增长、detached DOM、listener / timer 泄漏时。"
+    ]
+  },
+  {
     "id": "mcp-management",
     "title": "mcp-management",
-    "summary": "Manage Model Context Protocol (MCP) servers - discover, analyze, and execute tools/prompts/resources from configured MCP servers. Use when working with MCP integrations, need to discover available MCP capabilities, filter MCP tools for spec",
+    "summary": "Manage Model Context Protocol (MCP) servers - discover, analyze, and execute tools/prompts/resources from configured MCP servers. Use when working with MCP integrations, need to discover available MCP capabilities, filter MCP tools for specific tasks, execute MCP tools programmatically, access MCP prompts/resources, or implement MCP client functionality. Supports intelligent tool selection, multi-server management, and context-efficient capability discovery.",
     "clients": [
       "claude",
       "codex",
@@ -1365,7 +1529,7 @@ export const forgeSkillOptions = [
   {
     "id": "media-processing",
     "title": "media-processing",
-    "summary": "Process multimedia files with FFmpeg (video/audio encoding, conversion, streaming, filtering, hardware acceleration) and ImageMagick (image manipulation, format conversion, batch processing, effects, composition). Use when converting media ",
+    "summary": "Process multimedia files with FFmpeg (video/audio encoding, conversion, streaming, filtering, hardware acceleration) and ImageMagick (image manipulation, format conversion, batch processing, effects, composition). Use when converting media formats, encoding videos with specific codecs (H.264, H.265, VP9), resizing/cropping images, extracting audio from video, applying filters and effects, optimizing file sizes, creating streaming manifests (HLS/DASH), generating thumbnails, batch processing images, creating composite images, or implementing media processing pipelines. Supports 100+ formats, hardware acceleration (NVENC, QSV), and complex filtergraphs.",
     "clients": [
       "claude",
       "codex",
@@ -1385,7 +1549,7 @@ export const forgeSkillOptions = [
   {
     "id": "mermaidjs-v11",
     "title": "mermaidjs-v11",
-    "summary": "Create diagrams and visualizations using Mermaid.js v11 syntax. Use when generating flowcharts, sequence diagrams, class diagrams, state diagrams, ER diagrams, Gantt charts, user journeys, timelines, architecture diagrams, or any of 24+ dia",
+    "summary": "Create diagrams and visualizations using Mermaid.js v11 syntax. Use when generating flowcharts, sequence diagrams, class diagrams, state diagrams, ER diagrams, Gantt charts, user journeys, timelines, architecture diagrams, or any of 24+ diagram types. Supports JavaScript API integration, CLI rendering to SVG/PNG/PDF, theming, configuration, and accessibility features. Essential for documentation, technical diagrams, project planning, system architecture, and visual communication.",
     "clients": [
       "claude",
       "codex",
@@ -1436,7 +1600,7 @@ export const forgeSkillOptions = [
   {
     "id": "pdf",
     "title": "pdf",
-    "summary": "Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating ",
+    "summary": "Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating new PDFs, filling PDF forms, encrypting/decrypting PDFs, extracting images, and OCR on scanned PDFs to make them searchable. If the user mentions a .pdf file or asks to produce one, use this skill.",
     "clients": [
       "claude",
       "codex",
@@ -1481,7 +1645,7 @@ export const forgeSkillOptions = [
   {
     "id": "pptx",
     "title": "pptx",
-    "summary": "Use this skill any time a .pptx file is involved in any way — as input, output, or both. This includes: creating slide decks, pitch decks, or presentations; reading, parsing, or extracting text from any .pptx file (even if the extracted con",
+    "summary": "Use this skill any time a .pptx file is involved in any way — as input, output, or both. This includes: creating slide decks, pitch decks, or presentations; reading, parsing, or extracting text from any .pptx file (even if the extracted content will be used elsewhere, like in an email or summary); editing, modifying, or updating existing presentations; combining or splitting slide files; working with templates, layouts, speaker notes, or comments. Trigger whenever the user mentions \\\"deck,\\\" \\\"slides,\\\" \\\"presentation,\\\" or references a .pptx filename, regardless of what they plan to do with the content afterward. If a .pptx file needs to be opened, created, or touched, use this skill.",
     "clients": [
       "claude",
       "codex",
@@ -1613,7 +1777,7 @@ export const forgeSkillOptions = [
   {
     "id": "repomix",
     "title": "repomix",
-    "summary": "Package entire code repositories into single AI-friendly files using Repomix. Capabilities include pack codebases with customizable include/exclude patterns, generate multiple output formats (XML, Markdown, plain text), preserve file struct",
+    "summary": "Package entire code repositories into single AI-friendly files using Repomix. Capabilities include pack codebases with customizable include/exclude patterns, generate multiple output formats (XML, Markdown, plain text), preserve file structure and context, optimize for AI consumption with token counting, filter by file types and directories, add custom headers and summaries. Use when packaging codebases for AI analysis, creating repository snapshots for LLM context, analyzing third-party libraries, preparing for security audits, generating documentation context, or evaluating unfamiliar codebases.",
     "clients": [
       "claude",
       "codex",
@@ -1742,7 +1906,7 @@ export const forgeSkillOptions = [
   {
     "id": "self-improving-agent",
     "title": "self-improving-agent",
-    "summary": "A universal self-improving agent that learns from skill experiences and enriches Forge's shared memory system. Uses semantic, episodic, and working-memory concepts as analysis tools, but durable output should land in Forge memory, problem-s",
+    "summary": "A universal self-improving agent that learns from skill experiences and enriches Forge's shared memory system. Uses semantic, episodic, and working-memory concepts as analysis tools, but durable output should land in Forge memory, problem-solution records, instincts, and learned outputs.",
     "clients": [
       "claude",
       "codex",
@@ -1770,7 +1934,7 @@ export const forgeSkillOptions = [
   {
     "id": "sequential-thinking",
     "title": "sequential-thinking",
-    "summary": "Use when complex problems require systematic step-by-step reasoning with ability to revise thoughts, branch into alternative approaches, or dynamically adjust scope. Ideal for multi-stage analysis, design planning, problem decomposition, or",
+    "summary": "Use when complex problems require systematic step-by-step reasoning with ability to revise thoughts, branch into alternative approaches, or dynamically adjust scope. Ideal for multi-stage analysis, design planning, problem decomposition, or tasks with initially unclear scope.",
     "clients": [
       "claude",
       "codex",
@@ -1787,7 +1951,7 @@ export const forgeSkillOptions = [
   {
     "id": "shopify",
     "title": "shopify",
-    "summary": "Build Shopify applications, extensions, and themes using GraphQL/REST APIs, Shopify CLI, Polaris UI components, and Liquid templating. Capabilities include app development with OAuth authentication, checkout UI extensions for customizing ch",
+    "summary": "Build Shopify applications, extensions, and themes using GraphQL/REST APIs, Shopify CLI, Polaris UI components, and Liquid templating. Capabilities include app development with OAuth authentication, checkout UI extensions for customizing checkout flow, admin UI extensions for dashboard integration, POS extensions for retail, theme development with Liquid, webhook management, billing API integration, product/order/customer management. Use when building Shopify apps, implementing checkout customizations, creating admin interfaces, developing themes, integrating payment processing, managing store data via APIs, or extending Shopify functionality.",
     "clients": [
       "claude",
       "codex",
@@ -1823,7 +1987,7 @@ export const forgeSkillOptions = [
   {
     "id": "skill-creator",
     "title": "skill-creator",
-    "summary": "Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, update or optimize an existing skill, run evals to test a skill, benchmark skill performance with vari",
+    "summary": "Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, update or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.",
     "clients": [
       "claude",
       "codex",
@@ -2190,7 +2354,7 @@ export const forgeSkillOptions = [
   {
     "id": "theme-factory",
     "title": "theme-factory",
-    "summary": "Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, reportings, HTML landing pages, etc. There are 10 pre-set themes with colors/fonts that you can apply to any artifact that has been creating, or can generate a",
+    "summary": "Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, reportings, HTML landing pages, etc. There are 10 pre-set themes with colors/fonts that you can apply to any artifact that has been creating, or can generate a new theme on-the-fly.",
     "clients": [
       "claude",
       "codex",
@@ -2207,7 +2371,7 @@ export const forgeSkillOptions = [
   {
     "id": "ui-styling",
     "title": "ui-styling",
-    "summary": "Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, crea",
+    "summary": "Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, creating responsive layouts, adding accessible components (dialogs, dropdowns, forms, tables), customizing themes and colors, implementing dark mode, generating visual designs and posters, or establishing consistent styling patterns across applications.",
     "clients": [
       "claude",
       "codex",
@@ -2243,7 +2407,7 @@ export const forgeSkillOptions = [
   {
     "id": "ui-ux-pro-max",
     "title": "ui-ux-pro-max",
-    "summary": "UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 9 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui). Actions: plan, build, create, design, implement, review, fix, impro",
+    "summary": "UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 9 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui). Actions: plan, build, create, design, implement, review, fix, improve, optimize, enhance, refactor, check UI/UX code. Projects: website, landing page, dashboard, admin panel, e-commerce, SaaS, portfolio, blog, mobile app, .html, .tsx, .vue, .svelte. Elements: button, modal, navbar, sidebar, card, table, form, chart. Styles: glassmorphism, claymorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, responsive, skeuomorphism, flat design. Topics: color palette, accessibility, animation, layout, typography, font pairing, spacing, hover, shadow, gradient. Integrations: shadcn/ui MCP for component search and examples.",
     "clients": [
       "claude",
       "codex",
@@ -2301,7 +2465,7 @@ export const forgeSkillOptions = [
   {
     "id": "vercel-react-best-practices",
     "title": "vercel-react-best-practices",
-    "summary": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React co",
+    "summary": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.",
     "clients": [
       "claude",
       "codex",
@@ -2369,7 +2533,7 @@ export const forgeSkillOptions = [
   {
     "id": "web-artifacts-builder",
     "title": "web-artifacts-builder",
-    "summary": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components ",
+    "summary": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components - not for simple single-file HTML/JSX artifacts.",
     "clients": [
       "claude",
       "codex",
@@ -2421,7 +2585,7 @@ export const forgeSkillOptions = [
   {
     "id": "web-frameworks",
     "title": "web-frameworks",
-    "summary": "Build modern full-stack web applications with Next.js (App Router, Server Components, RSC, PPR, SSR, SSG, ISR), Turborepo (monorepo management, task pipelines, remote caching, parallel execution), and RemixIcon (3100+ SVG icons in outlined/",
+    "summary": "Build modern full-stack web applications with Next.js (App Router, Server Components, RSC, PPR, SSR, SSG, ISR), Turborepo (monorepo management, task pipelines, remote caching, parallel execution), and RemixIcon (3100+ SVG icons in outlined/filled styles). Use when creating React applications, implementing server-side rendering, setting up monorepos with multiple packages, optimizing build performance and caching strategies, adding icon libraries, managing shared dependencies, or working with TypeScript full-stack projects.",
     "clients": [
       "claude",
       "codex",
@@ -2546,7 +2710,7 @@ export const forgeSkillOptions = [
   {
     "id": "xlsx",
     "title": "xlsx",
-    "summary": "Use this skill any time a spreadsheet file is the primary input or output. This means any task where the user wants to: open, read, edit, or fix an existing .xlsx, .xlsm, .csv, or .tsv file (e.g., adding columns, computing formulas, formatt",
+    "summary": "Use this skill any time a spreadsheet file is the primary input or output. This means any task where the user wants to: open, read, edit, or fix an existing .xlsx, .xlsm, .csv, or .tsv file (e.g., adding columns, computing formulas, formatting, charting, cleaning messy data); create a new spreadsheet from scratch or from other data sources; or convert between tabular file formats. Trigger especially when the user references a spreadsheet file by name or path — even casually (like \\\"the xlsx in my downloads\\\") — and wants something done to it or produced from it. Also trigger for cleaning or restructuring messy tabular data files (malformed rows, misplaced headers, junk data) into proper spreadsheets. The deliverable must be a spreadsheet file. Do NOT trigger when the primary deliverable is a Word document, HTML report, standalone Python script, database pipeline, or Google Sheets API integration, even if tabular data is involved.",
     "clients": [
       "claude",
       "codex",

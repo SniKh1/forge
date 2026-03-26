@@ -12,7 +12,7 @@ $ScriptDir = Split-Path -Parent (Split-Path -Parent $BackendDir)
 $RootDir = Split-Path -Parent $ScriptDir
 . (Join-Path $RootDir "scripts\lib\powershell-utf8.ps1")
 Initialize-ForgeEncoding
-$CodexHome = Join-Path $env:USERPROFILE ".codex"
+$CodexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE ".codex" }
 $ForgeHome = Join-Path $CodexHome "forge"
 $BackupDir = Join-Path $env:USERPROFILE (".codex-forge-backup-" + (Get-Date -Format "yyyyMMdd-HHmmss"))
 

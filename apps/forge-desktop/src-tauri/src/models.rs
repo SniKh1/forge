@@ -65,6 +65,8 @@ pub struct ActionPayload {
     pub client: String,
     pub cwd: Option<String>,
     pub lang: Option<String>,
+    pub role_title: Option<String>,
+    pub stack_ids: Vec<String>,
     pub components: Vec<String>,
     pub mcp_servers: Vec<String>,
     pub skill_names: Vec<String>,

@@ -18,7 +18,7 @@ use std::os::windows::process::CommandExt;
 #[cfg(target_os = "windows")]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
-const CLIENTS: [&str; 3] = ["claude", "codex", "gemini"];
+const DISCOVERABLE_CLIENTS: [&str; 4] = ["claude", "codex", "gemini", "opencode"];
 const EXTERNAL_CACHE_TTL_MS: u64 = 6 * 60 * 60 * 1000;
 
 #[derive(Debug, Clone)]
@@ -44,28 +44,59 @@ struct InstallValidation {
 }
 
 pub fn get_app_state(app: &AppHandle) -> Result<ActionResult<AppStatePayload>, String> {
-    let paths = desktop_paths(app)?;
-    let report = build_doctor_report(&paths)?;
-    let runtime = build_runtime_status(&paths);
-    let summary = format!(
-        "Desktop runtime ready. Repo: {}. Runtime cache: {}.",
-        paths.repo_root.display(),
-        paths.preview_root.display()
-    );
+    let mut warnings = Vec::new();
+    let mut details = Vec::new();
+
+    let (report, runtime, installed, ok, summary, raw) = match desktop_paths(app) {
+        Ok(paths) => {
+            let report = match build_doctor_report(&paths) {
+                Ok(value) => value,
+                Err(error) => {
+                    warnings.push(format!("doctor_report={error}"));
+                    fallback_doctor_report()
+                }
+            };
+            let runtime = build_runtime_status(&paths);
+            let installed = build_installed_state_relaxed(&mut warnings);
+            let summary = format!(
+                "Desktop runtime ready. Repo: {}. Runtime cache: {}.",
+                paths.repo_root.display(),
+                paths.preview_root.display()
+            );
+            details.push(format!("repo_root={}", paths.repo_root.display()));
+            details.push(format!("runtime_cache_root={}", paths.preview_root.display()));
+            (report, runtime, installed, true, summary.clone(), summary)
+        }
+        Err(error) => {
+            warnings.push(format!("repo_root_resolution={error}"));
+            details.push("repo_root=unavailable".into());
+            details.push("runtime_cache_root=unavailable".into());
+            let summary =
+                "Forge desktop resources are not fully available. Showing local environment snapshot."
+                    .to_string();
+            (
+                fallback_doctor_report(),
+                fallback_runtime_status(),
+                build_installed_state_relaxed(&mut warnings),
+                false,
+                summary.clone(),
+                format!("{summary}\n{error}"),
+            )
+        }
+    };
+
+    warnings.extend(runtime_warnings(&runtime));
 
     Ok(ActionResult {
-        ok: true,
-        summary: summary.clone(),
-        details: vec![
-            format!("repo_root={}", paths.repo_root.display()),
-            format!("runtime_cache_root={}", paths.preview_root.display()),
-        ],
-        warnings: runtime_warnings(&runtime),
-        raw: summary,
+        ok,
+        summary,
+        details,
+        warnings,
+        raw,
         data: Some(AppStatePayload {
             report,
             runtime,
-            installed: build_installed_state()?,
+            installed,
         }),
     })
 }
@@ -78,6 +109,7 @@ pub fn install_client_config(
     let output = match payload.client.as_str() {
         "claude" => install_claude_client(&paths, &payload, false)?,
         "codex" | "gemini" => run_backend_install_script(&paths, &payload, false)?,
+        "opencode" => install_opencode_client(&paths, &payload, false)?,
         other => return Err(format!("Unsupported client: {other}")),
     };
     finalize_install_action(
@@ -96,6 +128,7 @@ pub fn repair_client_config(
     let output = match payload.client.as_str() {
         "claude" => install_claude_client(&paths, &payload, true)?,
         "codex" | "gemini" => run_backend_install_script(&paths, &payload, true)?,
+        "opencode" => install_opencode_client(&paths, &payload, true)?,
         other => return Err(format!("Unsupported client: {other}")),
     };
     finalize_install_action(
@@ -111,7 +144,11 @@ pub fn verify_client_config(
     payload: ActionPayload,
 ) -> Result<ActionResult<Value>, String> {
     let paths = desktop_paths(app)?;
-    let output = run_verify_script(&paths, payload.client.as_str())?;
+    let output = if payload.client == "opencode" {
+        verify_opencode_client(&paths, &payload)?
+    } else {
+        run_verify_script(&paths, payload.client.as_str())?
+    };
     Ok(action_from_exec(
         output.status == 0,
         format!("Verified {} configuration.", payload.client),
@@ -301,7 +338,7 @@ pub fn install_external_skill(
             "--skill",
             payload.skill.as_str(),
             "--agent",
-            payload.client.as_str(),
+            if payload.client == "opencode" { "codex" } else { payload.client.as_str() },
             "-y",
             "--copy",
         ],
@@ -332,7 +369,11 @@ pub fn install_external_skill(
         });
     }
 
-    let target_dir = client_home(&payload.client)?.join("skills").join(&payload.skill);
+    let target_dir = if payload.client == "opencode" {
+        client_home("codex")?.join("skills").join(&payload.skill)
+    } else {
+        client_home(&payload.client)?.join("skills").join(&payload.skill)
+    };
     copy_dir_full(&installed_dir, &target_dir)?;
     let _ = fs::remove_dir_all(&temp_root);
 
@@ -361,6 +402,10 @@ pub fn install_external_mcp(
     app: &AppHandle,
     payload: ExternalMcpInstallPayload,
 ) -> Result<ActionResult<Value>, String> {
+    if payload.client == "opencode" {
+        return install_external_mcp_for_opencode(app, payload);
+    }
+
     let paths = desktop_paths(app)?;
     let python = resolve_python_binary();
     let Some(python) = python else {
@@ -440,6 +485,80 @@ pub fn install_external_mcp(
     Ok(result)
 }
 
+fn install_external_mcp_for_opencode(
+    app: &AppHandle,
+    payload: ExternalMcpInstallPayload,
+) -> Result<ActionResult<Value>, String> {
+    let home = client_home("opencode")?;
+    fs::create_dir_all(&home).map_err(|err| err.to_string())?;
+    let config_path = home.join("opencode.json");
+    let mut value = if config_path.exists() {
+        read_json_value(&config_path)?
+    } else {
+        json!({})
+    };
+    if !value.is_object() {
+        value = json!({});
+    }
+
+    let object = value
+        .as_object_mut()
+        .ok_or_else(|| "Invalid OpenCode config format".to_string())?;
+    object.insert("$schema".into(), Value::String("https://opencode.ai/config.json".into()));
+    let mcp = object
+        .entry("mcp")
+        .or_insert_with(|| Value::Object(serde_json::Map::new()));
+    let mcp_map = mcp
+        .as_object_mut()
+        .ok_or_else(|| "Invalid OpenCode MCP config format".to_string())?;
+
+    let mut item = serde_json::Map::new();
+    item.insert("type".into(), Value::String("local".into()));
+    item.insert("enabled".into(), Value::Bool(true));
+    item.insert(
+        "command".into(),
+        Value::Array(
+            std::iter::once(payload.spec.command.clone())
+                .chain(payload.spec.args.iter().cloned())
+                .map(Value::String)
+                .collect(),
+        ),
+    );
+    if let Some(env) = payload.spec.env.clone() {
+        item.insert(
+            "environment".into(),
+            Value::Object(env.into_iter().map(|(key, value)| (key, Value::String(value))).collect()),
+        );
+    }
+    mcp_map.insert(payload.spec.name.clone(), Value::Object(item));
+
+    fs::write(
+        &config_path,
+        serde_json::to_string_pretty(&value).map_err(|err| err.to_string())?,
+    )
+    .map_err(|err| err.to_string())?;
+
+    let _ = app;
+    let installed = installed_opencode_mcp_servers()?;
+    let mut result = ActionResult {
+        ok: installed.contains(payload.spec.name.as_str()),
+        summary: format!("Installed external MCP {}.", payload.spec.name),
+        details: vec![format!("target={}", config_path.display())],
+        warnings: vec![],
+        raw: format!("WROTE {}\nSERVER {}", config_path.display(), payload.spec.name),
+        data: Some(json!({
+            "client": payload.client,
+            "name": payload.spec.name,
+        })),
+    };
+
+    if !result.ok {
+        result.summary = format!("Installed external MCP {} failed verification.", payload.spec.name);
+        result.details.push(format!("missing_mcp={}", payload.spec.name));
+    }
+    Ok(result)
+}
+
 fn desktop_paths(app: &AppHandle) -> Result<DesktopPaths, String> {
     let repo_root = resolve_repo_root(app)?;
     let preview_root = app
@@ -478,8 +597,12 @@ fn candidate_repo_roots(app: &AppHandle) -> Vec<PathBuf> {
     }
 
     let source_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let sibling_forge_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../forge");
+    let local_project_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..");
     if cfg!(debug_assertions) {
+        candidates.push(local_project_root.clone());
         candidates.push(source_root.clone());
+        candidates.push(sibling_forge_root.clone());
     }
 
     if let Ok(resource_dir) = app.path().resource_dir() {
@@ -498,7 +621,9 @@ fn candidate_repo_roots(app: &AppHandle) -> Vec<PathBuf> {
     }
 
     if !cfg!(debug_assertions) {
+        candidates.push(local_project_root);
         candidates.push(source_root);
+        candidates.push(sibling_forge_root);
     }
     candidates
 }
@@ -511,11 +636,11 @@ fn is_repo_root(path: &Path) -> bool {
 
 fn build_doctor_report(paths: &DesktopPaths) -> Result<DoctorReport, String> {
     let capability_matrix = read_json_value(&paths.repo_root.join("core").join("capability-matrix.json"))?;
-    let detection = CLIENTS
+    let detection = DISCOVERABLE_CLIENTS
         .iter()
         .map(|client| detect_client(client))
         .collect::<Vec<_>>();
-    let support = CLIENTS
+    let support = DISCOVERABLE_CLIENTS
         .iter()
         .map(|client| verify_support(paths, client))
         .collect::<Vec<_>>();
@@ -527,30 +652,96 @@ fn build_doctor_report(paths: &DesktopPaths) -> Result<DoctorReport, String> {
     })
 }
 
+fn fallback_doctor_report() -> DoctorReport {
+    let detection = DISCOVERABLE_CLIENTS
+        .iter()
+        .map(|client| detect_client(client))
+        .collect::<Vec<_>>();
+    let support = detection
+        .iter()
+        .map(|item| SupportItem {
+            client: item.name.clone(),
+            ok: item.detected && item.configured,
+            exit_code: if item.detected && item.configured { 0 } else { 1 },
+            stdout: if item.detected && item.configured {
+                "Detected local setup.".into()
+            } else if item.detected {
+                "Client detected but Forge configuration is incomplete.".into()
+            } else {
+                String::new()
+            },
+            stderr: if item.detected {
+                String::new()
+            } else {
+                "Client command not detected in current desktop environment.".into()
+            },
+        })
+        .collect::<Vec<_>>();
+
+    DoctorReport {
+        detection,
+        capability_matrix: json!({ "capabilities": {} }),
+        support,
+    }
+}
+
 fn build_runtime_status(paths: &DesktopPaths) -> RuntimeStatus {
     RuntimeStatus {
         node_available: command_exists("node"),
         npm_available: command_exists("npm"),
         python_available: resolve_python_binary().is_some(),
         git_available: command_exists("git"),
-        repo_root: paths.repo_root.display().to_string(),
-        runtime_cache_root: paths.preview_root.display().to_string(),
+        repo_root: normalized_display_path(&paths.repo_root),
+        runtime_cache_root: normalized_display_path(&paths.preview_root),
         isolated: false,
     }
 }
 
-fn build_installed_state() -> Result<HashMap<String, InstalledClientState>, String> {
+fn fallback_runtime_status() -> RuntimeStatus {
+    RuntimeStatus {
+        node_available: command_exists("node"),
+        npm_available: command_exists("npm"),
+        python_available: resolve_python_binary().is_some(),
+        git_available: command_exists("git"),
+        repo_root: "unavailable".into(),
+        runtime_cache_root: "unavailable".into(),
+        isolated: true,
+    }
+}
+
+fn normalized_display_path(path: &Path) -> String {
+    fs::canonicalize(path)
+        .unwrap_or_else(|_| path.to_path_buf())
+        .display()
+        .to_string()
+}
+
+fn build_installed_state_relaxed(warnings: &mut Vec<String>) -> HashMap<String, InstalledClientState> {
     let mut state = HashMap::new();
-    for client in CLIENTS {
+    for client in DISCOVERABLE_CLIENTS {
+        let mcp_servers = match installed_mcp_servers(client) {
+            Ok(value) => value.into_iter().collect(),
+            Err(error) => {
+                warnings.push(format!("installed_mcp_{client}={error}"));
+                Vec::new()
+            }
+        };
+        let skills = match installed_skill_names(client) {
+            Ok(value) => value.into_iter().collect(),
+            Err(error) => {
+                warnings.push(format!("installed_skills_{client}={error}"));
+                Vec::new()
+            }
+        };
         state.insert(
             client.to_string(),
             InstalledClientState {
-                mcp_servers: installed_mcp_servers(client)?.into_iter().collect(),
-                skills: installed_skill_names(client)?.into_iter().collect(),
+                mcp_servers,
+                skills,
             },
         );
     }
-    Ok(state)
+    state
 }
 
 fn runtime_warnings(runtime: &RuntimeStatus) -> Vec<String> {
@@ -573,22 +764,67 @@ fn detect_client(client: &str) -> DetectionItem {
         "claude" => home.join("CLAUDE.md"),
         "codex" => home.join("AGENTS.md"),
         "gemini" => home.join("GEMINI.md"),
+        "opencode" => home.join("opencode.json"),
         _ => home.join(".unknown"),
     };
 
     let command_available = command_exists(client_command(client));
+    let configured = if client == "opencode" {
+        opencode_bridge_configured(&home).unwrap_or(false)
+    } else {
+        marker.exists()
+    };
     DetectionItem {
         name: client.into(),
         home: home.display().to_string(),
         home_label: format!("Native · {}", home.display()),
-        detected: command_available,
-        configured: marker.exists(),
+        detected: if client == "opencode" {
+            command_available || marker.exists()
+        } else {
+            command_available
+        },
+        configured,
         home_exists: home.exists(),
         command_available,
     }
 }
 
 fn verify_support(paths: &DesktopPaths, client: &str) -> SupportItem {
+    if client == "opencode" {
+        let payload = ActionPayload {
+            client: "opencode".into(),
+            cwd: None,
+            lang: Some("zh".into()),
+            role_title: None,
+            stack_ids: Vec::new(),
+            components: vec!["mcp".into(), "skills".into(), "memory".into()],
+            mcp_servers: installed_opencode_mcp_servers()
+                .unwrap_or_default()
+                .into_iter()
+                .collect(),
+            skill_names: installed_opencode_skill_names()
+                .unwrap_or_default()
+                .into_iter()
+                .collect(),
+            secret_values_base64: None,
+        };
+        return match verify_opencode_client(paths, &payload) {
+            Ok(output) => SupportItem {
+                client: client.into(),
+                ok: output.status == 0,
+                exit_code: output.status,
+                stdout: output.stdout,
+                stderr: output.stderr,
+            },
+            Err(error) => SupportItem {
+                client: client.into(),
+                ok: false,
+                exit_code: 1,
+                stdout: String::new(),
+                stderr: error,
+            },
+        };
+    }
     match run_verify_script(paths, client) {
         Ok(output) => SupportItem {
             client: client.into(),
@@ -736,6 +972,333 @@ fn install_claude_client(
         stdout,
         stderr: verify.stderr,
     })
+}
+
+fn install_opencode_client(
+    paths: &DesktopPaths,
+    payload: &ActionPayload,
+    _repair_mode: bool,
+) -> Result<ExecOutput, String> {
+    let home = client_home("opencode")?;
+    fs::create_dir_all(home.join("instructions")).map_err(|err| err.to_string())?;
+
+    let config_path = home.join("opencode.json");
+    let mut data = if config_path.exists() {
+        read_json_value(&config_path)?
+    } else {
+        json!({})
+    };
+
+    if !data.is_object() {
+        data = json!({});
+    }
+
+    let selection_path = write_opencode_selection_note(paths, payload, &home)?;
+    let instructions = build_opencode_instructions(paths, payload, &home, &selection_path)?;
+    let mcp = build_opencode_mcp_config(paths, payload)?;
+
+    let object = data
+        .as_object_mut()
+        .ok_or_else(|| "Invalid OpenCode config format".to_string())?;
+    object.insert("$schema".into(), Value::String("https://opencode.ai/config.json".into()));
+    object.insert(
+        "instructions".into(),
+        Value::Array(instructions.into_iter().map(Value::String).collect()),
+    );
+    object.insert("mcp".into(), mcp);
+
+    fs::write(
+        &config_path,
+        serde_json::to_string_pretty(&data).map_err(|err| err.to_string())?,
+    )
+    .map_err(|err| err.to_string())?;
+
+    let verify = verify_opencode_client(paths, payload)?;
+    let mut stdout = format!("WROTE {}", config_path.display());
+    if !verify.stdout.trim().is_empty() {
+        stdout.push('\n');
+        stdout.push_str(&verify.stdout);
+    }
+
+    Ok(ExecOutput {
+        status: verify.status,
+        stdout,
+        stderr: verify.stderr,
+    })
+}
+
+fn verify_opencode_client(paths: &DesktopPaths, payload: &ActionPayload) -> Result<ExecOutput, String> {
+    let config_path = client_home("opencode")?.join("opencode.json");
+    if !config_path.exists() {
+        return Ok(ExecOutput {
+            status: 1,
+            stdout: String::new(),
+            stderr: format!("Missing {}", config_path.display()),
+        });
+    }
+
+    let value = read_json_value(&config_path)?;
+    let instructions = value
+        .get("instructions")
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|item| item.as_str().map(str::to_string))
+        .collect::<Vec<_>>();
+    let actual_instruction_set = instructions.iter().cloned().collect::<BTreeSet<_>>();
+    let expected_instruction_set = build_opencode_instructions(
+        paths,
+        payload,
+        &client_home("opencode")?,
+        &client_home("opencode")?.join("instructions").join("forge-selection.md"),
+    )?
+    .into_iter()
+    .collect::<BTreeSet<_>>();
+
+    let actual_mcp = installed_opencode_mcp_servers()?;
+    let actual_skills = installed_opencode_skill_names()?;
+    let expected_skills = payload
+        .skill_names
+        .iter()
+        .map(|item| item.trim().to_string())
+        .filter(|item| !item.is_empty())
+        .collect::<BTreeSet<_>>();
+    let (expected_mcp, mcp_warnings) = expected_builtin_mcp_servers(paths, payload)?;
+
+    let missing_instructions = expected_instruction_set
+        .difference(&actual_instruction_set)
+        .cloned()
+        .collect::<Vec<_>>();
+    let missing_skills = expected_skills
+        .difference(&actual_skills)
+        .cloned()
+        .collect::<Vec<_>>();
+    let missing_mcp = expected_mcp
+        .difference(&actual_mcp)
+        .cloned()
+        .collect::<Vec<_>>();
+
+    let mut stdout_lines = vec![
+        format!("instructions={}", actual_instruction_set.len()),
+        format!("skills={}", join_sorted(&actual_skills)),
+        format!("mcp={}", join_sorted(&actual_mcp)),
+    ];
+    stdout_lines.extend(
+        mcp_warnings
+            .iter()
+            .map(|item| format!("warning={item}"))
+            .collect::<Vec<_>>(),
+    );
+
+    let mut stderr_lines = Vec::new();
+    if !missing_instructions.is_empty() {
+        stderr_lines.push(format!("missing_instructions={}", missing_instructions.join(",")));
+    }
+    if !missing_skills.is_empty() {
+        stderr_lines.push(format!("missing_skills={}", missing_skills.join(",")));
+    }
+    if !missing_mcp.is_empty() {
+        stderr_lines.push(format!("missing_mcp={}", missing_mcp.join(",")));
+    }
+
+    Ok(ExecOutput {
+        status: if stderr_lines.is_empty() { 0 } else { 1 },
+        stdout: stdout_lines.join("\n"),
+        stderr: stderr_lines.join("\n"),
+    })
+}
+
+fn build_opencode_instructions(
+    paths: &DesktopPaths,
+    payload: &ActionPayload,
+    home: &Path,
+    selection_path: &Path,
+) -> Result<Vec<String>, String> {
+    let codex_home = client_home("codex")?;
+    if payload.components.iter().any(|item| item == "memory") {
+        if let Some(cwd) = payload.cwd.as_deref() {
+            scaffold_workspace_memory(&codex_home, cwd)?;
+        }
+    }
+
+    let mut base = vec![
+        home.join("instructions")
+            .join("codex-bridge.md")
+            .display()
+            .to_string(),
+        home.join("instructions")
+            .join("codex-migration-notes.md")
+            .display()
+            .to_string(),
+        selection_path.display().to_string(),
+        codex_home.join("AGENTS.md").display().to_string(),
+        codex_home.join("forge").join("CLAUDE.md").display().to_string(),
+        codex_home.join("forge").join("rules").join("*.md").display().to_string(),
+        codex_home.join("forge").join("roles").join("*.md").display().to_string(),
+        codex_home.join("forge").join("stacks").join("*.md").display().to_string(),
+        codex_home.join("forge").join("agents").join("*.md").display().to_string(),
+        codex_home.join("forge").join("commands").join("*.md").display().to_string(),
+        codex_home.join("forge").join("contexts").join("*.md").display().to_string(),
+        paths.repo_root.join("AGENTS.md").display().to_string(),
+        paths.repo_root.join("CLAUDE.md").display().to_string(),
+    ];
+
+    if payload.components.iter().any(|item| item == "skills") {
+        base.extend(resolve_skill_instruction_paths(&codex_home, &payload.skill_names));
+    }
+
+    if payload.components.iter().any(|item| item == "memory") {
+        base.extend(resolve_memory_instruction_paths(&codex_home, payload.cwd.as_deref()));
+    }
+
+    let mut deduped = Vec::new();
+    for item in base {
+        if !deduped.contains(&item) {
+            deduped.push(item);
+        }
+    }
+    Ok(deduped)
+}
+
+fn write_opencode_selection_note(
+    _paths: &DesktopPaths,
+    payload: &ActionPayload,
+    home: &Path,
+) -> Result<PathBuf, String> {
+    let selection_path = home.join("instructions").join("forge-selection.md");
+    let role_title = payload
+        .role_title
+        .clone()
+        .unwrap_or_else(|| "未命名组合".into());
+    let stack_line = if payload.stack_ids.is_empty() {
+        "未选择模块".to_string()
+    } else {
+        payload.stack_ids.join(", ")
+    };
+    let skill_line = if payload.skill_names.is_empty() {
+        "未选择 skill".to_string()
+    } else {
+        payload.skill_names.join(", ")
+    };
+    let memory_line = if payload.components.iter().any(|item| item == "memory") {
+        "已启用"
+    } else {
+        "未启用"
+    };
+    let content = format!(
+        "# Forge Selection\n\n- Client: OpenCode\n- Role: {role_title}\n- Stacks: {stack_line}\n- Skills: {skill_line}\n- Memory: {memory_line}\n"
+    );
+    fs::write(&selection_path, content).map_err(|err| err.to_string())?;
+    Ok(selection_path)
+}
+
+fn resolve_skill_instruction_paths(codex_home: &Path, selected_skills: &[String]) -> Vec<String> {
+    let mut output = Vec::new();
+    for skill in selected_skills {
+        let candidates = [
+            codex_home.join("skills").join(skill).join("SKILL.md"),
+            codex_home.join("skills").join(".system").join(skill).join("SKILL.md"),
+            codex_home.join("skills").join("learned").join(skill).join("SKILL.md"),
+        ];
+        for candidate in candidates {
+            if candidate.exists() {
+                output.push(candidate.display().to_string());
+                break;
+            }
+        }
+    }
+    output
+}
+
+fn resolve_memory_instruction_paths(codex_home: &Path, cwd: Option<&str>) -> Vec<String> {
+    let Some(cwd) = cwd else {
+        return Vec::new();
+    };
+    let memory_dir = codex_home.join("projects").join(workspace_slug(cwd)).join("memory");
+    let mut output = Vec::new();
+    for file in ["MEMORY.md", "PROJECT-MEMORY.md"] {
+        let path = memory_dir.join(file);
+        if path.exists() {
+            output.push(path.display().to_string());
+        }
+    }
+    output
+}
+
+fn build_opencode_mcp_config(paths: &DesktopPaths, payload: &ActionPayload) -> Result<Value, String> {
+    let catalog = read_json_value(&paths.repo_root.join("core").join("mcp-servers.json"))?;
+    let servers = catalog
+        .get("servers")
+        .and_then(Value::as_object)
+        .ok_or_else(|| "Invalid MCP catalog: missing servers".to_string())?;
+    let secrets = decode_secret_values(&payload.secret_values_base64);
+    let selected = payload
+        .mcp_servers
+        .iter()
+        .cloned()
+        .collect::<BTreeSet<_>>();
+
+    let mut mcp = serde_json::Map::new();
+    for (name, server) in servers {
+        if !server_supports_current_platform(server) {
+            continue;
+        }
+        if let Some(entry) = build_opencode_mcp_entry(server, selected.contains(name), &secrets) {
+            mcp.insert(name.clone(), entry);
+        }
+    }
+    Ok(Value::Object(mcp))
+}
+
+fn build_opencode_mcp_entry(
+    server: &Value,
+    enabled: bool,
+    secrets: &HashMap<String, String>,
+) -> Option<Value> {
+    let config = server.get("config")?;
+    let config_type = config.get("type").and_then(Value::as_str).unwrap_or("stdio");
+    if config_type == "stdio" {
+        let command = config.get("command")?.as_str()?.to_string();
+        let args = config
+            .get("args")
+            .and_then(Value::as_array)
+            .map(|items| items.iter().filter_map(Value::as_str).map(str::to_string).collect::<Vec<_>>())
+            .unwrap_or_default();
+        let mut item = serde_json::Map::new();
+        item.insert("type".into(), Value::String("local".into()));
+        item.insert("enabled".into(), Value::Bool(enabled));
+        item.insert(
+            "command".into(),
+            Value::Array(std::iter::once(command).chain(args.into_iter()).map(Value::String).collect()),
+        );
+        if let Some(env_map) = config.get("env").and_then(Value::as_object) {
+            let mut env = serde_json::Map::new();
+            for (key, value) in env_map {
+                let resolved = value
+                    .as_str()
+                    .map(resolve_secret_placeholder)
+                    .and_then(|placeholder| secrets.get(&placeholder).cloned())
+                    .or_else(|| value.as_str().map(str::to_string))
+                    .unwrap_or_default();
+                env.insert(key.clone(), Value::String(resolved));
+            }
+            if !env.is_empty() {
+                item.insert("environment".into(), Value::Object(env));
+            }
+        }
+        return Some(Value::Object(item));
+    }
+    None
+}
+
+fn resolve_secret_placeholder(value: &str) -> String {
+    value
+        .strip_prefix("{{")
+        .and_then(|rest| rest.strip_suffix("}}"))
+        .map(str::trim)
+        .unwrap_or(value)
+        .to_string()
 }
 
 fn run_backend_install_script(
@@ -1381,6 +1944,14 @@ fn decode_secret_values(secret_values_base64: &Option<String>) -> HashMap<String
 }
 
 fn server_supports_client(server: &Value, client: &str) -> bool {
+    if client == "opencode" {
+        return server
+            .get("config")
+            .and_then(|config| config.get("type"))
+            .and_then(Value::as_str)
+            .map(|value| value == "stdio")
+            .unwrap_or(true);
+    }
     server
         .get("clients")
         .and_then(Value::as_array)
@@ -1451,6 +2022,7 @@ fn installed_mcp_servers(client: &str) -> Result<BTreeSet<String>, String> {
         "claude" => installed_claude_mcp_servers(),
         "codex" => installed_codex_mcp_servers(),
         "gemini" => installed_gemini_mcp_servers(),
+        "opencode" => installed_opencode_mcp_servers(),
         other => Err(format!("Unsupported client: {other}")),
     }
 }
@@ -1497,7 +2069,29 @@ fn installed_gemini_mcp_servers() -> Result<BTreeSet<String>, String> {
         .unwrap_or_default())
 }
 
+fn installed_opencode_mcp_servers() -> Result<BTreeSet<String>, String> {
+    let path = client_home("opencode")?.join("opencode.json");
+    if !path.exists() {
+        return Ok(BTreeSet::new());
+    }
+    let value = read_json_value(&path)?;
+    Ok(value
+        .get("mcp")
+        .and_then(Value::as_object)
+        .map(|entries| {
+            entries
+                .iter()
+                .filter(|(_, config)| config.get("enabled").and_then(Value::as_bool).unwrap_or(true))
+                .map(|(name, _)| name.clone())
+                .collect()
+        })
+        .unwrap_or_default())
+}
+
 fn installed_skill_names(client: &str) -> Result<BTreeSet<String>, String> {
+    if client == "opencode" {
+        return installed_opencode_skill_names();
+    }
     let skills_dir = client_home(client)?.join("skills");
     if !skills_dir.exists() {
         return Ok(BTreeSet::new());
@@ -1509,6 +2103,48 @@ fn installed_skill_names(client: &str) -> Result<BTreeSet<String>, String> {
     let system_dir = skills_dir.join(".system");
     if system_dir.exists() {
         collect_skill_names_from_dir(&system_dir, &mut skills)?;
+    }
+    Ok(skills)
+}
+
+fn installed_opencode_skill_names() -> Result<BTreeSet<String>, String> {
+    let path = client_home("opencode")?.join("opencode.json");
+    if !path.exists() {
+        return Ok(BTreeSet::new());
+    }
+    let value = read_json_value(&path)?;
+    let mut skills = BTreeSet::new();
+    if let Some(items) = value.get("instructions").and_then(Value::as_array) {
+        for item in items {
+            let Some(path_str) = item.as_str() else {
+                continue;
+            };
+            let normalized = normalize_path_text(path_str);
+            if normalized.contains("/skills/*/SKILL.md") {
+                let skills_root = PathBuf::from(normalized.replace("/*/SKILL.md", ""));
+                collect_skill_names_from_dir(&skills_root, &mut skills)?;
+                continue;
+            }
+            if normalized.contains("/skills/.system/*/SKILL.md") {
+                let system_root = PathBuf::from(normalized.replace("/*/SKILL.md", ""));
+                collect_skill_names_from_dir(&system_root, &mut skills)?;
+                continue;
+            }
+            if normalized.contains("/skills/learned/*/SKILL.md") {
+                let learned_root = PathBuf::from(normalized.replace("/*/SKILL.md", ""));
+                collect_skill_names_from_dir(&learned_root, &mut skills)?;
+                continue;
+            }
+            if path_str.ends_with("SKILL.md") {
+                if let Some(name) = Path::new(path_str)
+                    .parent()
+                    .and_then(Path::file_name)
+                    .map(|value| value.to_string_lossy().to_string())
+                {
+                    skills.insert(name);
+                }
+            }
+        }
     }
     Ok(skills)
 }
@@ -1564,6 +2200,7 @@ fn client_home(client: &str) -> Result<PathBuf, String> {
         "claude" => "CLAUDE_HOME",
         "codex" => "CODEX_HOME",
         "gemini" => "GEMINI_HOME",
+        "opencode" => "OPENCODE_HOME",
         other => return Err(format!("Unsupported client: {other}")),
     };
     if let Some(value) = std::env::var_os(env_key) {
@@ -1576,9 +2213,23 @@ fn client_home(client: &str) -> Result<PathBuf, String> {
 }
 
 fn fallback_client_home(client: &str) -> PathBuf {
-    user_home_dir()
-        .unwrap_or_else(|| PathBuf::from("."))
-        .join(format!(".{client}"))
+    let home = user_home_dir().unwrap_or_else(|| PathBuf::from("."));
+    match client {
+        "opencode" => {
+            #[cfg(target_os = "windows")]
+            {
+                if let Some(value) = std::env::var_os("APPDATA") {
+                    return PathBuf::from(value).join("opencode");
+                }
+                home.join(".opencode")
+            }
+            #[cfg(not(target_os = "windows"))]
+            {
+                home.join(".config").join("opencode")
+            }
+        }
+        _ => home.join(format!(".{client}")),
+    }
 }
 
 fn user_home_dir() -> Option<PathBuf> {
@@ -1651,6 +2302,10 @@ fn official_client_meta(client: &str) -> Option<OfficialClientMeta> {
             package_name: "@google/gemini-cli",
             command: "gemini",
         }),
+        "opencode" => Some(OfficialClientMeta {
+            package_name: "opencode-ai",
+            command: "opencode",
+        }),
         _ => None,
     }
 }
@@ -1694,8 +2349,35 @@ fn client_command(client: &str) -> &str {
         "claude" => "claude",
         "codex" => "codex",
         "gemini" => "gemini",
+        "opencode" => "opencode",
         _ => client,
     }
+}
+
+fn opencode_bridge_configured(home: &Path) -> Result<bool, String> {
+    let path = home.join("opencode.json");
+    if !path.exists() {
+        return Ok(false);
+    }
+    let value = read_json_value(&path)?;
+    let has_forge_instruction = value
+        .get("instructions")
+        .and_then(Value::as_array)
+        .map(|items| {
+            items.iter().any(|item| {
+                item.as_str()
+                    .map(|value| {
+                        let normalized = normalize_path_text(value);
+                        normalized.contains("/.codex/forge/")
+                            || normalized.ends_with("/.codex/AGENTS.md")
+                            || normalized.ends_with("/develop/person/forge/AGENTS.md")
+                            || normalized.ends_with("/develop/person/forge/CLAUDE.md")
+                    })
+                    .unwrap_or(false)
+            })
+        })
+        .unwrap_or(false);
+    Ok(has_forge_instruction)
 }
 
 fn run_script_capture(script: &Path, env: &[(String, String)]) -> Result<ExecOutput, String> {
@@ -1728,6 +2410,7 @@ fn run_command_capture(
     if let Some(cwd) = cwd {
         cmd.current_dir(cwd);
     }
+    apply_base_runtime_env(&mut cmd);
     for (key, value) in env {
         cmd.env(key, value);
     }
@@ -1743,6 +2426,79 @@ fn run_command_capture(
         stdout: String::from_utf8_lossy(&output.stdout).to_string(),
         stderr: String::from_utf8_lossy(&output.stderr).to_string(),
     })
+}
+
+fn apply_base_runtime_env(command: &mut Command) {
+    let path_sep = if cfg!(target_os = "windows") { ";" } else { ":" };
+    let current_path = std::env::var("PATH").unwrap_or_default();
+    let mut paths = current_path
+        .split(path_sep)
+        .filter(|item| !item.trim().is_empty())
+        .map(str::to_string)
+        .collect::<Vec<_>>();
+
+    for extra in common_runtime_bin_dirs() {
+        let value = extra.display().to_string();
+        if !paths.iter().any(|item| item == &value) {
+            paths.push(value);
+        }
+    }
+
+    command.env("PATH", paths.join(path_sep));
+}
+
+fn common_runtime_bin_dirs() -> Vec<PathBuf> {
+    let mut output = Vec::new();
+    let home = user_home_dir().unwrap_or_else(|| PathBuf::from("."));
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        output.push(home.join(".bun").join("bin"));
+        output.push(home.join(".opencode").join("bin"));
+        output.push(home.join(".npm-global").join("bin"));
+
+        let nvm_versions = home.join(".nvm").join("versions").join("node");
+        if let Ok(entries) = fs::read_dir(&nvm_versions) {
+            for entry in entries.flatten() {
+                let bin = entry.path().join("bin");
+                if bin.exists() {
+                    output.push(bin);
+                }
+            }
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        if let Some(profile) = std::env::var_os("USERPROFILE") {
+            output.push(PathBuf::from(&profile).join(".bun").join("bin"));
+            output.push(PathBuf::from(&profile).join(".opencode").join("bin"));
+        }
+        if let Some(appdata) = std::env::var_os("APPDATA") {
+            output.push(PathBuf::from(appdata).join("npm"));
+        }
+        if let Some(local_appdata) = std::env::var_os("LOCALAPPDATA") {
+            output.push(PathBuf::from(local_appdata).join("Programs").join("nodejs"));
+            output.push(PathBuf::from(local_appdata).join("Programs").join("Python").join("Scripts"));
+        }
+    }
+
+    if let Ok(prefix) = std::env::var("npm_config_prefix") {
+        let prefix_path = PathBuf::from(prefix);
+        if prefix_path.exists() {
+            output.push(prefix_path.join("bin"));
+            output.push(prefix_path);
+        }
+    }
+
+    output
+        .into_iter()
+        .filter(|path| path.exists())
+        .collect()
+}
+
+fn normalize_path_text(value: &str) -> String {
+    value.replace('\\', "/")
 }
 
 fn apply_windows_no_window(_command: &mut Command) {
