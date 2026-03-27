@@ -1,5 +1,5 @@
 export const forgeDeviceContext = {
-  "updatedAt": "2026-03-26T10:10:58.091Z",
+  "updatedAt": "2026-03-27T04:19:19.554Z",
   "sources": {
     "forgeCoreRoot": "/Users/uui6yee/.codex/forge/core",
     "localSkillsRoot": "/Users/uui6yee/.codex/skills",
