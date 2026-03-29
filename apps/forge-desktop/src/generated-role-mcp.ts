@@ -12,12 +12,7 @@ export const forgeRoleMcpMatrix = {
         "frontend-design",
         "web-frameworks",
         "ui-styling",
-        "vue-nuxt-patterns",
         "webapp-testing",
-        "chrome-devtools-mcp",
-        "a11y-debugging",
-        "debug-optimize-lcp",
-        "memory-leak-debugging",
         "code-review"
       ],
       "recommendedMcp": [
@@ -46,11 +41,6 @@ export const forgeRoleMcpMatrix = {
           "id": "playwright",
           "label": "Playwright",
           "why": "做可重复的 UI 回归、截图和关键路径验证。"
-        },
-        {
-          "id": "chrome-devtools-mcp",
-          "label": "Chrome DevTools MCP",
-          "why": "做 network、console、a11y、trace 与 memory 级别的浏览器深度调试。"
         }
       ]
     },
@@ -316,10 +306,7 @@ export const forgeRoleMcpMatrix = {
         "aesthetic",
         "ui-styling",
         "browser-use",
-        "web-design-guidelines",
-        "vue-nuxt-patterns",
-        "a11y-debugging",
-        "chrome-devtools-mcp"
+        "web-design-guidelines"
       ],
       "recommendedMcp": [
         {
@@ -347,11 +334,6 @@ export const forgeRoleMcpMatrix = {
           "id": "playwright",
           "label": "Playwright",
           "why": "做可重复的视觉检查、截图和动线验证。"
-        },
-        {
-          "id": "chrome-devtools-mcp",
-          "label": "Chrome DevTools MCP",
-          "why": "做 accessibility tree、浏览器 issue、性能和交互细节的证据化设计回看。"
         }
       ]
     },
@@ -401,9 +383,6 @@ export const forgeRoleMcpMatrix = {
         "tdd-workflow",
         "webapp-testing",
         "systematic-debugging",
-        "a11y-debugging",
-        "debug-optimize-lcp",
-        "memory-leak-debugging",
         "code-review"
       ],
       "recommendedMcp": [
@@ -413,13 +392,6 @@ export const forgeRoleMcpMatrix = {
           "type": "official-remote-or-local",
           "why": "测试策略需要和 PR、issue、回归历史以及实现上下文对齐。",
           "source": "https://github.com/github/github-mcp-server"
-        },
-        {
-          "id": "chrome-devtools-mcp",
-          "label": "Chrome DevTools MCP",
-          "type": "official-remote-or-local",
-          "why": "把 a11y、LCP、memory 与 browser issue 的验证证据拉到 QA 路径里。",
-          "source": "https://github.com/ChromeDevTools/chrome-devtools-mcp"
         }
       ],
       "recommendedLocalTools": [
@@ -432,11 +404,6 @@ export const forgeRoleMcpMatrix = {
           "id": "memory",
           "label": "memory",
           "why": "保留历史缺陷、验证证据和回归重点。"
-        },
-        {
-          "id": "chrome-devtools-mcp",
-          "label": "Chrome DevTools MCP",
-          "why": "做浏览器 runtime、issue、trace 和 memory 级别的验证。"
         }
       ]
     },

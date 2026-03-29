@@ -469,12 +469,14 @@ function App() {
     return Array.from(keys);
   }, [selectedMcpServers]);
 
-  async function loadState() {
+  async function loadState(options?: { preserveFeedback?: boolean }) {
     setIsLoading(true);
     try {
       if (previewMode) {
         setAppState(clonePreviewState());
-        setFeedback(null);
+        if (!options?.preserveFeedback) {
+          setFeedback(null);
+        }
         return;
       }
       const result = await getAppState();
@@ -492,12 +494,16 @@ function App() {
           details: result.details,
           warnings: result.warnings,
         });
-      } else {
+      } else if (!options?.preserveFeedback) {
         setFeedback(null);
       }
     } finally {
       setIsLoading(false);
     }
+  }
+
+  function dismissFeedback() {
+    setFeedback(null);
   }
 
   async function loadSecrets() {
@@ -709,7 +715,7 @@ function App() {
             : await verifyClientConfig(payload);
         setFeedback(buildActionFeedback(kind, activeClient, result as ActionResult<unknown>));
       }
-      await loadState();
+      await loadState({ preserveFeedback: true });
     } finally {
       setRunningAction(null);
     }
@@ -935,6 +941,8 @@ function App() {
               activeCardLabel={activeCard.label}
               activeCardTone={activeCard.tone}
               applyScope={applyScope}
+              latestFeedback={feedback}
+              onDismissFeedback={dismissFeedback}
               extensionView={extensionView}
               setExtensionView={setExtensionView}
               extensionMeta={extensionMeta}

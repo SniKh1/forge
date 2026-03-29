@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-03-16T09:45:38.721Z",
-  "totalSkills": 123,
+  "generatedAt": "2026-03-27T07:24:59.645Z",
+  "totalSkills": 118,
   "layers": {
     "core": 15,
     "extended": 21,
-    "specialized": 86,
+    "specialized": 81,
     "experimental": 1
   },
   "skills": [
@@ -66,44 +66,6 @@
       ],
       "sourcePath": "skills/ai-multimodal/SKILL.md",
       "relativeSkillDir": "skills/ai-multimodal"
-    },
-    {
-      "id": "a11y-debugging",
-      "title": "a11y-debugging",
-      "summary": "Use when debugging accessibility issues in a web UI, especially semantic structure, accessible names, form labels, keyboard behavior, focus order, contrast, or ARIA problems using Chrome DevTools MCP.",
-      "layer": "specialized",
-      "primaryFor": [
-        "frontend-engineer",
-        "ui-designer",
-        "qa-strategist",
-        "developer"
-      ],
-      "secondaryFor": [],
-      "recommendedByRole": [
-        "frontend-engineer",
-        "ui-designer",
-        "qa-strategist",
-        "developer"
-      ],
-      "recommendedByStack": [
-        "frontend",
-        "frontend-web",
-        "design",
-        "qa"
-      ],
-      "overlapGroup": "browser-debugging",
-      "clusterRole": "support",
-      "supportWhen": [
-        "需要 accessibility tree、焦点路径、label / ARIA / landmark 级别的证据时。"
-      ],
-      "preferred": true,
-      "clients": [
-        "claude",
-        "codex",
-        "gemini"
-      ],
-      "sourcePath": "skills/a11y-debugging/SKILL.md",
-      "relativeSkillDir": "skills/a11y-debugging"
     },
     {
       "id": "algorithmic-art",
@@ -514,44 +476,6 @@
       ],
       "sourcePath": "skills/clickhouse-io/SKILL.md",
       "relativeSkillDir": "skills/clickhouse-io"
-    },
-    {
-      "id": "chrome-devtools-mcp",
-      "title": "chrome-devtools-mcp",
-      "summary": "Use when controlling or debugging a live Chrome session through the Chrome DevTools MCP server, especially for network inspection, console/runtime debugging, screenshots, automation, and performance traces.",
-      "layer": "extended",
-      "primaryFor": [
-        "developer",
-        "frontend-engineer",
-        "ui-designer",
-        "qa-strategist"
-      ],
-      "secondaryFor": [],
-      "recommendedByRole": [
-        "developer",
-        "frontend-engineer",
-        "ui-designer",
-        "qa-strategist"
-      ],
-      "recommendedByStack": [
-        "frontend",
-        "frontend-web",
-        "design",
-        "qa"
-      ],
-      "overlapGroup": "browser-debugging",
-      "clusterRole": "primary",
-      "supportWhen": [
-        "需要 Chrome DevTools 级别的 network、console、trace、runtime、memory 调试时。"
-      ],
-      "preferred": true,
-      "clients": [
-        "claude",
-        "codex",
-        "gemini"
-      ],
-      "sourcePath": "skills/chrome-devtools-mcp/SKILL.md",
-      "relativeSkillDir": "skills/chrome-devtools-mcp"
     },
     {
       "id": "code-review",
@@ -1019,41 +943,6 @@
       "relativeSkillDir": "skills/django-patterns"
     },
     {
-      "id": "debug-optimize-lcp",
-      "title": "debug-optimize-lcp",
-      "summary": "Use when diagnosing or improving Largest Contentful Paint, Core Web Vitals, slow initial page rendering, hero-image delays, or main-content load speed using Chrome DevTools MCP traces.",
-      "layer": "specialized",
-      "primaryFor": [
-        "frontend-engineer",
-        "qa-strategist",
-        "developer"
-      ],
-      "secondaryFor": [],
-      "recommendedByRole": [
-        "frontend-engineer",
-        "qa-strategist",
-        "developer"
-      ],
-      "recommendedByStack": [
-        "frontend",
-        "frontend-web",
-        "qa"
-      ],
-      "overlapGroup": "performance-debugging",
-      "clusterRole": "support",
-      "supportWhen": [
-        "需要 LCP / CWV 分析与 trace-based 优化结论时。"
-      ],
-      "preferred": true,
-      "clients": [
-        "claude",
-        "codex",
-        "gemini"
-      ],
-      "sourcePath": "skills/debug-optimize-lcp/SKILL.md",
-      "relativeSkillDir": "skills/debug-optimize-lcp"
-    },
-    {
       "id": "django-security",
       "title": "django-security",
       "summary": "Django security best practices, authentication, authorization, CSRF protection, SQL injection prevention, XSS prevention, and secure deployment configurations.",
@@ -1447,43 +1336,6 @@
       "relativeSkillDir": "skills/frontend-patterns"
     },
     {
-      "id": "vue-nuxt-patterns",
-      "title": "vue-nuxt-patterns",
-      "summary": "Use when working in Vue 3 or Nuxt 4 codebases, choosing a Vue-first frontend stack, selecting Vue UI frameworks, or building Vue-based desktop shells with Tauri, Electron, or Quasar.",
-      "layer": "specialized",
-      "primaryFor": [
-        "frontend-engineer",
-        "developer",
-        "ui-designer"
-      ],
-      "secondaryFor": [],
-      "recommendedByRole": [
-        "frontend-engineer",
-        "developer",
-        "ui-designer"
-      ],
-      "recommendedByStack": [
-        "frontend",
-        "frontend-web",
-        "frontend-desktop",
-        "design-system"
-      ],
-      "overlapGroup": "frontend-frameworks",
-      "clusterRole": "support",
-      "supportWhen": [
-        "Vue / Nuxt 项目需要与 React / Next 同级的框架、状态、UI 组件库和桌面壳选型时。",
-        "需要为 Vue-first repo 提供明确的默认技术栈、防止误用 React-only 规则时。"
-      ],
-      "preferred": true,
-      "clients": [
-        "claude",
-        "codex",
-        "gemini"
-      ],
-      "sourcePath": "skills/vue-nuxt-patterns/SKILL.md",
-      "relativeSkillDir": "skills/vue-nuxt-patterns"
-    },
-    {
       "id": "golang-patterns",
       "title": "golang-patterns",
       "summary": "Idiomatic Go patterns, best practices, and conventions for building robust, efficient, and maintainable Go applications.",
@@ -1731,42 +1583,6 @@
       ],
       "sourcePath": "skills/mcp-builder/SKILL.md",
       "relativeSkillDir": "skills/mcp-builder"
-    },
-    {
-      "id": "memory-leak-debugging",
-      "title": "memory-leak-debugging",
-      "summary": "Use when investigating browser memory leaks, steadily growing tab memory, detached DOM nodes, repeated mount/unmount leaks, or long-session frontend memory regressions using Chrome DevTools MCP.",
-      "layer": "specialized",
-      "primaryFor": [
-        "frontend-engineer",
-        "developer",
-        "qa-strategist"
-      ],
-      "secondaryFor": [],
-      "recommendedByRole": [
-        "frontend-engineer",
-        "developer",
-        "qa-strategist"
-      ],
-      "recommendedByStack": [
-        "frontend",
-        "frontend-web",
-        "frontend-desktop",
-        "qa"
-      ],
-      "overlapGroup": "browser-debugging",
-      "clusterRole": "support",
-      "supportWhen": [
-        "需要追踪浏览器内存增长、detached DOM、listener / timer 泄漏时。"
-      ],
-      "preferred": true,
-      "clients": [
-        "claude",
-        "codex",
-        "gemini"
-      ],
-      "sourcePath": "skills/memory-leak-debugging/SKILL.md",
-      "relativeSkillDir": "skills/memory-leak-debugging"
     },
     {
       "id": "mcp-management",

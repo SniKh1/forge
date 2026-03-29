@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import type { RoleId, StackId } from '../../platform-data';
 import type {
+  ActionFeedbackVM,
   ApplyScopeVM,
   ExtensionMetaVM,
   RequirementVM,
@@ -13,6 +14,7 @@ import type {
   WorkbenchView,
 } from '../../platform-vm';
 import { InfoLine, WorkbenchStat, WorkbenchTabButton } from './cards';
+import { feedbackTone } from '../../platform-vm';
 
 type DrawerMode = 'details' | 'secrets' | 'skills' | 'connections';
 type PersonaPanelView = 'role' | 'stacks' | 'skills';
@@ -40,6 +42,8 @@ export function PlatformWorkbenchSection(props: {
   activeCardLabel: string;
   activeCardTone: string;
   applyScope: ApplyScopeVM;
+  latestFeedback: ActionFeedbackVM | null;
+  onDismissFeedback: () => void;
   extensionView: 'mcp' | 'memory';
   setExtensionView: (view: 'mcp' | 'memory') => void;
   extensionMeta: Record<'mcp' | 'memory', ExtensionMetaVM>;
@@ -55,6 +59,16 @@ export function PlatformWorkbenchSection(props: {
   const [showOptionalStacks, setShowOptionalStacks] = useState(false);
   const [showOptionalSkills, setShowOptionalSkills] = useState(false);
   const [showReviewDetails, setShowReviewDetails] = useState(false);
+
+  useEffect(() => {
+    if (props.latestFeedback && props.latestFeedback.tone === 'success') {
+      const timer = setTimeout(() => {
+        props.onDismissFeedback();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [props.latestFeedback, props.onDismissFeedback]);
+
   const selectedStacks = [...props.recommendedStacks, ...props.optionalStacks].filter((stack) => stack.selected);
   const selectedOptionalSkills = props.skillOptions.optional.filter((skill) => skill.selected);
   const visiblePrimarySkills = props.skillComposition.primarySkills.slice(0, 6);
@@ -122,10 +136,44 @@ export function PlatformWorkbenchSection(props: {
         </div>
       </div>
 
+      {props.latestFeedback && props.latestFeedback.tone !== 'success' ? (
+        <div className={`mt-4 rounded-[20px] border p-4 shadow-[0_12px_30px_rgba(15,23,42,0.04)] ${feedbackTone(props.latestFeedback.tone)}`}>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-current/70">最近执行结果</div>
+              <div className="mt-1.5 text-[15px] font-semibold">{props.latestFeedback.title}</div>
+              <div className="mt-2 text-[12px] leading-6 text-current/90">{props.latestFeedback.impact}</div>
+            </div>
+            <button
+              type="button"
+              onClick={props.onDismissFeedback}
+              className="text-current/50 hover:text-current/80"
+              aria-label="关闭"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => props.setDrawerMode('details')}
+              className="inline-flex items-center gap-2 rounded-[12px] border border-current/20 bg-white/70 px-3 py-2 text-[12px] font-medium text-current hover:bg-white"
+            >
+              查看详情
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            {props.latestFeedback.warnings.length > 0 ? (
+              <WorkbenchStat label={`${props.latestFeedback.warnings.length} 条警告`} />
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
       <div className="mt-4">
         {props.workbenchView === 'persona' ? (
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
             <div className="space-y-4">
+
               <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>

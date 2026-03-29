@@ -72,6 +72,10 @@ if has_component "mcp"; then
   if [ -n "$MCP_SERVERS" ]; then
     mcp_args+=(--servers "$MCP_SERVERS")
   fi
-  FORGE_GEMINI_EXA_KEY="${FORGE_GEMINI_EXA_KEY:-}" bash "$SCRIPT_DIR/scripts/configure-gemini-mcp.sh" "${mcp_args[@]}"
+  if [ ${#mcp_args[@]} -gt 0 ]; then
+    FORGE_GEMINI_EXA_KEY="${FORGE_GEMINI_EXA_KEY:-}" bash "$SCRIPT_DIR/scripts/configure-gemini-mcp.sh" "${mcp_args[@]}"
+  else
+    FORGE_GEMINI_EXA_KEY="${FORGE_GEMINI_EXA_KEY:-}" bash "$SCRIPT_DIR/scripts/configure-gemini-mcp.sh"
+  fi
 fi
 bash "$SCRIPT_DIR/scripts/verify-gemini.sh"

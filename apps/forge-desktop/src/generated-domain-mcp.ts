@@ -2,55 +2,6 @@ export const forgeDomainMcpMatrix = {
   "version": "1.0",
   "updated": "2026-03-13",
   "stacks": {
-    "frontend": {
-      "recommendedRoles": [
-        "ui-designer",
-        "frontend-engineer",
-        "qa-strategist",
-        "solution-architect",
-        "developer"
-      ],
-      "recommendedMcp": [
-        {
-          "id": "figma-mcp",
-          "label": "Figma MCP Server",
-          "type": "official-remote-or-desktop",
-          "why": "在 React/Next 与 Vue/Nuxt 双主栈下都保持设计稿、组件规范和实现闭环。",
-          "source": "https://help.figma.com/hc/en-us/articles/32132100833559-Guide-to-the-Figma-MCP-server"
-        },
-        {
-          "id": "github-mcp",
-          "label": "GitHub MCP Server",
-          "type": "official-remote-or-local",
-          "why": "对照 repo 事实来决定当前前端 lane 应该走 React/Next 还是 Vue/Nuxt，并追踪实现与回归。",
-          "source": "https://github.com/github/github-mcp-server"
-        },
-        {
-          "id": "chrome-devtools-mcp",
-          "label": "Chrome DevTools MCP",
-          "type": "official-remote-or-local",
-          "why": "为前端工作提供 network、console、a11y、trace、memory 级别的浏览器证据。",
-          "source": "https://github.com/ChromeDevTools/chrome-devtools-mcp"
-        }
-      ],
-      "recommendedLocalTools": [
-        {
-          "id": "browser-use",
-          "label": "browser-use",
-          "why": "用于真实产品流与真实登录态验证，适合确认用户路径是否成立。"
-        },
-        {
-          "id": "playwright",
-          "label": "Playwright",
-          "why": "用于可重复截图、回归与关键路径验证，适合确定性检查。"
-        },
-        {
-          "id": "chrome-devtools-mcp",
-          "label": "Chrome DevTools MCP",
-          "why": "用于 DevTools 级别调试，适合分析浏览器行为而不是只做流程点击。"
-        }
-      ]
-    },
     "ecommerce": {
       "recommendedRoles": [
         "product-manager",
@@ -89,11 +40,6 @@ export const forgeDomainMcpMatrix = {
           "id": "playwright",
           "label": "Playwright",
           "why": "Use deterministic browser checks for checkout, admin, and regression-sensitive flows."
-        },
-        {
-          "id": "chrome-devtools-mcp",
-          "label": "Chrome DevTools MCP",
-          "why": "Debug checkout runtime issues, browser console problems, performance regressions, and a11y gaps in storefront flows."
         }
       ]
     },
@@ -159,11 +105,6 @@ export const forgeDomainMcpMatrix = {
           "id": "media-processing",
           "label": "media-processing",
           "why": "Prepare sizes, crops, and derivative assets after generation."
-        },
-        {
-          "id": "chrome-devtools-mcp",
-          "label": "Chrome DevTools MCP",
-          "why": "Useful when generated assets must be validated inside real product surfaces for rendering, layout, or performance behavior."
         }
       ]
     },
