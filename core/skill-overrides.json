@@ -852,5 +852,93 @@
     "recommendedByStack": [
       "image-generation"
     ]
+  },
+  "notebooklm": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "solution-architect",
+      "product-manager",
+      "ai-automation-engineer"
+    ],
+    "recommendedByStack": [
+      "architecture",
+      "product",
+      "workflow-automation",
+      "python",
+      "release"
+    ],
+    "overlapGroup": "docs-research",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要从用户自己的 NotebookLM 文档库获得 source-grounded answers，而不是开放式 web recall。",
+      "需要把研究、文档问答和 notebook inventory 管理串成一条稳定工作流时。"
+    ],
+    "preferred": true
+  },
+  "obsidian-skills": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "solution-architect",
+      "product-manager"
+    ],
+    "recommendedByStack": [
+      "product",
+      "architecture",
+      "workflow-automation",
+      "design"
+    ],
+    "overlapGroup": "docs-research",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要围绕 Obsidian vault、知识库、Canvas 或 note graph 做结构化工作时。",
+      "需要把笔记系统、知识沉淀和可视化 note layout 结合在一起时。"
+    ],
+    "preferred": true
+  },
+  "planning-with-files": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "solution-architect",
+      "product-manager",
+      "qa-strategist"
+    ],
+    "recommendedByStack": [
+      "architecture",
+      "product",
+      "qa",
+      "release",
+      "workflow-automation"
+    ],
+    "overlapGroup": "planning",
+    "clusterRole": "support",
+    "supportWhen": [
+      "任务跨越多个阶段、多个会话或大量工具调用，需要 durable working memory 时。",
+      "需要用 task_plan / findings / progress 这样的文件化状态来稳定推进工作时。"
+    ],
+    "preferred": true
+  },
+  "skill-prompt-generator": {
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "ui-designer",
+      "product-manager"
+    ],
+    "recommendedByStack": [
+      "design",
+      "product",
+      "workflow-automation",
+      "image-generation",
+      "video-creation"
+    ],
+    "overlapGroup": "communication",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要围绕 prompt generation / prompt analysis / prompt library 做系统化工作时。"
+    ],
+    "preferred": false
   }
 }

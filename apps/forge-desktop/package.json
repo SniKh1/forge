@@ -4,16 +4,16 @@
   "version": "0.4.10",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run sync:forge && vite",
     "dev:tauri": "node ./scripts/run-dev-server.mjs",
-    "build": "node ./scripts/run-tsc.mjs -b && vite build",
+    "build": "npm run sync:forge && node ./scripts/run-tsc.mjs -b && vite build",
     "preview": "vite preview",
     "sync:forge": "node ./scripts/sync-forge-sources.mjs",
-    "test": "vitest run",
-    "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build",
+    "test": "npm run sync:forge && vitest run",
+    "tauri:dev": "npm run sync:forge && tauri dev",
+    "tauri:build": "npm run sync:forge && tauri build",
     "tauri": "tauri",
-    "verify": "node ./scripts/run-tsc.mjs -b && vite build"
+    "verify": "npm run sync:forge && node ./scripts/run-tsc.mjs -b && vite build"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.8.0",

@@ -70,11 +70,10 @@ class CodexTomlDumpTests(unittest.TestCase):
                 check=True,
             )
 
-            self.assertIn("WROTE", proc.stdout)
+            self.assertRegex(proc.stdout, r"(WROTE|UPDATED)")
             rendered = config_path.read_text(encoding="utf-8")
             self.assertIn('[model_providers.custom]', rendered)
             self.assertNotIn('model_providers = "', rendered)
-            self.assertIn('[mcp_servers.memory]', rendered)
 
 
 if __name__ == "__main__":

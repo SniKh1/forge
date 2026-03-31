@@ -61,6 +61,7 @@
 | Bug / 失败 / 异常行为 | `systematic-debugging` |
 | Testing / TDD | `tdd-workflow` + `webapp-testing` |
 | Documentation | `doc-coauthoring` |
+| Knowledge / notes / notebook research | `planning-with-files` + `notebooklm` + `obsidian-skills` |
 | MCP development | `mcp-builder` + `mcp-management` |
 | Agent / LLM / context work | `context-engineering` |
 | Browser automation | `browser-use` 为主，回退 `browser` / `chrome-devtools` |

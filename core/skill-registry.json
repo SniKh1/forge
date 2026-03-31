@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-03-27T07:24:59.645Z",
-  "totalSkills": 118,
+  "generatedAt": "2026-03-31T09:47:38.778Z",
+  "totalSkills": 155,
   "layers": {
     "core": 15,
-    "extended": 21,
-    "specialized": 81,
+    "extended": 25,
+    "specialized": 114,
     "experimental": 1
   },
   "skills": [
@@ -44,6 +44,48 @@
       "relativeSkillDir": "skills/aesthetic"
     },
     {
+      "id": "agent-eval",
+      "title": "agent-eval",
+      "summary": "Head-to-head comparison of coding agents (Claude Code, Aider, Codex, etc.) on custom tasks with pass rate, cost, time, and consistency metrics",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/agent-eval/agent-eval/SKILL.md",
+      "relativeSkillDir": "skills/agent-eval/agent-eval"
+    },
+    {
+      "id": "agent-payment-x402",
+      "title": "agent-payment-x402",
+      "summary": "Add x402 payment execution to AI agents — per-task budgets, spending controls, and non-custodial wallets via MCP tools. Use when agents need to pay for APIs, services, or other agents.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/agent-payment-x402/agent-payment-x402/SKILL.md",
+      "relativeSkillDir": "skills/agent-payment-x402/agent-payment-x402"
+    },
+    {
       "id": "ai-multimodal",
       "title": "ai-multimodal",
       "summary": "Process and generate multimedia content using Google Gemini API. Capabilities include analyze audio files (transcription with timestamps, summarization, speech understanding, music/sound analysis up to 9.5 hours), understand images (captioning, object detection, OCR, visual Q&A, segmentation), process videos (scene detection, Q&A, temporal analysis, YouTube URLs, up to 6 hours), extract from documents (PDF tables, forms, charts, diagrams, multi-page), generate images (text-to-image, editing, composition, refinement). Use when working with audio/video files, analyzing images or screenshots, processing PDF documents, extracting structured data from media, creating images from text prompts, or implementing multimodal AI features. Supports multiple models (Gemini 2.5/2.0) with context windows up to 2M tokens.",
@@ -68,6 +110,27 @@
       "relativeSkillDir": "skills/ai-multimodal"
     },
     {
+      "id": "ai-regression-testing",
+      "title": "ai-regression-testing",
+      "summary": "Regression testing strategies for AI-assisted development. Sandbox-mode API testing without database dependencies, automated bug-check workflows, and patterns to catch AI blind spots where the same model writes and reviews code.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/ai-regression-testing/ai-regression-testing/SKILL.md",
+      "relativeSkillDir": "skills/ai-regression-testing/ai-regression-testing"
+    },
+    {
       "id": "algorithmic-art",
       "title": "algorithmic-art",
       "summary": "Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. Use this when users request creating art using code, generative art, algorithmic art, flow fields, or particle systems. Create original algorithmic art rather than copying existing artists' work to avoid copyright violations.",
@@ -87,6 +150,27 @@
       ],
       "sourcePath": "skills/algorithmic-art/SKILL.md",
       "relativeSkillDir": "skills/algorithmic-art"
+    },
+    {
+      "id": "android-clean-architecture",
+      "title": "android-clean-architecture",
+      "summary": "Clean Architecture patterns for Android and Kotlin Multiplatform projects — module structure, dependency rules, UseCases, Repositories, and data layer patterns.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/android-clean-architecture/android-clean-architecture/SKILL.md",
+      "relativeSkillDir": "skills/android-clean-architecture/android-clean-architecture"
     },
     {
       "id": "api-design",
@@ -110,6 +194,48 @@
       "relativeSkillDir": "skills/api-design"
     },
     {
+      "id": "architecture-decision-records",
+      "title": "architecture-decision-records",
+      "summary": "Capture architectural decisions made during Claude Code sessions as structured ADRs. Auto-detects decision moments, records context, alternatives considered, and rationale. Maintains an ADR log so future developers understand why the codebase is shaped the way it is.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/architecture-decision-records/architecture-decision-records/SKILL.md",
+      "relativeSkillDir": "skills/architecture-decision-records/architecture-decision-records"
+    },
+    {
+      "id": "article-writing",
+      "title": "article-writing",
+      "summary": "Write articles, guides, blog posts, tutorials, newsletter issues, and other long-form content in a distinctive voice derived from supplied examples or brand guidance. Use when the user wants polished written content longer than a paragraph, especially when voice consistency, structure, and credibility matter.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/article-writing/article-writing/SKILL.md",
+      "relativeSkillDir": "skills/article-writing/article-writing"
+    },
+    {
       "id": "artifacts-builder",
       "title": "artifacts-builder",
       "summary": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components - not for simple single-file HTML/JSX artifacts.",
@@ -129,6 +255,27 @@
       ],
       "sourcePath": "skills/artifacts-builder/SKILL.md",
       "relativeSkillDir": "skills/artifacts-builder"
+    },
+    {
+      "id": "autonomous-loops",
+      "title": "autonomous-loops",
+      "summary": "Patterns and architectures for autonomous Claude Code loops — from simple sequential pipelines to RFC-driven multi-agent DAG systems.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/autonomous-loops/autonomous-loops/SKILL.md",
+      "relativeSkillDir": "skills/autonomous-loops/autonomous-loops"
     },
     {
       "id": "backend-development",
@@ -185,6 +332,27 @@
       "relativeSkillDir": "skills/backend-patterns"
     },
     {
+      "id": "benchmark",
+      "title": "benchmark",
+      "summary": "Use this skill to measure performance baselines, detect regressions before/after PRs, and compare stack alternatives.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/benchmark/benchmark/SKILL.md",
+      "relativeSkillDir": "skills/benchmark/benchmark"
+    },
+    {
       "id": "better-auth",
       "title": "better-auth",
       "summary": "Implement authentication and authorization with Better Auth - a framework-agnostic TypeScript authentication framework. Features include email/password authentication with verification, OAuth providers (Google, GitHub, Discord, etc.), two-factor authentication (TOTP, SMS), passkeys/WebAuthn support, session management, role-based access control (RBAC), rate limiting, and database adapters. Use when adding authentication to applications, implementing OAuth flows, setting up 2FA/MFA, managing user sessions, configuring authorization rules, or building secure authentication systems for web applications.",
@@ -219,6 +387,27 @@
       ],
       "sourcePath": "skills/better-auth/SKILL.md",
       "relativeSkillDir": "skills/better-auth"
+    },
+    {
+      "id": "blueprint",
+      "title": "blueprint",
+      "summary": ">-",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/blueprint/blueprint/SKILL.md",
+      "relativeSkillDir": "skills/blueprint/blueprint"
     },
     {
       "id": "brainstorming",
@@ -316,6 +505,27 @@
       "relativeSkillDir": "skills/browser"
     },
     {
+      "id": "browser-qa",
+      "title": "browser-qa",
+      "summary": "Use this skill to automate visual testing and UI interaction verification using browser automation after deploying features.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/browser-qa/browser-qa/SKILL.md",
+      "relativeSkillDir": "skills/browser-qa/browser-qa"
+    },
+    {
       "id": "browser-use",
       "title": "browser-use",
       "summary": "Automates browser interactions for web testing, form filling, screenshots, and data extraction. Use when the user needs to navigate websites, interact with web pages, fill forms, take screenshots, or extract information from web pages.",
@@ -352,6 +562,48 @@
       "relativeSkillDir": "skills/browser-use"
     },
     {
+      "id": "bun-runtime",
+      "title": "bun-runtime",
+      "summary": "Bun as runtime, package manager, bundler, and test runner. When to choose Bun vs Node, migration notes, and Vercel support.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/bun-runtime/bun-runtime/SKILL.md",
+      "relativeSkillDir": "skills/bun-runtime/bun-runtime"
+    },
+    {
+      "id": "canary-watch",
+      "title": "canary-watch",
+      "summary": "Use this skill to monitor a deployed URL for regressions after deploys, merges, or dependency upgrades.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/canary-watch/canary-watch/SKILL.md",
+      "relativeSkillDir": "skills/canary-watch/canary-watch"
+    },
+    {
       "id": "canvas-design",
       "title": "canvas-design",
       "summary": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying existing artists' work to avoid copyright violations.",
@@ -373,6 +625,27 @@
       ],
       "sourcePath": "skills/canvas-design/SKILL.md",
       "relativeSkillDir": "skills/canvas-design"
+    },
+    {
+      "id": "carrier-relationship-management",
+      "title": "carrier-relationship-management",
+      "summary": ">",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/carrier-relationship-management/carrier-relationship-management/SKILL.md",
+      "relativeSkillDir": "skills/carrier-relationship-management/carrier-relationship-management"
     },
     {
       "id": "changelog-generator",
@@ -436,6 +709,48 @@
       "relativeSkillDir": "skills/chrome-devtools"
     },
     {
+      "id": "ck",
+      "title": "ck",
+      "summary": "Persistent per-project memory for Claude Code. Auto-loads project context on session start, tracks sessions with git activity, and writes to native memory. Commands run deterministic Node.js scripts — behavior is consistent across model versions.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/ck/ck/SKILL.md",
+      "relativeSkillDir": "skills/ck/ck"
+    },
+    {
+      "id": "claude-api",
+      "title": "claude-api",
+      "summary": "Anthropic Claude API patterns for Python and TypeScript. Covers Messages API, streaming, tool use, vision, extended thinking, batches, prompt caching, and Claude Agent SDK. Use when building applications with the Claude API or Anthropic SDKs.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/claude-api/claude-api/SKILL.md",
+      "relativeSkillDir": "skills/claude-api/claude-api"
+    },
+    {
       "id": "claude-code",
       "title": "claude-code",
       "summary": "Claude Code is Anthropic's agentic coding tool that lives in the terminal and helps turn ideas into code faster. It combines autonomous planning, execution, and validation with extensibility through skills, plugins, MCP servers, and hooks.",
@@ -455,6 +770,48 @@
       ],
       "sourcePath": "skills/claude-code/SKILL.md",
       "relativeSkillDir": "skills/claude-code"
+    },
+    {
+      "id": "claude-devfleet",
+      "title": "claude-devfleet",
+      "summary": "Orchestrate multi-agent coding tasks via Claude DevFleet — plan projects, dispatch parallel agents in isolated worktrees, monitor progress, and read structured reports.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/claude-devfleet/claude-devfleet/SKILL.md",
+      "relativeSkillDir": "skills/claude-devfleet/claude-devfleet"
+    },
+    {
+      "id": "click-path-audit",
+      "title": "click-path-audit",
+      "summary": "Trace every user-facing button/touchpoint through its full state change sequence to find bugs where functions individually work but cancel each other out, produce wrong final state, or leave the UI in an inconsistent state. Use when: systematic debugging found no bugs but users report broken buttons, or after any major refactor touching shared state stores.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/click-path-audit/click-path-audit/SKILL.md",
+      "relativeSkillDir": "skills/click-path-audit/click-path-audit"
     },
     {
       "id": "clickhouse-io",
@@ -516,6 +873,27 @@
       "relativeSkillDir": "skills/code-review"
     },
     {
+      "id": "codebase-onboarding",
+      "title": "codebase-onboarding",
+      "summary": "Analyze an unfamiliar codebase and generate a structured onboarding guide with architecture map, key entry points, conventions, and a starter CLAUDE.md. Use when joining a new project or setting up Claude Code for the first time in a repo.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/codebase-onboarding/codebase-onboarding/SKILL.md",
+      "relativeSkillDir": "skills/codebase-onboarding/codebase-onboarding"
+    },
+    {
       "id": "coding-standards",
       "title": "coding-standards",
       "summary": "Universal coding standards, best practices, and patterns for TypeScript, JavaScript, React, and Node.js development.",
@@ -558,6 +936,27 @@
       "relativeSkillDir": "skills/problem-solving/collision-zone-thinking"
     },
     {
+      "id": "compose-multiplatform-patterns",
+      "title": "compose-multiplatform-patterns",
+      "summary": "Compose Multiplatform and Jetpack Compose patterns for KMP projects — state management, navigation, theming, performance, and platform-specific UI.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/compose-multiplatform-patterns/compose-multiplatform-patterns/SKILL.md",
+      "relativeSkillDir": "skills/compose-multiplatform-patterns/compose-multiplatform-patterns"
+    },
+    {
       "id": "configure-ecc",
       "title": "configure-ecc",
       "summary": "Interactive installer for Everything Claude Code — guides users through selecting and installing skills and rules to user-level or project-level directories, verifies paths, and optionally optimizes installed files.",
@@ -598,6 +997,27 @@
       ],
       "sourcePath": "skills/content-hash-cache-pattern/SKILL.md",
       "relativeSkillDir": "skills/content-hash-cache-pattern"
+    },
+    {
+      "id": "context-budget",
+      "title": "context-budget",
+      "summary": "Audits Claude Code context window consumption across agents, skills, MCP servers, and rules. Identifies bloat, redundant components, and produces prioritized token-savings recommendations.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/context-budget/context-budget/SKILL.md",
+      "relativeSkillDir": "skills/context-budget/context-budget"
     },
     {
       "id": "context-engineering",
@@ -660,6 +1080,27 @@
       ],
       "sourcePath": "skills/context7/SKILL.md",
       "relativeSkillDir": "skills/context7"
+    },
+    {
+      "id": "continuous-agent-loop",
+      "title": "continuous-agent-loop",
+      "summary": "Patterns for continuous autonomous agent loops with quality gates, evals, and recovery controls.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/continuous-agent-loop/continuous-agent-loop/SKILL.md",
+      "relativeSkillDir": "skills/continuous-agent-loop/continuous-agent-loop"
     },
     {
       "id": "continuous-learning",
@@ -789,6 +1230,27 @@
       "relativeSkillDir": "skills/cpp-testing"
     },
     {
+      "id": "customs-trade-compliance",
+      "title": "customs-trade-compliance",
+      "summary": ">",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/customs-trade-compliance/customs-trade-compliance/SKILL.md",
+      "relativeSkillDir": "skills/customs-trade-compliance/customs-trade-compliance"
+    },
+    {
       "id": "database-migrations",
       "title": "database-migrations",
       "summary": "Database migration best practices for schema changes, data migrations, rollbacks, and zero-downtime deployments across PostgreSQL, MySQL, and common ORMs (Prisma, Drizzle, Django, TypeORM, golang-migrate).",
@@ -850,6 +1312,48 @@
       "relativeSkillDir": "skills/databases"
     },
     {
+      "id": "deep-research",
+      "title": "deep-research",
+      "summary": "Multi-source deep research using firecrawl and exa MCPs. Searches the web, synthesizes findings, and delivers cited reports with source attribution. Use when the user wants thorough research on any topic with evidence and citations.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/deep-research/deep-research/SKILL.md",
+      "relativeSkillDir": "skills/deep-research/deep-research"
+    },
+    {
+      "id": "defuddle",
+      "title": "defuddle",
+      "summary": "Extract clean markdown from web pages for note-taking and knowledge ingestion with less clutter and token waste.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/defuddle/SKILL.md",
+      "relativeSkillDir": "skills/defuddle"
+    },
+    {
       "id": "deployment-patterns",
       "title": "deployment-patterns",
       "summary": "Deployment workflows, CI/CD pipeline patterns, Docker containerization, health checks, rollback strategies, and production readiness checklists for web applications.",
@@ -869,6 +1373,27 @@
       ],
       "sourcePath": "skills/deployment-patterns/SKILL.md",
       "relativeSkillDir": "skills/deployment-patterns"
+    },
+    {
+      "id": "design-system",
+      "title": "design-system",
+      "summary": "Use this skill to generate or audit design systems, check visual consistency, and review PRs that touch styling.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/design-system/design-system/SKILL.md",
+      "relativeSkillDir": "skills/design-system/design-system"
     },
     {
       "id": "devops",
@@ -1405,6 +1930,27 @@
       "relativeSkillDir": "skills/google-adk-python"
     },
     {
+      "id": "intelligent-prompt-generator",
+      "title": "intelligent-prompt-generator",
+      "summary": "Generate prompts from high-level intent using domain-aware reasoning, prompt composition, and consistency checks.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/intelligent-prompt-generator/SKILL.md",
+      "relativeSkillDir": "skills/intelligent-prompt-generator"
+    },
+    {
       "id": "internal-comms",
       "title": "internal-comms",
       "summary": "A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Claude should use this skill whenever asked to write some sort of internal communications (status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates, etc.).",
@@ -1525,6 +2071,27 @@
       ],
       "sourcePath": "skills/jpa-patterns/SKILL.md",
       "relativeSkillDir": "skills/jpa-patterns"
+    },
+    {
+      "id": "json-canvas",
+      "title": "json-canvas",
+      "summary": "Create and edit JSON Canvas files for visual maps, note boards, graph layouts, and Obsidian canvas workflows.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/json-canvas/SKILL.md",
+      "relativeSkillDir": "skills/json-canvas"
     },
     {
       "id": "liquid-glass-design",
@@ -1686,6 +2253,46 @@
       "relativeSkillDir": "skills/problem-solving/meta-pattern-recognition"
     },
     {
+      "id": "notebooklm",
+      "title": "notebooklm",
+      "summary": "Query Google NotebookLM notebooks for source-grounded answers, manage notebook entries, and work with persistent document-backed research flows.",
+      "layer": "extended",
+      "primaryFor": [
+        "developer",
+        "solution-architect",
+        "product-manager",
+        "ai-automation-engineer"
+      ],
+      "secondaryFor": [],
+      "recommendedByRole": [
+        "developer",
+        "solution-architect",
+        "product-manager",
+        "ai-automation-engineer"
+      ],
+      "recommendedByStack": [
+        "architecture",
+        "product",
+        "workflow-automation",
+        "python",
+        "release"
+      ],
+      "overlapGroup": "docs-research",
+      "clusterRole": "support",
+      "supportWhen": [
+        "需要从用户自己的 NotebookLM 文档库获得 source-grounded answers，而不是开放式 web recall。",
+        "需要把研究、文档问答和 notebook inventory 管理串成一条稳定工作流时。"
+      ],
+      "preferred": true,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/notebooklm/SKILL.md",
+      "relativeSkillDir": "skills/notebooklm"
+    },
+    {
       "id": "nutrient-document-processing",
       "title": "nutrient-document-processing",
       "summary": "Process, convert, OCR, extract, redact, sign, and fill documents using the Nutrient DWS API. Works with PDFs, DOCX, XLSX, PPTX, HTML, and images.",
@@ -1707,6 +2314,106 @@
       "relativeSkillDir": "skills/nutrient-document-processing"
     },
     {
+      "id": "obsidian-bases",
+      "title": "obsidian-bases",
+      "summary": "Create and edit Obsidian Bases files for table, list, card, and filtered database-like note views.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/obsidian-bases/SKILL.md",
+      "relativeSkillDir": "skills/obsidian-bases"
+    },
+    {
+      "id": "obsidian-cli",
+      "title": "obsidian-cli",
+      "summary": "Interact with a running Obsidian instance from the CLI to read, create, search, and manage notes and vault operations.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/obsidian-cli/SKILL.md",
+      "relativeSkillDir": "skills/obsidian-cli"
+    },
+    {
+      "id": "obsidian-markdown",
+      "title": "obsidian-markdown",
+      "summary": "Create and edit Obsidian flavored markdown with wikilinks, embeds, callouts, properties, and other Obsidian-specific note conventions.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/obsidian-markdown/SKILL.md",
+      "relativeSkillDir": "skills/obsidian-markdown"
+    },
+    {
+      "id": "obsidian-skills",
+      "title": "obsidian-skills",
+      "summary": "Use when the user works with an Obsidian vault, markdown notes, canvas maps, or Obsidian CLI workflows. This wrapper routes to the bundled Obsidian skills vendored into Forge.",
+      "layer": "extended",
+      "primaryFor": [
+        "developer",
+        "solution-architect",
+        "product-manager"
+      ],
+      "secondaryFor": [],
+      "recommendedByRole": [
+        "developer",
+        "solution-architect",
+        "product-manager"
+      ],
+      "recommendedByStack": [
+        "product",
+        "architecture",
+        "workflow-automation",
+        "design"
+      ],
+      "overlapGroup": "docs-research",
+      "clusterRole": "support",
+      "supportWhen": [
+        "需要围绕 Obsidian vault、知识库、Canvas 或 note graph 做结构化工作时。",
+        "需要把笔记系统、知识沉淀和可视化 note layout 结合在一起时。"
+      ],
+      "preferred": true,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/obsidian-skills/SKILL.md",
+      "relativeSkillDir": "skills/obsidian-skills"
+    },
+    {
       "id": "pdf",
       "title": "pdf",
       "summary": "Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating new PDFs, filling PDF forms, encrypting/decrypting PDFs, extracting images, and OCR on scanned PDFs to make them searchable. If the user mentions a .pdf file or asks to produce one, use this skill.",
@@ -1726,6 +2433,46 @@
       ],
       "sourcePath": "skills/pdf/SKILL.md",
       "relativeSkillDir": "skills/pdf"
+    },
+    {
+      "id": "planning-with-files",
+      "title": "planning-with-files",
+      "summary": "Use persistent markdown planning files as working memory on disk for multi-step tasks, long research sessions, and resumable execution.",
+      "layer": "extended",
+      "primaryFor": [
+        "developer",
+        "solution-architect",
+        "product-manager",
+        "qa-strategist"
+      ],
+      "secondaryFor": [],
+      "recommendedByRole": [
+        "developer",
+        "solution-architect",
+        "product-manager",
+        "qa-strategist"
+      ],
+      "recommendedByStack": [
+        "architecture",
+        "product",
+        "qa",
+        "release",
+        "workflow-automation"
+      ],
+      "overlapGroup": "planning",
+      "clusterRole": "support",
+      "supportWhen": [
+        "任务跨越多个阶段、多个会话或大量工具调用，需要 durable working memory 时。",
+        "需要用 task_plan / findings / progress 这样的文件化状态来稳定推进工作时。"
+      ],
+      "preferred": true,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/planning-with-files/SKILL.md",
+      "relativeSkillDir": "skills/planning-with-files"
     },
     {
       "id": "postgres-patterns",
@@ -1800,6 +2547,48 @@
       ],
       "sourcePath": "skills/project-guidelines-example/SKILL.md",
       "relativeSkillDir": "skills/project-guidelines-example"
+    },
+    {
+      "id": "prompt-analyzer",
+      "title": "prompt-analyzer",
+      "summary": "Analyze existing prompts, compare prompt variants, inspect prompt structure, and recommend similar prompts or element usage.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/prompt-analyzer/SKILL.md",
+      "relativeSkillDir": "skills/prompt-analyzer"
+    },
+    {
+      "id": "prompt-master",
+      "title": "prompt-master",
+      "summary": "Route prompt-related tasks to the right prompt skill, especially when the user needs a higher-level prompt workflow coordinator.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/prompt-master/SKILL.md",
+      "relativeSkillDir": "skills/prompt-master"
     },
     {
       "id": "python-patterns",
@@ -2191,6 +2980,43 @@
       ],
       "sourcePath": "skills/skill-creator/SKILL.md",
       "relativeSkillDir": "skills/skill-creator"
+    },
+    {
+      "id": "skill-prompt-generator",
+      "title": "skill-prompt-generator",
+      "summary": "Use when the user wants to create, analyze, improve, or systematize prompts and prompt libraries. This wrapper routes to the vendored prompt-generation bundle.",
+      "layer": "extended",
+      "primaryFor": [
+        "developer",
+        "ui-designer",
+        "product-manager"
+      ],
+      "secondaryFor": [],
+      "recommendedByRole": [
+        "developer",
+        "ui-designer",
+        "product-manager"
+      ],
+      "recommendedByStack": [
+        "design",
+        "product",
+        "workflow-automation",
+        "image-generation",
+        "video-creation"
+      ],
+      "overlapGroup": "communication",
+      "clusterRole": "support",
+      "supportWhen": [
+        "需要围绕 prompt generation / prompt analysis / prompt library 做系统化工作时。"
+      ],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/skill-prompt-generator/SKILL.md",
+      "relativeSkillDir": "skills/skill-prompt-generator"
     },
     {
       "id": "slack-gif-creator",
@@ -2688,6 +3514,27 @@
       ],
       "sourcePath": "skills/ui-ux-pro-max/SKILL.md",
       "relativeSkillDir": "skills/ui-ux-pro-max"
+    },
+    {
+      "id": "universal-learner",
+      "title": "universal-learner",
+      "summary": "Learn reusable elements from prompts across domains and turn them into structured prompt libraries or reusable building blocks.",
+      "layer": "specialized",
+      "primaryFor": [],
+      "secondaryFor": [],
+      "recommendedByRole": [],
+      "recommendedByStack": [],
+      "overlapGroup": null,
+      "clusterRole": null,
+      "supportWhen": [],
+      "preferred": false,
+      "clients": [
+        "claude",
+        "codex",
+        "gemini"
+      ],
+      "sourcePath": "skills/universal-learner/SKILL.md",
+      "relativeSkillDir": "skills/universal-learner"
     },
     {
       "id": "using-git-worktrees",

@@ -396,6 +396,13 @@ function App() {
   });
   const localSkillPreview = skillTitles(forgeDeviceContext.device.localSkillIds.slice(0, 12));
   const configuredCodexMcpPreview = forgeDeviceContext.device.configuredCodexMcpServerIds;
+  const snapshotWarnings: string[] = [...forgeDeviceContext.health.snapshotWarnings];
+  const combinedWarnings = [...snapshotWarnings, ...appWarnings.filter((item) => !snapshotWarnings.includes(item))];
+  const canonicalGapCount: number = forgeDeviceContext.health.installedMissingCanonicalSkillIds.length;
+  const registryGhostCount: number =
+    forgeDeviceContext.health.sourceGhostSkillIds.length + forgeDeviceContext.health.moduleGhostSkillIds.length;
+  const installedCoverageSummary =
+    canonicalGapCount === 0 ? '本机已覆盖全部 canonical skills' : `本机缺少 ${canonicalGapCount} 个 canonical skills`;
   const recommendedSkillPreview = skillComposition.primarySkills.slice(0, 6);
   const recommendedMcpPreview = recommendedMcpIds.slice(0, 6);
   const installedCommunityItems =
@@ -1021,7 +1028,11 @@ function App() {
                 </div>
                 <div className="mt-5 space-y-3">
                   <InfoCard title="Forge Core" detail={`${forgeDeviceContext.forge.totalSkills} 个注册 skill、${forgeDeviceContext.forge.builtinMcpServerIds.length} 个内置 MCP 已同步进项目。`} />
-                  <InfoCard title="Codex 本机配置" detail={`已识别 ${configuredCodexMcpPreview.length} 个 Codex MCP，后续会继续补齐其他客户端的本机配置视图。`} />
+                  <InfoCard title="本机覆盖" detail={installedCoverageSummary} />
+                  <InfoCard
+                    title="源注册健康"
+                    detail={registryGhostCount === 0 ? '没有悬空来源或模块引用。' : `${registryGhostCount} 个悬空 skill 条目待处理。`}
+                  />
                   <InfoCard title="最近同步" detail={forgeDeviceContext.updatedAt.replace('T', ' ').replace('Z', ' UTC')} mono />
                 </div>
               </div>
@@ -1242,6 +1253,8 @@ function App() {
                     <SummaryRow label="Stack 包" value={`${forgeDeviceContext.forge.stackIds.length} 组`} />
                     <SummaryRow label="技能库" value={`${forgeDeviceContext.device.localSkillIds.length} 个`} />
                     <SummaryRow label="Codex MCP" value={`${configuredCodexMcpPreview.length} 个`} />
+                    <SummaryRow label="源注册悬空" value={`${forgeDeviceContext.health.sourceGhostSkillIds.length} 个`} />
+                    <SummaryRow label="模块悬空" value={`${forgeDeviceContext.health.moduleGhostSkillIds.length} 个`} />
                   </div>
                 </div>
                 <div className="rounded-[18px] border border-slate-200 bg-slate-50 p-4">
@@ -1255,8 +1268,8 @@ function App() {
                 <div className="rounded-[18px] border border-slate-200 bg-slate-50 p-4">
                   <div className="text-[12px] font-semibold text-slate-900">环境诊断</div>
                   <div className="mt-3 space-y-2">
-                    {appWarnings.length > 0 ? (
-                      appWarnings.map((item) => (
+                    {combinedWarnings.length > 0 ? (
+                      combinedWarnings.map((item) => (
                         <div
                           key={`settings-warning-${item}`}
                           className="rounded-[12px] border border-amber-200 bg-white px-3 py-2 text-[12px] leading-6 text-slate-700"
@@ -1266,7 +1279,7 @@ function App() {
                       ))
                     ) : (
                       <div className="rounded-[12px] border border-emerald-200 bg-white px-3 py-2 text-[12px] leading-6 text-emerald-700">
-                        当前没有额外环境警告。
+                        当前没有运行时或快照警告。
                       </div>
                     )}
                   </div>
