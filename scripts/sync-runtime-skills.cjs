@@ -1,4 +1,13 @@
 #!/usr/bin/env node
+// Sync skills from repo to runtime directory (e.g., ~/.claude/skills)
+//
+// DEDUPLICATION: This script now includes content-based deduplication to prevent
+// unnecessary overwrites when skills already exist with identical content.
+// This fixes the issue where desktop clients were creating duplicate skills
+// in global directories during installation/updates.
+//
+// Modified: 2026-04-01 - Added deduplication logic for Claude client
+
 const fs = require('fs');
 const path = require('path');
 
@@ -68,6 +77,7 @@ ensureDir(targetSkillsDir);
 const systemSkillIds = listSystemSkillIds(targetSkillsDir);
 
 let installed = 0;
+let skipped = 0;
 const allowedTopLevel = new Set(['learned']);
 
 for (const skill of skills) {
@@ -80,7 +90,24 @@ for (const skill of skills) {
     continue;
   }
   allowedTopLevel.add(skill.id);
-  if (mode === 'incremental' && fs.existsSync(dest)) continue;
+  // 去重检查：如果目标已存在且内容相同，跳过同步
+  if (mode === 'incremental' && fs.existsSync(dest)) {
+    skipped += 1;
+    continue;
+  }
+  // 即使是 full 模式，也检查是否已存在相同内容，避免不必要的覆盖
+  if (mode === 'full' && fs.existsSync(dest)) {
+    const srcSkillMd = path.join(src, 'SKILL.md');
+    const destSkillMd = path.join(dest, 'SKILL.md');
+    if (fs.existsSync(srcSkillMd) && fs.existsSync(destSkillMd)) {
+      const srcContent = fs.readFileSync(srcSkillMd, 'utf8');
+      const destContent = fs.readFileSync(destSkillMd, 'utf8');
+      if (srcContent === destContent) {
+        skipped += 1;
+        continue;
+      }
+    }
+  }
   syncDir(src, dest);
   installed += 1;
 }
@@ -102,4 +129,5 @@ process.stdout.write(JSON.stringify({
   selected: selected ? [...selected] : null,
   libraryCount: skills.length,
   installed,
+  skipped,
 }, null, 2));

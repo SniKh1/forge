@@ -3,6 +3,15 @@
 **Version**: v5.0  
 **Updated**: 2026-03-14
 
+<!-- 
+  Multi-Client Entry Point:
+  - Claude 使用此文件作为主入口
+  - 如果此文件不存在，Claude 会回退到 AGENT.md
+  - Codex 使用 AGENT.md 作为主入口
+  - 核心规则通过引用 rules/ 目录保持一致
+  - 详见 docs/MULTI-CLIENT-ENTRY.md
+-->
+
 这个文件是 Forge 的全局控制层。
 
 它只负责定义跨角色、跨 stack 都成立的行为规则，不再承载单一技术栈或单一工作者的细节：
@@ -65,6 +74,7 @@
 | MCP development | `mcp-builder` + `mcp-management` |
 | Agent / LLM / context work | `context-engineering` |
 | Browser automation | `browser-use` 为主，回退 `browser` / `chrome-devtools` |
+| Learning / memory capture | `self-improving-agent` (统一入口，取代 `continuous-learning*`) |
 
 ## 3. Playbooks and Agents
 
