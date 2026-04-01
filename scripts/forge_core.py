@@ -185,6 +185,16 @@ def write_claude_mcp_config(claude_home, payload):
 
     try:
         dump_json(primary_path, payload)
+
+        # Sync to .claude.json for global access
+        if fallback_path.exists():
+            try:
+                fallback_payload = load_json(fallback_path)
+                fallback_payload["mcpServers"] = payload.get("mcpServers", {})
+                dump_json(fallback_path, fallback_payload)
+            except Exception:
+                pass  # Non-critical, primary write succeeded
+
         return primary_path, None
     except PermissionError as primary_error:
         fallback_payload = load_json(fallback_path)
