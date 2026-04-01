@@ -70,6 +70,7 @@ pub struct ActionPayload {
     pub components: Vec<String>,
     pub mcp_servers: Vec<String>,
     pub skill_names: Vec<String>,
+    pub skill_sync_mode: Option<String>,
     pub secret_values_base64: Option<String>,
 }
 

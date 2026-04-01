@@ -56,6 +56,7 @@ export type ActionPayload = {
   components: string[];
   mcpServers: string[];
   skillNames: string[];
+  skillSyncMode?: 'selected' | 'full-library';
   secretValuesBase64?: string | null;
 };
 

@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 function usage() {
-  console.error('Usage: sync-runtime-skills.cjs <repo-root> <target-skills-dir> [--mode full|incremental] [--selected a,b,c]');
+  console.error('Usage: sync-runtime-skills.cjs <repo-root> <target-skills-dir> [--mode full|incremental] [--selection-mode selected|full-library] [--selected a,b,c]');
   process.exit(1);
 }
 
@@ -13,6 +13,7 @@ if (args.length < 2) usage();
 const repoRoot = path.resolve(args[0]);
 const targetSkillsDir = path.resolve(args[1]);
 let mode = 'full';
+let selectionMode = 'selected';
 let selected = null;
 
 for (let i = 2; i < args.length; i += 1) {
@@ -20,10 +21,18 @@ for (let i = 2; i < args.length; i += 1) {
   if (arg === '--mode') {
     mode = args[i + 1] || mode;
     i += 1;
+  } else if (arg === '--selection-mode') {
+    selectionMode = args[i + 1] || selectionMode;
+    i += 1;
   } else if (arg === '--selected') {
     selected = new Set(String(args[i + 1] || '').split(',').map((x) => x.trim()).filter(Boolean));
     i += 1;
   }
+}
+
+if (!['selected', 'full-library'].includes(selectionMode)) {
+  console.error(`Invalid --selection-mode: ${selectionMode}`);
+  process.exit(3);
 }
 
 const registryPath = path.join(repoRoot, 'core', 'skill-registry.json');
@@ -62,7 +71,7 @@ let installed = 0;
 const allowedTopLevel = new Set(['learned']);
 
 for (const skill of skills) {
-  if (selected && !selected.has(skill.id)) continue;
+  if (selectionMode === 'selected' && selected && !selected.has(skill.id)) continue;
   const src = path.join(repoRoot, skill.relativeSkillDir);
   const dest = path.join(targetSkillsDir, skill.id);
   if (!fs.existsSync(src)) continue;
@@ -89,6 +98,8 @@ for (const entry of fs.readdirSync(targetSkillsDir, { withFileTypes: true })) {
 process.stdout.write(JSON.stringify({
   targetSkillsDir,
   mode,
+  selectionMode,
   selected: selected ? [...selected] : null,
+  libraryCount: skills.length,
   installed,
 }, null, 2));

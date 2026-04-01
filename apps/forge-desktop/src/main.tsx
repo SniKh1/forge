@@ -173,10 +173,10 @@ const previewAppState: AppStatePayload = {
     isolated: false,
   },
   installed: {
-    codex: { mcpServers: ['context7', 'memory', 'fetch', 'playwright', 'exa'], skills: ['frontend-design', 'web-frameworks', 'ui-styling', 'code-review', 'systematic-debugging'] },
+    codex: { mcpServers: ['context7', 'memory', 'fetch', 'playwright', 'exa'], skills: ['frontend-design', 'web-frameworks', 'ui-styling', 'code-review', 'systematic-debugging-sp'] },
     claude: { mcpServers: ['context7', 'memory', 'fetch'], skills: ['frontend-design', 'ui-styling', 'webapp-testing', 'code-review'] },
     gemini: { mcpServers: ['context7'], skills: ['frontend-design'] },
-    opencode: { mcpServers: ['context7', 'fetch', 'memory', 'playwright'], skills: ['code-review', 'systematic-debugging'] },
+    opencode: { mcpServers: ['context7', 'fetch', 'memory', 'playwright'], skills: ['code-review', 'systematic-debugging-sp'] },
   },
 };
 
@@ -202,6 +202,7 @@ function simulatePreviewAction(
   client: Client,
   selectedMcpServers: string[],
   selectedSkills: string[],
+  skillSyncMode: ActionPayload['skillSyncMode'],
   requiredSecretKeys: string[],
   secretValues: Record<string, string>
 ) {
@@ -228,9 +229,11 @@ function simulatePreviewAction(
     detection.configured = true;
     detection.commandAvailable = true;
     detection.homeExists = true;
+    const mirroredSkills =
+      skillSyncMode === 'full-library' ? [...forgeDeviceContext.forge.repoSkillIds] : [...selectedSkills];
     next.installed[client] = {
       mcpServers: [...selectedMcpServers],
-      skills: [...selectedSkills],
+      skills: mirroredSkills,
     };
     if (support) {
       support.ok = missingSecrets.length === 0;
@@ -247,6 +250,8 @@ function simulatePreviewAction(
     support.stderr = support.ok ? '' : missingSecrets.length > 0 ? `Missing secrets: ${missingSecrets.join(', ')}` : 'Client is not configured.';
   }
 
+  const nextInstalled = next.installed[client] ?? installed;
+
   const ok = kind === 'bootstrap' || (support?.ok ?? false);
   const summaryMap: Record<ActionKind, string> = {
     bootstrap: `${clientMetas.find((item) => item.id === client)?.label ?? client} 已进入可配置状态`,
@@ -260,8 +265,8 @@ function simulatePreviewAction(
     summary: summaryMap[kind],
     details: [
       `client=${client}`,
-      `mcp=${installed.mcpServers.length}`,
-      `skills=${installed.skills.length}`,
+      `mcp=${nextInstalled.mcpServers.length}`,
+      `skills=${nextInstalled.skills.length}`,
     ],
     warnings: missingSecrets.length > 0 ? [`missing_secrets=${missingSecrets.join(',')}`] : [],
     raw: ok ? `${kind} completed in browser preview mode.` : `${kind} needs attention in browser preview mode.`,
@@ -690,6 +695,7 @@ function App() {
           activeClient,
           selectedMcpServers,
           selectedSkills,
+          activeClient === 'codex' || activeClient === 'claude' ? 'full-library' : 'selected',
           requiredSecretKeys,
           secretValues
         );
@@ -703,6 +709,8 @@ function App() {
       } else {
         const normalizedMcpServers = Array.from(new Set(selectedMcpServers)).sort((left, right) => left.localeCompare(right, 'en'));
         const normalizedSkillNames = Array.from(new Set(selectedSkills)).sort((left, right) => left.localeCompare(right, 'en'));
+        const skillSyncMode: ActionPayload['skillSyncMode'] =
+          activeClient === 'codex' || activeClient === 'claude' ? 'full-library' : 'selected';
         const payload: ActionPayload = {
           client: activeClient,
           cwd: workspace.trim() || undefined,
@@ -712,6 +720,7 @@ function App() {
           components: selectedComponents,
           mcpServers: normalizedMcpServers,
           skillNames: normalizedSkillNames,
+          skillSyncMode,
           secretValuesBase64: encodeSecrets(requiredSecretKeys, secretValues),
         };
         const result =

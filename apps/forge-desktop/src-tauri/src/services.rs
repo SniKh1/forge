@@ -106,6 +106,7 @@ pub fn install_client_config(
     payload: ActionPayload,
 ) -> Result<ActionResult<Value>, String> {
     let paths = desktop_paths(app)?;
+    let payload = canonicalize_action_payload_skills(&paths, &payload)?;
     let output = match payload.client.as_str() {
         "claude" => install_claude_client(&paths, &payload, false)?,
         "codex" | "gemini" => run_backend_install_script(&paths, &payload, false)?,
@@ -125,6 +126,7 @@ pub fn repair_client_config(
     payload: ActionPayload,
 ) -> Result<ActionResult<Value>, String> {
     let paths = desktop_paths(app)?;
+    let payload = canonicalize_action_payload_skills(&paths, &payload)?;
     let output = match payload.client.as_str() {
         "claude" => install_claude_client(&paths, &payload, true)?,
         "codex" | "gemini" => run_backend_install_script(&paths, &payload, true)?,
@@ -144,17 +146,18 @@ pub fn verify_client_config(
     payload: ActionPayload,
 ) -> Result<ActionResult<Value>, String> {
     let paths = desktop_paths(app)?;
+    let payload = canonicalize_action_payload_skills(&paths, &payload)?;
     let output = if payload.client == "opencode" {
         verify_opencode_client(&paths, &payload)?
     } else {
         run_verify_script(&paths, payload.client.as_str())?
     };
-    Ok(action_from_exec(
-        output.status == 0,
+    finalize_verify_action(
+        &paths,
+        &payload,
         format!("Verified {} configuration.", payload.client),
         output,
-        None,
-    ))
+    )
 }
 
 pub fn bootstrap_official_client(
@@ -806,6 +809,7 @@ fn verify_support(paths: &DesktopPaths, client: &str) -> SupportItem {
                 .unwrap_or_default()
                 .into_iter()
                 .collect(),
+            skill_sync_mode: Some("selected".into()),
             secret_values_base64: None,
         };
         return match verify_opencode_client(paths, &payload) {
@@ -919,7 +923,13 @@ fn install_claude_client(
     }
 
     if payload.components.iter().any(|item| item == "skills") {
-        sync_runtime_skills(paths, &claude_home.join("skills"), mode, &payload.skill_names)?;
+        sync_runtime_skills(
+            paths,
+            &claude_home.join("skills"),
+            mode,
+            skill_sync_mode(payload),
+            &payload.skill_names,
+        )?;
     }
 
     let mut command_logs = Vec::new();
@@ -1322,6 +1332,7 @@ fn run_backend_install_script(
         ("FORGE_COMPONENTS".into(), payload.components.join(",")),
         ("FORGE_MCP_SERVERS".into(), payload.mcp_servers.join(",")),
         ("FORGE_SKILLS".into(), payload.skill_names.join(",")),
+        ("FORGE_SKILL_SYNC_MODE".into(), skill_sync_mode(payload).into()),
         (
             "FORGE_SECRET_VALUES_BASE64".into(),
             payload.secret_values_base64.clone().unwrap_or_default(),
@@ -1356,6 +1367,7 @@ fn sync_runtime_skills(
     paths: &DesktopPaths,
     target_skills_dir: &Path,
     mode: &str,
+    selection_mode: &str,
     selected_skills: &[String],
 ) -> Result<(), String> {
     fs::create_dir_all(target_skills_dir).map_err(|err| err.to_string())?;
@@ -1367,8 +1379,10 @@ fn sync_runtime_skills(
         target_skills_dir.display().to_string(),
         "--mode".into(),
         mode.into(),
+        "--selection-mode".into(),
+        selection_mode.into(),
     ];
-    if !selected_skills.is_empty() {
+    if selection_mode != "full-library" && !selected_skills.is_empty() {
         args.push("--selected".into());
         args.push(selected_skills.join(","));
     }
@@ -1836,6 +1850,51 @@ fn finalize_install_action(
     Ok(result)
 }
 
+fn finalize_verify_action(
+    paths: &DesktopPaths,
+    payload: &ActionPayload,
+    success_summary: String,
+    output: ExecOutput,
+) -> Result<ActionResult<Value>, String> {
+    let mut result = action_from_exec(output.status == 0, success_summary, output, None::<Value>);
+    let validation = validate_install(paths, payload)?;
+    result.details.extend(validation.details.clone());
+    result.warnings.extend(validation.warnings.clone());
+
+    let mut issues = Vec::new();
+    if !validation.missing_mcp.is_empty() {
+        let item = validation.missing_mcp.join(", ");
+        result.details.push(format!("missing_mcp={item}"));
+        issues.push(format!("Missing MCP during verification: {item}"));
+    }
+    if !validation.missing_skills.is_empty() {
+        let item = validation.missing_skills.join(", ");
+        result.details.push(format!("missing_skills={item}"));
+        issues.push(format!("Missing skills during verification: {item}"));
+    }
+
+    if !validation.warnings.is_empty() {
+        append_lines(
+            &mut result.raw,
+            &validation
+                .warnings
+                .iter()
+                .map(|item| format!("Warning: {item}"))
+                .collect::<Vec<_>>(),
+        );
+    }
+    if !issues.is_empty() {
+        result.ok = false;
+        result.summary = format!(
+            "Verified {} base configuration, but Forge found missing governed assets.",
+            payload.client
+        );
+        append_lines(&mut result.raw, &issues);
+    }
+
+    Ok(result)
+}
+
 fn validate_install(paths: &DesktopPaths, payload: &ActionPayload) -> Result<InstallValidation, String> {
     let mut validation = InstallValidation::default();
 
@@ -1856,13 +1915,10 @@ fn validate_install(paths: &DesktopPaths, payload: &ActionPayload) -> Result<Ins
 
     if payload.components.iter().any(|item| item == "skills") {
         let installed = installed_skill_names(payload.client.as_str())?;
-        let expected = payload
-            .skill_names
-            .iter()
-            .map(|item| item.trim())
-            .filter(|item| !item.is_empty())
-            .map(str::to_string)
-            .collect::<BTreeSet<_>>();
+        let expected = expected_skill_names(paths, payload)?;
+        validation
+            .details
+            .push(format!("skill_sync_mode={}", skill_sync_mode(payload)));
         validation.details.push(format!(
             "verified_skills={} actual={}",
             join_sorted(&expected),
@@ -1875,6 +1931,95 @@ fn validate_install(paths: &DesktopPaths, payload: &ActionPayload) -> Result<Ins
     }
 
     Ok(validation)
+}
+
+fn canonicalize_action_payload_skills(
+    paths: &DesktopPaths,
+    payload: &ActionPayload,
+) -> Result<ActionPayload, String> {
+    let mut next = payload.clone();
+    next.skill_names = canonicalize_skill_names(paths, &payload.skill_names)?;
+    next.skill_sync_mode = Some(skill_sync_mode(payload).to_string());
+    Ok(next)
+}
+
+fn canonicalize_skill_names(
+    paths: &DesktopPaths,
+    skill_names: &[String],
+) -> Result<Vec<String>, String> {
+    let registry = read_json_value(&paths.repo_root.join("core").join("skill-registry.json"))?;
+    let skills = registry
+        .get("skills")
+        .and_then(Value::as_array)
+        .ok_or_else(|| "Invalid skill registry: missing skills".to_string())?;
+
+    let mut known_ids = BTreeSet::new();
+    let mut title_to_id = HashMap::new();
+    for skill in skills {
+        let Some(id) = skill.get("id").and_then(Value::as_str) else {
+            continue;
+        };
+        known_ids.insert(id.to_string());
+        if let Some(title) = skill.get("title").and_then(Value::as_str) {
+            title_to_id
+                .entry(title.trim().to_string())
+                .or_insert_with(|| id.to_string());
+        }
+    }
+
+    let mut output = Vec::new();
+    let mut seen = BTreeSet::new();
+    for item in skill_names {
+        let trimmed = item.trim();
+        if trimmed.is_empty() {
+            continue;
+        }
+        let canonical = if known_ids.contains(trimmed) {
+            trimmed.to_string()
+        } else if let Some(mapped) = title_to_id.get(trimmed) {
+            mapped.clone()
+        } else {
+            trimmed.to_string()
+        };
+        if seen.insert(canonical.clone()) {
+            output.push(canonical);
+        }
+    }
+
+    Ok(output)
+}
+
+fn skill_sync_mode(payload: &ActionPayload) -> &str {
+    match payload.skill_sync_mode.as_deref() {
+        Some("full-library") => "full-library",
+        _ => "selected",
+    }
+}
+
+fn expected_skill_names(
+    paths: &DesktopPaths,
+    payload: &ActionPayload,
+) -> Result<BTreeSet<String>, String> {
+    if skill_sync_mode(payload) == "full-library" {
+        let registry = read_json_value(&paths.repo_root.join("core").join("skill-registry.json"))?;
+        let skills = registry
+            .get("skills")
+            .and_then(Value::as_array)
+            .ok_or_else(|| "Invalid skill registry: missing skills".to_string())?;
+        return Ok(skills
+            .iter()
+            .filter_map(|item| item.get("id").and_then(Value::as_str))
+            .map(str::to_string)
+            .collect());
+    }
+
+    Ok(payload
+        .skill_names
+        .iter()
+        .map(|item| item.trim())
+        .filter(|item| !item.is_empty())
+        .map(str::to_string)
+        .collect())
 }
 
 fn expected_builtin_mcp_servers(
@@ -2449,10 +2594,10 @@ fn apply_base_runtime_env(command: &mut Command) {
 
 fn common_runtime_bin_dirs() -> Vec<PathBuf> {
     let mut output = Vec::new();
-    let home = user_home_dir().unwrap_or_else(|| PathBuf::from("."));
 
     #[cfg(not(target_os = "windows"))]
     {
+        let home = user_home_dir().unwrap_or_else(|| PathBuf::from("."));
         output.push(home.join(".bun").join("bin"));
         output.push(home.join(".opencode").join("bin"));
         output.push(home.join(".npm-global").join("bin"));
@@ -2478,8 +2623,9 @@ fn common_runtime_bin_dirs() -> Vec<PathBuf> {
             output.push(PathBuf::from(appdata).join("npm"));
         }
         if let Some(local_appdata) = std::env::var_os("LOCALAPPDATA") {
-            output.push(PathBuf::from(local_appdata).join("Programs").join("nodejs"));
-            output.push(PathBuf::from(local_appdata).join("Programs").join("Python").join("Scripts"));
+            let local_programs = PathBuf::from(&local_appdata).join("Programs");
+            output.push(local_programs.join("nodejs"));
+            output.push(PathBuf::from(&local_appdata).join("Programs").join("Python").join("Scripts"));
         }
     }
 

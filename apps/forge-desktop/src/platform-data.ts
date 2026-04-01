@@ -200,7 +200,7 @@ export function createDefaultPersonaDrafts(): Record<Client, PersonaDraft> {
       roleIds: ['solution-architect'],
       stackIds: ['system-architecture', 'workflow-automation', 'frontend-web'],
       mcpServers: ['context7', 'memory', 'fetch', 'playwright', 'exa'],
-      extraSkillIds: ['code-review', 'systematic-debugging'],
+      extraSkillIds: ['code-review', 'systematic-debugging-sp'],
       enabledLayers: ['mcp', 'skills', 'memory'],
     },
     claude: {

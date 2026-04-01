@@ -1,5 +1,5 @@
 export const forgeDeviceContext = {
-  "updatedAt": "2026-03-31T11:27:41.174Z",
+  "updatedAt": "2026-04-01T06:37:07.878Z",
   "sources": {
     "repoRoot": "C:\\Users\\12240\\Desktop\\forge",
     "forgeCoreRoot": "C:\\Users\\12240\\Desktop\\forge\\core",
@@ -310,20 +310,14 @@ export const forgeDeviceContext = {
     ]
   },
   "device": {
-    "configuredCodexMcpServerIds": [],
+    "configuredCodexMcpServerIds": [
+      "context7",
+      "exa",
+      "fetch",
+      "memory",
+      "playwright"
+    ],
     "localSkillIds": [
-      "imagegen",
-      "openai-docs",
-      "plugin-creator",
-      "skill-creator",
-      "skill-installer"
-    ]
-  },
-  "health": {
-    "repoSkillCount": 225,
-    "installedSkillCount": 5,
-    "repoMissingCanonicalSkillIds": [],
-    "installedMissingCanonicalSkillIds": [
       "aesthetic",
       "agent-eval",
       "agent-harness-construction",
@@ -425,6 +419,7 @@ export const forgeDeviceContext = {
       "healthcare-emr-patterns",
       "healthcare-eval-harness",
       "healthcare-phi-compliance",
+      "imagegen",
       "intelligent-prompt-generator",
       "internal-comms",
       "inventory-demand-planning",
@@ -463,6 +458,7 @@ export const forgeDeviceContext = {
       "obsidian-cli",
       "obsidian-markdown",
       "obsidian-skills",
+      "openai-docs",
       "openclaw-persona-forge",
       "pdf",
       "perl-patterns",
@@ -470,6 +466,7 @@ export const forgeDeviceContext = {
       "perl-testing",
       "plankton-code-quality",
       "planning-with-files",
+      "plugin-creator",
       "postgres-patterns",
       "pptx",
       "product-lens",
@@ -507,6 +504,8 @@ export const forgeDeviceContext = {
       "shopify",
       "simplification-cascades",
       "skill-comply",
+      "skill-creator",
+      "skill-installer",
       "skill-prompt-generator",
       "skill-stocktake",
       "slack-gif-creator",
@@ -548,12 +547,16 @@ export const forgeDeviceContext = {
       "writing-skills",
       "x-api",
       "xlsx"
-    ],
+    ]
+  },
+  "health": {
+    "repoSkillCount": 225,
+    "installedSkillCount": 229,
+    "repoMissingCanonicalSkillIds": [],
+    "installedMissingCanonicalSkillIds": [],
     "sourceRegistrySkillCount": 66,
     "sourceGhostSkillIds": [],
     "moduleGhostSkillIds": [],
-    "snapshotWarnings": [
-      "installed_missing_canonical_skills=aesthetic,agent-eval,agent-harness-construction,agent-payment-x402,agentic-engineering,ai-first-engineering,ai-multimodal,ai-regression-testing,algorithmic-art,android-clean-architecture,api-design,architecture-decision-records,art-master,article-writing,artifacts-builder,autonomous-loops,backend-development,backend-patterns,benchmark,better-auth,blueprint,brainstorming,brand-guidelines,browser,browser-qa,browser-use,bun-runtime,canary-watch,canvas-design,carrier-relationship-management,changelog-generator,chrome-devtools,ck,claude-api,claude-code,claude-devfleet,click-path-audit,clickhouse-io,code-review,codebase-onboarding,coding-standards,collision-zone-thinking,compose-multiplatform-patterns,configure-ecc,content-engine,content-hash-cache-pattern,context-budget,context-engineering,context7,continuous-agent-loop,continuous-learning,continuous-learning-v2,cost-aware-llm-pipeline,cpp-coding-standards,cpp-testing,crosspost,customs-trade-compliance,data-scraper-agent,database-migrations,databases,deep-research,defuddle,deployment-patterns,design-master,design-system,devops,dispatching-parallel-agents,django-patterns,django-security,django-tdd,django-verification,dmux-workflows,doc-coauthoring,docker-patterns,docs-seeker,documentation-lookup,docx,domain-classifier,e2e-testing,energy-procurement,enterprise-agent-ops,eval-harness,exa-search,executing-plans,fal-ai-media,find-skills,finishing-a-development-branch,flutter-dart-code-review,foundation-models-on-device,frontend-design,frontend-development,frontend-patterns,frontend-slides,git-workflow,golang-patterns,golang-testing,google-adk-python,healthcare-cdss-patterns,healthcare-emr-patterns,healthcare-eval-harness,healthcare-phi-compliance,intelligent-prompt-generator,internal-comms,inventory-demand-planning,inversion-exercise,investor-materials,investor-outreach,iterative-retrieval,java-coding-standards,jpa-patterns,json-canvas,kotlin-coroutines-flows,kotlin-exposed-patterns,kotlin-ktor-patterns,kotlin-patterns,kotlin-testing,laravel-patterns,laravel-plugin-discovery,laravel-security,laravel-tdd,laravel-verification,liquid-glass-design,logistics-exception-management,market-research,mcp-builder,mcp-management,mcp-server-patterns,media-processing,mermaidjs-v11,meta-pattern-recognition,nanoclaw-repl,nextjs-turbopack,notebooklm,nutrient-document-processing,nuxt4-patterns,obsidian-bases,obsidian-cli,obsidian-markdown,obsidian-skills,openclaw-persona-forge,pdf,perl-patterns,perl-security,perl-testing,plankton-code-quality,planning-with-files,postgres-patterns,pptx,product-lens,product-master,production-scheduling,project-guidelines-example,prompt-analyzer,prompt-extractor,prompt-generator,prompt-master,prompt-optimizer,prompt-xray,python-patterns,python-testing,pytorch-patterns,quality-nonconformance,ralphinho-rfc-pipeline,receiving-code-review,regex-vs-llm-structured-text,repo-scan,repomix,requesting-code-review,returns-reverse-logistics,rules-distill,rust-patterns,rust-testing,safety-guard,santa-method,scale-game,search-first,security-review,security-scan,self-improving-agent,sequential-thinking,shopify,simplification-cascades,skill-comply,skill-prompt-generator,skill-stocktake,slack-gif-creator,springboot-patterns,springboot-security,springboot-tdd,springboot-verification,strategic-compact,subagent-driven-development,swift-actor-persistence,swift-concurrency-6-2,swift-protocol-di-testing,swiftui-patterns,systematic-debugging-sp,tdd-workflow,team-builder,template-skill,test-driven-development,theme-factory,token-budget-advisor,ui-styling,ui-ux-pro-max,universal-learner,using-git-worktrees,using-superpowers,vercel-react-best-practices,verification-before-completion,verification-loop,video-editing,video-master,videodb,visa-doc-translate,web-artifacts-builder,web-design-guidelines,web-frameworks,webapp-testing,when-stuck,writing-plans,writing-skills,x-api,xlsx"
-    ]
+    "snapshotWarnings": []
   }
 } as const;

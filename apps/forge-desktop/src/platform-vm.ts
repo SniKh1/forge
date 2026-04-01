@@ -323,8 +323,12 @@ export function buildSkillComposition(args: {
   stackIds: StackId[];
   extraSkillIds: string[];
 }): SkillCompositionVM {
-  const { sortedIds, scores } = collectSkillScores(args);
-  const manualSelected = new Set(args.extraSkillIds);
+  const normalizedExtraSkillIds = normalizeSkillIds(args.extraSkillIds);
+  const { sortedIds, scores } = collectSkillScores({
+    ...args,
+    extraSkillIds: normalizedExtraSkillIds,
+  });
+  const manualSelected = new Set(normalizedExtraSkillIds);
   const visible = sortedIds.slice(0, 10);
   const primarySkills = visible.slice(0, 5).map((skillId) => ({
     id: skillId,
@@ -357,10 +361,14 @@ export function buildSkillOptions(args: {
   recommended: SkillOptionVM[];
   optional: SkillOptionVM[];
 } {
-  const { client, roleIds, stackIds, extraSkillIds } = args;
-  const { sortedIds, scores } = collectSkillScores(args);
-  const autoIncluded = new Set(sortedIds.filter((skillId) => !extraSkillIds.includes(skillId)));
-  const manualSelected = new Set(extraSkillIds);
+  const { client, roleIds, stackIds } = args;
+  const normalizedExtraSkillIds = normalizeSkillIds(args.extraSkillIds);
+  const { sortedIds, scores } = collectSkillScores({
+    ...args,
+    extraSkillIds: normalizedExtraSkillIds,
+  });
+  const autoIncluded = new Set(sortedIds.filter((skillId) => !normalizedExtraSkillIds.includes(skillId)));
+  const manualSelected = new Set(normalizedExtraSkillIds);
   const skillClient = client === 'opencode' ? 'codex' : client;
 
   const recommendedIds = sortedIds.slice(0, 8);
@@ -454,14 +462,25 @@ function collectSkillScores(args: {
     }
   }
 
-  const sortedIds = Array.from(scores.entries())
+  const normalizedScores = new Map<string, { score: number; reasons: Set<string> }>();
+  for (const [skillId, value] of scores.entries()) {
+    const canonical = canonicalSkillId(skillId);
+    const current = normalizedScores.get(canonical) ?? { score: 0, reasons: new Set<string>() };
+    current.score += value.score;
+    for (const reason of value.reasons) {
+      current.reasons.add(reason);
+    }
+    normalizedScores.set(canonical, current);
+  }
+
+  const sortedIds = Array.from(normalizedScores.entries())
     .sort((left, right) => {
       const scoreDiff = right[1].score - left[1].score;
       if (scoreDiff !== 0) return scoreDiff;
       return skillTitle(left[0]).localeCompare(skillTitle(right[0]), 'zh-CN');
     })
     .map(([skillId]) => skillId);
-  return { sortedIds, scores };
+  return { sortedIds, scores: normalizedScores };
 }
 
 export function buildRequirements(args: {
@@ -853,15 +872,38 @@ const skillDisplayNames: Record<string, string> = {
 };
 
 function skillTitle(skillId: string) {
-  if (skillDisplayNames[skillId]) {
-    return skillDisplayNames[skillId];
+  const canonical = canonicalSkillId(skillId);
+  if (skillDisplayNames[canonical]) {
+    return skillDisplayNames[canonical];
   }
-  const matched = forgeSkillOptions.find((item) => item.id === skillId);
-  const rawTitle = matched?.title ?? skillId;
+  const matched = forgeSkillOptions.find((item) => item.id === canonical);
+  const rawTitle = matched?.title ?? canonical;
   return rawTitle
     .split('-')
     .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
     .join(' ');
+}
+
+function canonicalSkillId(skillId: string) {
+  const trimmed = skillId.trim();
+  if (!trimmed) return trimmed;
+  const matchedById = forgeSkillOptions.find((item) => item.id === trimmed);
+  if (matchedById) return matchedById.id;
+  const matchedByTitle = forgeSkillOptions.find((item) => item.title === trimmed);
+  if (matchedByTitle) return matchedByTitle.id;
+  return trimmed;
+}
+
+function normalizeSkillIds(skillIds: string[]) {
+  const seen = new Set<string>();
+  const normalized: string[] = [];
+  for (const skillId of skillIds) {
+    const canonical = canonicalSkillId(skillId);
+    if (!canonical || seen.has(canonical)) continue;
+    seen.add(canonical);
+    normalized.push(canonical);
+  }
+  return normalized;
 }
 
 function isDomainStack(stackId: StackId): stackId is DomainStackId {
