@@ -154,6 +154,19 @@
         "command": "npx",
         "args": ["-y", "drawio-mcp"]
       }
+    },
+    "figma": {
+      "optional": true,
+      "summary": "Figma 设计文件读取与协作，需要 OAuth token。",
+      "clients": ["codex", "gemini"],
+      "config": {
+        "type": "remote",
+        "url": "https://mcp.figma.com/mcp",
+        "bearer_token_env_var": "FIGMA_OAUTH_TOKEN",
+        "http_headers": {
+          "X-Figma-Region": "us-east-1"
+        }
+      }
     }
   }
 }

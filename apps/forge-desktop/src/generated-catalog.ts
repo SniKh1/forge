@@ -2,7 +2,7 @@ export const forgeSkillOptions = [
   {
     "id": "aesthetic",
     "title": "aesthetic",
-    "summary": "Create aesthetically beautiful interfaces following proven design principles. Use when building UI/UX, analyzing designs from inspiration sites, generating design images with ai-multimodal, implementing visual hierarchy and color theory, ad",
+    "summary": "name: aesthetic",
     "clients": [
       "claude",
       "codex",
@@ -31,9 +31,94 @@ export const forgeSkillOptions = [
     ]
   },
   {
+    "id": "agent-eval",
+    "title": "agent-eval",
+    "summary": "name: agent-eval",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "agent-harness-construction",
+    "title": "agent-harness-construction",
+    "summary": "name: agent-harness-construction",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "agent-payment-x402",
+    "title": "agent-payment-x402",
+    "summary": "name: agent-payment-x402",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "agentic-engineering",
+    "title": "agentic-engineering",
+    "summary": "name: agentic-engineering",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "ai-first-engineering",
+    "title": "ai-first-engineering",
+    "summary": "name: ai-first-engineering",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "ai-multimodal",
     "title": "ai-multimodal",
-    "summary": "Process and generate multimedia content using Google Gemini API. Capabilities include analyze audio files (transcription with timestamps, summarization, speech understanding, music/sound analysis up to 9.5 hours), understand images (caption",
+    "summary": "name: ai-multimodal",
     "clients": [
       "claude",
       "codex",
@@ -51,9 +136,43 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "ai-regression-testing",
+    "title": "ai-regression-testing",
+    "summary": "name: ai-regression-testing",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "algorithmic-art",
     "title": "algorithmic-art",
-    "summary": "Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. Use this when users request creating art using code, generative art, algorithmic art, flow fields, or particle systems. Create original algor",
+    "summary": "name: algorithmic-art",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "android-clean-architecture",
+    "title": "android-clean-architecture",
+    "summary": "name: android-clean-architecture",
     "clients": [
       "claude",
       "codex",
@@ -70,7 +189,58 @@ export const forgeSkillOptions = [
   {
     "id": "api-design",
     "title": "api-design",
-    "summary": "REST API design patterns including resource naming, status codes, pagination, filtering, error responses, versioning, and rate limiting for production APIs.",
+    "summary": "name: api-design",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "architecture-decision-records",
+    "title": "architecture-decision-records",
+    "summary": "name: architecture-decision-records",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "art-master",
+    "title": "art-master",
+    "summary": "name: art-master",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "article-writing",
+    "title": "article-writing",
+    "summary": "name: article-writing",
     "clients": [
       "claude",
       "codex",
@@ -87,7 +257,24 @@ export const forgeSkillOptions = [
   {
     "id": "artifacts-builder",
     "title": "artifacts-builder",
-    "summary": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components ",
+    "summary": "name: artifacts-builder",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "autonomous-loops",
+    "title": "autonomous-loops",
+    "summary": "name: autonomous-loops",
     "clients": [
       "claude",
       "codex",
@@ -104,7 +291,7 @@ export const forgeSkillOptions = [
   {
     "id": "backend-development",
     "title": "backend-development",
-    "summary": "Build robust backend systems with modern technologies (Node.js, Python, Go, Rust), frameworks (NestJS, FastAPI, Django), databases (PostgreSQL, MongoDB, Redis), APIs (REST, GraphQL, gRPC), authentication (OAuth 2.1, JWT), testing strategies",
+    "summary": "name: backend-development",
     "clients": [
       "claude",
       "codex",
@@ -133,7 +320,24 @@ export const forgeSkillOptions = [
   {
     "id": "backend-patterns",
     "title": "backend-patterns",
-    "summary": "Backend architecture patterns, API design, database optimization, and server-side best practices for Node.js, Express, and Next.js API routes.",
+    "summary": "name: backend-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "benchmark",
+    "title": "benchmark",
+    "summary": "name: benchmark",
     "clients": [
       "claude",
       "codex",
@@ -150,7 +354,7 @@ export const forgeSkillOptions = [
   {
     "id": "better-auth",
     "title": "better-auth",
-    "summary": "Implement authentication and authorization with Better Auth - a framework-agnostic TypeScript authentication framework. Features include email/password authentication with verification, OAuth providers (Google, GitHub, Discord, etc.), two-f",
+    "summary": "name: better-auth",
     "clients": [
       "claude",
       "codex",
@@ -176,6 +380,23 @@ export const forgeSkillOptions = [
       "security-engineering"
     ],
     "overlapGroup": "auth",
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "blueprint",
+    "title": "blueprint",
+    "summary": "name: blueprint",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
     "clusterRole": null,
     "supportWhen": []
   },
@@ -218,7 +439,7 @@ export const forgeSkillOptions = [
   {
     "id": "brand-guidelines",
     "title": "brand-guidelines",
-    "summary": "Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit from having Anthropic's look-and-feel. Use it when brand colors or style guidelines, visual formatting, or company design standards apply.",
+    "summary": "name: brand-guidelines",
     "clients": [
       "claude",
       "codex",
@@ -235,7 +456,7 @@ export const forgeSkillOptions = [
   {
     "id": "browser",
     "title": "browser",
-    "summary": "This skill should be used for browser automation tasks using Chrome DevTools Protocol (CDP). Triggers when users need to launch Chrome with remote debugging, navigate pages, execute JavaScript in browser context, capture screenshots, or int",
+    "summary": "name: browser",
     "clients": [
       "claude",
       "codex",
@@ -263,9 +484,26 @@ export const forgeSkillOptions = [
     ]
   },
   {
+    "id": "browser-qa",
+    "title": "browser-qa",
+    "summary": "name: browser-qa",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "browser-use",
     "title": "browser-use",
-    "summary": "Automates browser interactions for web testing, form filling, screenshots, and data extraction. Use when the user needs to navigate websites, interact with web pages, fill forms, take screenshots, or extract information from web pages.",
+    "summary": "name: browser-use",
     "clients": [
       "claude",
       "codex",
@@ -295,9 +533,43 @@ export const forgeSkillOptions = [
     ]
   },
   {
+    "id": "bun-runtime",
+    "title": "bun-runtime",
+    "summary": "name: bun-runtime",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "canary-watch",
+    "title": "canary-watch",
+    "summary": "name: canary-watch",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "canvas-design",
     "title": "canvas-design",
-    "summary": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying exis",
+    "summary": "name: canvas-design",
     "clients": [
       "claude",
       "codex",
@@ -314,9 +586,26 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "carrier-relationship-management",
+    "title": "carrier-relationship-management",
+    "summary": "name: carrier-relationship-management",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "changelog-generator",
     "title": "changelog-generator",
-    "summary": "Automatically creates user-facing changelogs from git commits by analyzing commit history, categorizing changes, and transforming technical commits into clear, customer-friendly release notes. Turns hours of manual changelog writing into mi",
+    "summary": "name: changelog-generator",
     "clients": [
       "claude",
       "codex",
@@ -339,7 +628,7 @@ export const forgeSkillOptions = [
   {
     "id": "chrome-devtools",
     "title": "chrome-devtools",
-    "summary": "Browser automation, debugging, and performance analysis using Puppeteer CLI scripts. Use for automating browsers, taking screenshots, analyzing performance, monitoring network traffic, web scraping, form automation, and JavaScript debugging",
+    "summary": "name: chrome-devtools",
     "clients": [
       "claude",
       "codex",
@@ -367,6 +656,40 @@ export const forgeSkillOptions = [
     ]
   },
   {
+    "id": "ck",
+    "title": "ck",
+    "summary": "name: ck",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "claude-api",
+    "title": "claude-api",
+    "summary": "name: claude-api",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "claude-code",
     "title": "claude-code",
     "summary": "Claude Code is Anthropic's agentic coding tool that lives in the terminal and helps turn ideas into code faster. It combines autonomous planning, execution, and validation with extensibility through skills, plugins, MCP servers, and hooks.",
@@ -384,9 +707,43 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "claude-devfleet",
+    "title": "claude-devfleet",
+    "summary": "name: claude-devfleet",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "click-path-audit",
+    "title": "click-path-audit",
+    "summary": "name: click-path-audit",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "clickhouse-io",
     "title": "clickhouse-io",
-    "summary": "ClickHouse database patterns, query optimization, analytics, and data engineering best practices for high-performance analytical workloads.",
+    "summary": "name: clickhouse-io",
     "clients": [
       "claude",
       "codex",
@@ -403,7 +760,7 @@ export const forgeSkillOptions = [
   {
     "id": "code-review",
     "title": "code-review",
-    "summary": "Use when receiving code review feedback (especially if unclear or technically questionable), when completing tasks or major features requiring review before proceeding, or before making any completion/success claims. Covers three practices ",
+    "summary": "name: code-review",
     "clients": [
       "claude",
       "codex",
@@ -435,9 +792,26 @@ export const forgeSkillOptions = [
     ]
   },
   {
+    "id": "codebase-onboarding",
+    "title": "codebase-onboarding",
+    "summary": "name: codebase-onboarding",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "coding-standards",
     "title": "coding-standards",
-    "summary": "Universal coding standards, best practices, and patterns for TypeScript, JavaScript, React, and Node.js development.",
+    "summary": "name: coding-standards",
     "clients": [
       "claude",
       "codex",
@@ -453,8 +827,25 @@ export const forgeSkillOptions = [
   },
   {
     "id": "collision-zone-thinking",
-    "title": "Collision-Zone Thinking",
-    "summary": "Force unrelated concepts together to discover emergent properties - \"What if we treated X like Y?",
+    "title": "collision-zone-thinking",
+    "summary": "name: Collision-Zone Thinking",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "compose-multiplatform-patterns",
+    "title": "compose-multiplatform-patterns",
+    "summary": "name: compose-multiplatform-patterns",
     "clients": [
       "claude",
       "codex",
@@ -471,7 +862,24 @@ export const forgeSkillOptions = [
   {
     "id": "configure-ecc",
     "title": "configure-ecc",
-    "summary": "Interactive installer for Everything Claude Code — guides users through selecting and installing skills and rules to user-level or project-level directories, verifies paths, and optionally optimizes installed files.",
+    "summary": "name: configure-ecc",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "content-engine",
+    "title": "content-engine",
+    "summary": "name: content-engine",
     "clients": [
       "claude",
       "codex",
@@ -488,7 +896,24 @@ export const forgeSkillOptions = [
   {
     "id": "content-hash-cache-pattern",
     "title": "content-hash-cache-pattern",
-    "summary": "Cache expensive file processing results using SHA-256 content hashes — path-independent, auto-invalidating, with service layer separation.",
+    "summary": "name: content-hash-cache-pattern",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "context-budget",
+    "title": "context-budget",
+    "summary": "name: context-budget",
     "clients": [
       "claude",
       "codex",
@@ -505,7 +930,7 @@ export const forgeSkillOptions = [
   {
     "id": "context-engineering",
     "title": "context-engineering",
-    "summary": ">-",
+    "summary": "name: context-engineering",
     "clients": [
       "claude",
       "codex",
@@ -529,7 +954,7 @@ export const forgeSkillOptions = [
   {
     "id": "context7",
     "title": "context7",
-    "summary": "Search GitHub issues, pull requests, and discussions across any repository. Activates when researching external dependencies (whisper.cpp, NAudio), looking for similar bugs, or finding implementation examples.",
+    "summary": "name: context7",
     "clients": [
       "claude",
       "codex",
@@ -557,9 +982,26 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "continuous-agent-loop",
+    "title": "continuous-agent-loop",
+    "summary": "name: continuous-agent-loop",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "continuous-learning",
     "title": "continuous-learning",
-    "summary": "Automatically extract reusable patterns from Claude Code sessions and save them as learned skills for future use.",
+    "summary": "name: continuous-learning",
     "clients": [
       "claude",
       "codex",
@@ -587,7 +1029,7 @@ export const forgeSkillOptions = [
   {
     "id": "continuous-learning-v2",
     "title": "continuous-learning-v2",
-    "summary": "Instinct-based learning system that observes sessions via hooks, creates atomic instincts with confidence scoring, and evolves them into skills/commands/agents.",
+    "summary": "name: continuous-learning-v2",
     "clients": [
       "claude",
       "codex",
@@ -615,7 +1057,7 @@ export const forgeSkillOptions = [
   {
     "id": "cost-aware-llm-pipeline",
     "title": "cost-aware-llm-pipeline",
-    "summary": "Cost optimization patterns for LLM API usage — model routing by task complexity, budget tracking, retry logic, and prompt caching.",
+    "summary": "name: cost-aware-llm-pipeline",
     "clients": [
       "claude",
       "codex",
@@ -632,7 +1074,7 @@ export const forgeSkillOptions = [
   {
     "id": "cpp-coding-standards",
     "title": "cpp-coding-standards",
-    "summary": "C++ coding standards based on the C++ Core Guidelines (isocpp.github.io). Use when writing, reviewing, or refactoring C++ code to enforce modern, safe, and idiomatic practices.",
+    "summary": "name: cpp-coding-standards",
     "clients": [
       "claude",
       "codex",
@@ -649,7 +1091,58 @@ export const forgeSkillOptions = [
   {
     "id": "cpp-testing",
     "title": "cpp-testing",
-    "summary": "Use only when writing/updating/fixing C++ tests, configuring GoogleTest/CTest, diagnosing failing or flaky tests, or adding coverage/sanitizers.",
+    "summary": "name: cpp-testing",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "crosspost",
+    "title": "crosspost",
+    "summary": "name: crosspost",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "customs-trade-compliance",
+    "title": "customs-trade-compliance",
+    "summary": "name: customs-trade-compliance",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "data-scraper-agent",
+    "title": "data-scraper-agent",
+    "summary": "name: data-scraper-agent",
     "clients": [
       "claude",
       "codex",
@@ -666,7 +1159,7 @@ export const forgeSkillOptions = [
   {
     "id": "database-migrations",
     "title": "database-migrations",
-    "summary": "Database migration best practices for schema changes, data migrations, rollbacks, and zero-downtime deployments across PostgreSQL, MySQL, and common ORMs (Prisma, Drizzle, Django, TypeORM, golang-migrate).",
+    "summary": "name: database-migrations",
     "clients": [
       "claude",
       "codex",
@@ -683,7 +1176,7 @@ export const forgeSkillOptions = [
   {
     "id": "databases",
     "title": "databases",
-    "summary": "Work with MongoDB (document database, BSON documents, aggregation pipelines, Atlas cloud) and PostgreSQL (relational database, SQL queries, psql CLI, pgAdmin). Use when designing database schemas, writing queries and aggregations, optimizin",
+    "summary": "name: databases",
     "clients": [
       "claude",
       "codex",
@@ -717,9 +1210,77 @@ export const forgeSkillOptions = [
     ]
   },
   {
+    "id": "deep-research",
+    "title": "deep-research",
+    "summary": "name: deep-research",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "defuddle",
+    "title": "defuddle",
+    "summary": "name: defuddle",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "deployment-patterns",
     "title": "deployment-patterns",
-    "summary": "Deployment workflows, CI/CD pipeline patterns, Docker containerization, health checks, rollback strategies, and production readiness checklists for web applications.",
+    "summary": "name: deployment-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "design-master",
+    "title": "design-master",
+    "summary": "name: design-master",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "design-system",
+    "title": "design-system",
+    "summary": "name: design-system",
     "clients": [
       "claude",
       "codex",
@@ -736,7 +1297,7 @@ export const forgeSkillOptions = [
   {
     "id": "devops",
     "title": "devops",
-    "summary": "Deploy and manage cloud infrastructure on Cloudflare (Workers, R2, D1, KV, Pages, Durable Objects, Browser Rendering), Docker containers, and Google Cloud Platform (Compute Engine, GKE, Cloud Run, App Engine, Cloud Storage). Use when deploy",
+    "summary": "name: devops",
     "clients": [
       "claude",
       "codex",
@@ -779,7 +1340,7 @@ export const forgeSkillOptions = [
   {
     "id": "django-patterns",
     "title": "django-patterns",
-    "summary": "Django architecture patterns, REST API design with DRF, ORM best practices, caching, signals, middleware, and production-grade Django apps.",
+    "summary": "name: django-patterns",
     "clients": [
       "claude",
       "codex",
@@ -796,7 +1357,7 @@ export const forgeSkillOptions = [
   {
     "id": "django-security",
     "title": "django-security",
-    "summary": "Django security best practices, authentication, authorization, CSRF protection, SQL injection prevention, XSS prevention, and secure deployment configurations.",
+    "summary": "name: django-security",
     "clients": [
       "claude",
       "codex",
@@ -813,7 +1374,7 @@ export const forgeSkillOptions = [
   {
     "id": "django-tdd",
     "title": "django-tdd",
-    "summary": "Django testing strategies with pytest-django, TDD methodology, factory_boy, mocking, coverage, and testing Django REST Framework APIs.",
+    "summary": "name: django-tdd",
     "clients": [
       "claude",
       "codex",
@@ -837,7 +1398,24 @@ export const forgeSkillOptions = [
   {
     "id": "django-verification",
     "title": "django-verification",
-    "summary": "Verification loop for Django projects: migrations, linting, tests with coverage, security scans, and deployment readiness checks before release or PR.",
+    "summary": "name: django-verification",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "dmux-workflows",
+    "title": "dmux-workflows",
+    "summary": "name: dmux-workflows",
     "clients": [
       "claude",
       "codex",
@@ -854,7 +1432,7 @@ export const forgeSkillOptions = [
   {
     "id": "doc-coauthoring",
     "title": "doc-coauthoring",
-    "summary": "Guide users through a structured workflow for co-authoring documentation. Use when user wants to write documentation, proposals, technical specs, decision docs, or similar structured content. This workflow helps users efficiently transfer c",
+    "summary": "name: doc-coauthoring",
     "clients": [
       "claude",
       "codex",
@@ -882,7 +1460,7 @@ export const forgeSkillOptions = [
   {
     "id": "docker-patterns",
     "title": "docker-patterns",
-    "summary": "Docker and Docker Compose patterns for local development, container security, networking, volume strategies, and multi-service orchestration.",
+    "summary": "name: docker-patterns",
     "clients": [
       "claude",
       "codex",
@@ -899,7 +1477,7 @@ export const forgeSkillOptions = [
   {
     "id": "docs-seeker",
     "title": "docs-seeker",
-    "summary": "Searching internet for technical documentation using llms.txt standard, GitHub repositories via Repomix, and parallel exploration. Use when user needs: (1) Latest documentation for libraries/frameworks, (2) Documentation in llms.txt format,",
+    "summary": "name: docs-seeker",
     "clients": [
       "claude",
       "codex",
@@ -923,9 +1501,43 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "documentation-lookup",
+    "title": "documentation-lookup",
+    "summary": "name: documentation-lookup",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "docx",
     "title": "docx",
-    "summary": "Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx files). Triggers include: any mention of 'Word doc', 'word document', '.docx', or requests to produce professional documents with formatting l",
+    "summary": "name: docx",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "domain-classifier",
+    "title": "domain-classifier",
+    "summary": "name: domain-classifier",
     "clients": [
       "claude",
       "codex",
@@ -942,7 +1554,41 @@ export const forgeSkillOptions = [
   {
     "id": "e2e-testing",
     "title": "e2e-testing",
-    "summary": "Playwright E2E testing patterns, Page Object Model, configuration, CI/CD integration, artifact management, and flaky test strategies.",
+    "summary": "name: e2e-testing",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "energy-procurement",
+    "title": "energy-procurement",
+    "summary": "name: energy-procurement",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "enterprise-agent-ops",
+    "title": "enterprise-agent-ops",
+    "summary": "name: enterprise-agent-ops",
     "clients": [
       "claude",
       "codex",
@@ -959,7 +1605,24 @@ export const forgeSkillOptions = [
   {
     "id": "eval-harness",
     "title": "eval-harness",
-    "summary": "Formal evaluation framework for Claude Code sessions implementing eval-driven development (EDD) principles",
+    "summary": "name: eval-harness",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "exa-search",
+    "title": "exa-search",
+    "summary": "name: exa-search",
     "clients": [
       "claude",
       "codex",
@@ -991,9 +1654,26 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "fal-ai-media",
+    "title": "fal-ai-media",
+    "summary": "name: fal-ai-media",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "find-skills",
     "title": "find-skills",
-    "summary": "Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities. This skill should be used when the user is look",
+    "summary": "name: find-skills",
     "clients": [
       "claude",
       "codex",
@@ -1025,9 +1705,26 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "flutter-dart-code-review",
+    "title": "flutter-dart-code-review",
+    "summary": "name: flutter-dart-code-review",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "foundation-models-on-device",
     "title": "foundation-models-on-device",
-    "summary": "Apple FoundationModels framework for on-device LLM — text generation, guided generation with @Generable, tool calling, and snapshot streaming in iOS 26+.",
+    "summary": "name: foundation-models-on-device",
     "clients": [
       "claude",
       "codex",
@@ -1052,7 +1749,7 @@ export const forgeSkillOptions = [
   {
     "id": "frontend-design",
     "title": "frontend-design",
-    "summary": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples include websites, landing pages, dashboards, ",
+    "summary": "name: frontend-design",
     "clients": [
       "claude",
       "codex",
@@ -1090,8 +1787,8 @@ export const forgeSkillOptions = [
   },
   {
     "id": "frontend-development",
-    "title": "frontend-dev-guidelines",
-    "summary": "Frontend development guidelines for React/TypeScript applications. Modern patterns including Suspense, lazy loading, useSuspenseQuery, file organization with features directory, MUI v7 styling, TanStack Router, performance optimization, and",
+    "title": "frontend-development",
+    "summary": "name: frontend-dev-guidelines",
     "clients": [
       "claude",
       "codex",
@@ -1108,7 +1805,41 @@ export const forgeSkillOptions = [
   {
     "id": "frontend-patterns",
     "title": "frontend-patterns",
-    "summary": "Frontend development patterns for React, Next.js, state management, performance optimization, and UI best practices.",
+    "summary": "name: frontend-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "frontend-slides",
+    "title": "frontend-slides",
+    "summary": "name: frontend-slides",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "git-workflow",
+    "title": "git-workflow",
+    "summary": "name: git-workflow",
     "clients": [
       "claude",
       "codex",
@@ -1125,7 +1856,7 @@ export const forgeSkillOptions = [
   {
     "id": "golang-patterns",
     "title": "golang-patterns",
-    "summary": "Idiomatic Go patterns, best practices, and conventions for building robust, efficient, and maintainable Go applications.",
+    "summary": "name: golang-patterns",
     "clients": [
       "claude",
       "codex",
@@ -1142,7 +1873,7 @@ export const forgeSkillOptions = [
   {
     "id": "golang-testing",
     "title": "golang-testing",
-    "summary": "Go testing patterns including table-driven tests, subtests, benchmarks, fuzzing, and test coverage. Follows TDD methodology with idiomatic Go practices.",
+    "summary": "name: golang-testing",
     "clients": [
       "claude",
       "codex",
@@ -1180,9 +1911,94 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "healthcare-cdss-patterns",
+    "title": "healthcare-cdss-patterns",
+    "summary": "name: healthcare-cdss-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "healthcare-emr-patterns",
+    "title": "healthcare-emr-patterns",
+    "summary": "name: healthcare-emr-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "healthcare-eval-harness",
+    "title": "healthcare-eval-harness",
+    "summary": "name: healthcare-eval-harness",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "healthcare-phi-compliance",
+    "title": "healthcare-phi-compliance",
+    "summary": "name: healthcare-phi-compliance",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "intelligent-prompt-generator",
+    "title": "intelligent-prompt-generator",
+    "summary": "name: intelligent-prompt-generator",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "internal-comms",
     "title": "internal-comms",
-    "summary": "A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Claude should use this skill whenever asked to write some sort of internal communications (status reports, leadership ",
+    "summary": "name: internal-comms",
     "clients": [
       "claude",
       "codex",
@@ -1206,9 +2022,60 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "inventory-demand-planning",
+    "title": "inventory-demand-planning",
+    "summary": "name: inventory-demand-planning",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "inversion-exercise",
-    "title": "Inversion Exercise",
-    "summary": "Flip core assumptions to reveal hidden constraints and alternative approaches - \"what if the opposite were true?",
+    "title": "inversion-exercise",
+    "summary": "name: Inversion Exercise",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "investor-materials",
+    "title": "investor-materials",
+    "summary": "name: investor-materials",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "investor-outreach",
+    "title": "investor-outreach",
+    "summary": "name: investor-outreach",
     "clients": [
       "claude",
       "codex",
@@ -1225,7 +2092,7 @@ export const forgeSkillOptions = [
   {
     "id": "iterative-retrieval",
     "title": "iterative-retrieval",
-    "summary": "Pattern for progressively refining context retrieval to solve the subagent context problem",
+    "summary": "name: iterative-retrieval",
     "clients": [
       "claude",
       "codex",
@@ -1242,7 +2109,7 @@ export const forgeSkillOptions = [
   {
     "id": "java-coding-standards",
     "title": "java-coding-standards",
-    "summary": "Java coding standards for Spring Boot services: naming, immutability, Optional usage, streams, exceptions, generics, and project layout.",
+    "summary": "name: java-coding-standards",
     "clients": [
       "claude",
       "codex",
@@ -1263,7 +2130,7 @@ export const forgeSkillOptions = [
   {
     "id": "jpa-patterns",
     "title": "jpa-patterns",
-    "summary": "JPA/Hibernate patterns for entity design, relationships, query optimization, transactions, auditing, indexing, pagination, and pooling in Spring Boot.",
+    "summary": "name: jpa-patterns",
     "clients": [
       "claude",
       "codex",
@@ -1282,9 +2149,196 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "json-canvas",
+    "title": "json-canvas",
+    "summary": "name: json-canvas",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "kotlin-coroutines-flows",
+    "title": "kotlin-coroutines-flows",
+    "summary": "name: kotlin-coroutines-flows",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "kotlin-exposed-patterns",
+    "title": "kotlin-exposed-patterns",
+    "summary": "name: kotlin-exposed-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "kotlin-ktor-patterns",
+    "title": "kotlin-ktor-patterns",
+    "summary": "name: kotlin-ktor-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "kotlin-patterns",
+    "title": "kotlin-patterns",
+    "summary": "name: kotlin-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "kotlin-testing",
+    "title": "kotlin-testing",
+    "summary": "name: kotlin-testing",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "laravel-patterns",
+    "title": "laravel-patterns",
+    "summary": "name: laravel-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "laravel-plugin-discovery",
+    "title": "laravel-plugin-discovery",
+    "summary": "name: laravel-plugin-discovery",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "laravel-security",
+    "title": "laravel-security",
+    "summary": "name: laravel-security",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "laravel-tdd",
+    "title": "laravel-tdd",
+    "summary": "name: laravel-tdd",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "laravel-verification",
+    "title": "laravel-verification",
+    "summary": "name: laravel-verification",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "liquid-glass-design",
     "title": "liquid-glass-design",
-    "summary": "iOS 26 Liquid Glass design system — dynamic glass material with blur, reflection, and interactive morphing for SwiftUI, UIKit, and WidgetKit.",
+    "summary": "name: liquid-glass-design",
     "clients": [
       "claude",
       "codex",
@@ -1307,9 +2361,43 @@ export const forgeSkillOptions = [
     ]
   },
   {
+    "id": "logistics-exception-management",
+    "title": "logistics-exception-management",
+    "summary": "name: logistics-exception-management",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "market-research",
+    "title": "market-research",
+    "summary": "name: market-research",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "mcp-builder",
     "title": "mcp-builder",
-    "summary": "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, whether in Python (F",
+    "summary": "name: mcp-builder",
     "clients": [
       "claude",
       "codex",
@@ -1334,7 +2422,7 @@ export const forgeSkillOptions = [
   {
     "id": "mcp-management",
     "title": "mcp-management",
-    "summary": "Manage Model Context Protocol (MCP) servers - discover, analyze, and execute tools/prompts/resources from configured MCP servers. Use when working with MCP integrations, need to discover available MCP capabilities, filter MCP tools for spec",
+    "summary": "name: mcp-management",
     "clients": [
       "claude",
       "codex",
@@ -1363,9 +2451,26 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "mcp-server-patterns",
+    "title": "mcp-server-patterns",
+    "summary": "name: mcp-server-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "media-processing",
     "title": "media-processing",
-    "summary": "Process multimedia files with FFmpeg (video/audio encoding, conversion, streaming, filtering, hardware acceleration) and ImageMagick (image manipulation, format conversion, batch processing, effects, composition). Use when converting media ",
+    "summary": "name: media-processing",
     "clients": [
       "claude",
       "codex",
@@ -1385,7 +2490,7 @@ export const forgeSkillOptions = [
   {
     "id": "mermaidjs-v11",
     "title": "mermaidjs-v11",
-    "summary": "Create diagrams and visualizations using Mermaid.js v11 syntax. Use when generating flowcharts, sequence diagrams, class diagrams, state diagrams, ER diagrams, Gantt charts, user journeys, timelines, architecture diagrams, or any of 24+ dia",
+    "summary": "name: mermaidjs-v11",
     "clients": [
       "claude",
       "codex",
@@ -1401,8 +2506,8 @@ export const forgeSkillOptions = [
   },
   {
     "id": "meta-pattern-recognition",
-    "title": "Meta-Pattern Recognition",
-    "summary": "Spot patterns appearing in 3+ domains to find universal principles",
+    "title": "meta-pattern-recognition",
+    "summary": "name: Meta-Pattern Recognition",
     "clients": [
       "claude",
       "codex",
@@ -1417,9 +2522,197 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "nanoclaw-repl",
+    "title": "nanoclaw-repl",
+    "summary": "name: nanoclaw-repl",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "nextjs-turbopack",
+    "title": "nextjs-turbopack",
+    "summary": "name: nextjs-turbopack",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "notebooklm",
+    "title": "notebooklm",
+    "summary": "name: notebooklm",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "solution-architect",
+      "product-manager",
+      "ai-automation-engineer"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "solution-architect",
+      "product-manager",
+      "ai-automation-engineer"
+    ],
+    "recommendedByStack": [
+      "architecture",
+      "product",
+      "workflow-automation",
+      "python",
+      "release"
+    ],
+    "overlapGroup": "docs-research",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要从用户自己的 NotebookLM 文档库获得 source-grounded answers，而不是开放式 web recall。",
+      "需要把研究、文档问答和 notebook inventory 管理串成一条稳定工作流时。"
+    ]
+  },
+  {
     "id": "nutrient-document-processing",
     "title": "nutrient-document-processing",
-    "summary": "Process, convert, OCR, extract, redact, sign, and fill documents using the Nutrient DWS API. Works with PDFs, DOCX, XLSX, PPTX, HTML, and images.",
+    "summary": "name: nutrient-document-processing",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "nuxt4-patterns",
+    "title": "nuxt4-patterns",
+    "summary": "name: nuxt4-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "obsidian-bases",
+    "title": "obsidian-bases",
+    "summary": "name: obsidian-bases",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "obsidian-cli",
+    "title": "obsidian-cli",
+    "summary": "name: obsidian-cli",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "obsidian-markdown",
+    "title": "obsidian-markdown",
+    "summary": "name: obsidian-markdown",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "obsidian-skills",
+    "title": "obsidian-skills",
+    "summary": "Wrapper skill for Obsidian vault workflows, routing to bundled Obsidian markdown, bases, canvas, CLI, and ingestion skills.",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "solution-architect",
+      "product-manager"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "solution-architect",
+      "product-manager"
+    ],
+    "recommendedByStack": [
+      "product",
+      "architecture",
+      "workflow-automation",
+      "design"
+    ],
+    "overlapGroup": "docs-research",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要围绕 Obsidian vault、知识库、Canvas 或 note graph 做结构化工作时。",
+      "需要把笔记系统、知识沉淀和可视化 note layout 结合在一起时。"
+    ]
+  },
+  {
+    "id": "openclaw-persona-forge",
+    "title": "openclaw-persona-forge",
+    "summary": "name: openclaw-persona-forge",
     "clients": [
       "claude",
       "codex",
@@ -1436,7 +2729,7 @@ export const forgeSkillOptions = [
   {
     "id": "pdf",
     "title": "pdf",
-    "summary": "Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating ",
+    "summary": "name: pdf",
     "clients": [
       "claude",
       "codex",
@@ -1451,9 +2744,113 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "perl-patterns",
+    "title": "perl-patterns",
+    "summary": "name: perl-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "perl-security",
+    "title": "perl-security",
+    "summary": "name: perl-security",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "perl-testing",
+    "title": "perl-testing",
+    "summary": "name: perl-testing",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "plankton-code-quality",
+    "title": "plankton-code-quality",
+    "summary": "name: plankton-code-quality",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "planning-with-files",
+    "title": "planning-with-files",
+    "summary": "name: planning-with-files",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "solution-architect",
+      "product-manager",
+      "qa-strategist"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "solution-architect",
+      "product-manager",
+      "qa-strategist"
+    ],
+    "recommendedByStack": [
+      "architecture",
+      "product",
+      "qa",
+      "release",
+      "workflow-automation"
+    ],
+    "overlapGroup": "planning",
+    "clusterRole": "support",
+    "supportWhen": [
+      "任务跨越多个阶段、多个会话或大量工具调用，需要 durable working memory 时。",
+      "需要用 task_plan / findings / progress 这样的文件化状态来稳定推进工作时。"
+    ]
+  },
+  {
     "id": "postgres-patterns",
     "title": "postgres-patterns",
-    "summary": "PostgreSQL database patterns for query optimization, schema design, indexing, and security. Based on Supabase best practices.",
+    "summary": "name: postgres-patterns",
     "clients": [
       "claude",
       "codex",
@@ -1481,7 +2878,58 @@ export const forgeSkillOptions = [
   {
     "id": "pptx",
     "title": "pptx",
-    "summary": "Use this skill any time a .pptx file is involved in any way — as input, output, or both. This includes: creating slide decks, pitch decks, or presentations; reading, parsing, or extracting text from any .pptx file (even if the extracted con",
+    "summary": "name: pptx",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "product-lens",
+    "title": "product-lens",
+    "summary": "name: product-lens",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "product-master",
+    "title": "product-master",
+    "summary": "name: product-master",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "production-scheduling",
+    "title": "production-scheduling",
+    "summary": "name: production-scheduling",
     "clients": [
       "claude",
       "codex",
@@ -1498,7 +2946,109 @@ export const forgeSkillOptions = [
   {
     "id": "project-guidelines-example",
     "title": "project-guidelines-example",
-    "summary": "Example project-specific skill template based on a real production application.",
+    "summary": "name: project-guidelines-example",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "prompt-analyzer",
+    "title": "prompt-analyzer",
+    "summary": "name: prompt-analyzer",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "prompt-extractor",
+    "title": "prompt-extractor",
+    "summary": "name: prompt-extractor",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "prompt-generator",
+    "title": "prompt-generator",
+    "summary": "name: prompt-generator",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "prompt-master",
+    "title": "prompt-master",
+    "summary": "name: prompt-master",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "prompt-optimizer",
+    "title": "prompt-optimizer",
+    "summary": "name: prompt-optimizer",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "prompt-xray",
+    "title": "prompt-xray",
+    "summary": "name: prompt-xray",
     "clients": [
       "claude",
       "codex",
@@ -1515,7 +3065,7 @@ export const forgeSkillOptions = [
   {
     "id": "python-patterns",
     "title": "python-patterns",
-    "summary": "Pythonic idioms, PEP 8 standards, type hints, and best practices for building robust, efficient, and maintainable Python applications.",
+    "summary": "name: python-patterns",
     "clients": [
       "claude",
       "codex",
@@ -1545,7 +3095,7 @@ export const forgeSkillOptions = [
   {
     "id": "python-testing",
     "title": "python-testing",
-    "summary": "Python testing strategies using pytest, TDD methodology, fixtures, mocking, parametrization, and coverage requirements.",
+    "summary": "name: python-testing",
     "clients": [
       "claude",
       "codex",
@@ -1565,6 +3115,57 @@ export const forgeSkillOptions = [
     "supportWhen": [
       "任务明确落在 Python 上下文，需要 pytest、fixtures、mocking、coverage 等 Python testing 模式时。"
     ]
+  },
+  {
+    "id": "pytorch-patterns",
+    "title": "pytorch-patterns",
+    "summary": "name: pytorch-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "quality-nonconformance",
+    "title": "quality-nonconformance",
+    "summary": "name: quality-nonconformance",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "ralphinho-rfc-pipeline",
+    "title": "ralphinho-rfc-pipeline",
+    "summary": "name: ralphinho-rfc-pipeline",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "receiving-code-review",
@@ -1596,7 +3197,24 @@ export const forgeSkillOptions = [
   {
     "id": "regex-vs-llm-structured-text",
     "title": "regex-vs-llm-structured-text",
-    "summary": "Decision framework for choosing between regex and LLM when parsing structured text — start with regex, add LLM only for low-confidence edge cases.",
+    "summary": "name: regex-vs-llm-structured-text",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "repo-scan",
+    "title": "repo-scan",
+    "summary": "name: repo-scan",
     "clients": [
       "claude",
       "codex",
@@ -1613,7 +3231,7 @@ export const forgeSkillOptions = [
   {
     "id": "repomix",
     "title": "repomix",
-    "summary": "Package entire code repositories into single AI-friendly files using Repomix. Capabilities include pack codebases with customizable include/exclude patterns, generate multiple output formats (XML, Markdown, plain text), preserve file struct",
+    "summary": "name: repomix",
     "clients": [
       "claude",
       "codex",
@@ -1655,9 +3273,111 @@ export const forgeSkillOptions = [
     ]
   },
   {
+    "id": "returns-reverse-logistics",
+    "title": "returns-reverse-logistics",
+    "summary": "name: returns-reverse-logistics",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "rules-distill",
+    "title": "rules-distill",
+    "summary": "name: rules-distill",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "rust-patterns",
+    "title": "rust-patterns",
+    "summary": "name: rust-patterns",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "rust-testing",
+    "title": "rust-testing",
+    "summary": "name: rust-testing",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "safety-guard",
+    "title": "safety-guard",
+    "summary": "name: safety-guard",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "santa-method",
+    "title": "santa-method",
+    "summary": "name: santa-method",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "scale-game",
-    "title": "Scale Game",
-    "summary": "Test at extremes (1000x bigger/smaller, instant/year-long) to expose fundamental truths hidden at normal scales",
+    "title": "scale-game",
+    "summary": "name: Scale Game",
     "clients": [
       "claude",
       "codex",
@@ -1674,7 +3394,7 @@ export const forgeSkillOptions = [
   {
     "id": "search-first",
     "title": "search-first",
-    "summary": "Research-before-coding workflow. Search for existing tools, libraries, and patterns before writing custom code. Invokes the researcher agent.",
+    "summary": "name: search-first",
     "clients": [
       "claude",
       "codex",
@@ -1691,7 +3411,7 @@ export const forgeSkillOptions = [
   {
     "id": "security-review",
     "title": "security-review",
-    "summary": "Use this skill when adding authentication, handling user input, working with secrets, creating API endpoints, or implementing payment/sensitive features. Provides comprehensive security checklist and patterns.",
+    "summary": "name: security-review",
     "clients": [
       "claude",
       "codex",
@@ -1725,7 +3445,7 @@ export const forgeSkillOptions = [
   {
     "id": "security-scan",
     "title": "security-scan",
-    "summary": "Scan your Claude Code configuration (.claude/ directory) for security vulnerabilities, misconfigurations, and injection risks using AgentShield. Checks CLAUDE.md, settings.json, MCP servers, hooks, and agent definitions.",
+    "summary": "name: security-scan",
     "clients": [
       "claude",
       "codex",
@@ -1742,7 +3462,7 @@ export const forgeSkillOptions = [
   {
     "id": "self-improving-agent",
     "title": "self-improving-agent",
-    "summary": "A universal self-improving agent that learns from skill experiences and enriches Forge's shared memory system. Uses semantic, episodic, and working-memory concepts as analysis tools, but durable output should land in Forge memory, problem-s",
+    "summary": "name: self-improving-agent",
     "clients": [
       "claude",
       "codex",
@@ -1770,7 +3490,7 @@ export const forgeSkillOptions = [
   {
     "id": "sequential-thinking",
     "title": "sequential-thinking",
-    "summary": "Use when complex problems require systematic step-by-step reasoning with ability to revise thoughts, branch into alternative approaches, or dynamically adjust scope. Ideal for multi-stage analysis, design planning, problem decomposition, or",
+    "summary": "name: sequential-thinking",
     "clients": [
       "claude",
       "codex",
@@ -1787,7 +3507,7 @@ export const forgeSkillOptions = [
   {
     "id": "shopify",
     "title": "shopify",
-    "summary": "Build Shopify applications, extensions, and themes using GraphQL/REST APIs, Shopify CLI, Polaris UI components, and Liquid templating. Capabilities include app development with OAuth authentication, checkout UI extensions for customizing ch",
+    "summary": "name: shopify",
     "clients": [
       "claude",
       "codex",
@@ -1805,8 +3525,25 @@ export const forgeSkillOptions = [
   },
   {
     "id": "simplification-cascades",
-    "title": "Simplification Cascades",
-    "summary": "Find one insight that eliminates multiple components - \"if this is true, we don't need X, Y, or Z",
+    "title": "simplification-cascades",
+    "summary": "name: Simplification Cascades",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "skill-comply",
+    "title": "skill-comply",
+    "summary": "name: skill-comply",
     "clients": [
       "claude",
       "codex",
@@ -1823,7 +3560,7 @@ export const forgeSkillOptions = [
   {
     "id": "skill-creator",
     "title": "skill-creator",
-    "summary": "Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, update or optimize an existing skill, run evals to test a skill, benchmark skill performance with vari",
+    "summary": "name: skill-creator",
     "clients": [
       "claude",
       "codex",
@@ -1844,9 +3581,59 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "skill-prompt-generator",
+    "title": "skill-prompt-generator",
+    "summary": "Wrapper skill for bundled prompt-generation and prompt-analysis workflows.",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "extended",
+    "primaryFor": [
+      "developer",
+      "ui-designer",
+      "product-manager"
+    ],
+    "recommendedByRole": [
+      "developer",
+      "ui-designer",
+      "product-manager"
+    ],
+    "recommendedByStack": [
+      "design",
+      "product",
+      "workflow-automation",
+      "image-generation",
+      "video-creation"
+    ],
+    "overlapGroup": "communication",
+    "clusterRole": "support",
+    "supportWhen": [
+      "需要围绕 prompt generation / prompt analysis / prompt library 做系统化工作时。"
+    ]
+  },
+  {
+    "id": "skill-stocktake",
+    "title": "skill-stocktake",
+    "summary": "description: \"Use when auditing Claude skills and commands for quality. Supports Quick Scan (changed skills only) and Full Stocktake modes with sequential subagent batch evaluation.\"",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "slack-gif-creator",
     "title": "slack-gif-creator",
-    "summary": "Knowledge and utilities for creating animated GIFs optimized for Slack. Provides constraints, validation tools, and animation concepts. Use when users request animated GIFs for Slack like \"make me a GIF of X doing Y for Slack.",
+    "summary": "name: slack-gif-creator",
     "clients": [
       "claude",
       "codex",
@@ -1863,7 +3650,7 @@ export const forgeSkillOptions = [
   {
     "id": "springboot-patterns",
     "title": "springboot-patterns",
-    "summary": "Spring Boot architecture patterns, REST API design, layered services, data access, caching, async processing, and logging. Use for Java Spring Boot backend work.",
+    "summary": "name: springboot-patterns",
     "clients": [
       "claude",
       "codex",
@@ -1884,7 +3671,7 @@ export const forgeSkillOptions = [
   {
     "id": "springboot-security",
     "title": "springboot-security",
-    "summary": "Spring Security best practices for authn/authz, validation, CSRF, secrets, headers, rate limiting, and dependency security in Java Spring Boot services.",
+    "summary": "name: springboot-security",
     "clients": [
       "claude",
       "codex",
@@ -1905,7 +3692,7 @@ export const forgeSkillOptions = [
   {
     "id": "springboot-tdd",
     "title": "springboot-tdd",
-    "summary": "Test-driven development for Spring Boot using JUnit 5, Mockito, MockMvc, Testcontainers, and JaCoCo. Use when adding features, fixing bugs, or refactoring.",
+    "summary": "name: springboot-tdd",
     "clients": [
       "claude",
       "codex",
@@ -1929,7 +3716,7 @@ export const forgeSkillOptions = [
   {
     "id": "springboot-verification",
     "title": "springboot-verification",
-    "summary": "Verification loop for Spring Boot projects: build, static analysis, tests with coverage, security scans, and diff review before release or PR.",
+    "summary": "name: springboot-verification",
     "clients": [
       "claude",
       "codex",
@@ -1951,7 +3738,7 @@ export const forgeSkillOptions = [
   {
     "id": "strategic-compact",
     "title": "strategic-compact",
-    "summary": "Suggests manual context compaction at logical intervals to preserve context through task phases rather than arbitrary auto-compaction.",
+    "summary": "name: strategic-compact",
     "clients": [
       "claude",
       "codex",
@@ -1985,7 +3772,7 @@ export const forgeSkillOptions = [
   {
     "id": "swift-actor-persistence",
     "title": "swift-actor-persistence",
-    "summary": "Thread-safe data persistence in Swift using actors — in-memory cache with file-backed storage, eliminating data races by design.",
+    "summary": "name: swift-actor-persistence",
     "clients": [
       "claude",
       "codex",
@@ -2002,7 +3789,7 @@ export const forgeSkillOptions = [
   {
     "id": "swift-concurrency-6-2",
     "title": "swift-concurrency-6-2",
-    "summary": "Swift 6.2 Approachable Concurrency — single-threaded by default, @concurrent for explicit background offloading, isolated conformances for main actor types.",
+    "summary": "name: swift-concurrency-6-2",
     "clients": [
       "claude",
       "codex",
@@ -2019,7 +3806,7 @@ export const forgeSkillOptions = [
   {
     "id": "swift-protocol-di-testing",
     "title": "swift-protocol-di-testing",
-    "summary": "Protocol-based dependency injection for testable Swift code — mock file system, network, and external APIs using focused protocols and Swift Testing.",
+    "summary": "name: swift-protocol-di-testing",
     "clients": [
       "claude",
       "codex",
@@ -2036,7 +3823,7 @@ export const forgeSkillOptions = [
   {
     "id": "swiftui-patterns",
     "title": "swiftui-patterns",
-    "summary": "SwiftUI architecture patterns, state management with @Observable, view composition, navigation, performance optimization, and modern iOS/macOS UI best practices.",
+    "summary": "name: swiftui-patterns",
     "clients": [
       "claude",
       "codex",
@@ -2061,38 +3848,6 @@ export const forgeSkillOptions = [
     ]
   },
   {
-    "id": "systematic-debugging",
-    "title": "systematic-debugging",
-    "summary": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes",
-    "clients": [
-      "claude",
-      "codex",
-      "gemini"
-    ],
-    "layer": "core",
-    "primaryFor": [
-      "developer",
-      "qa-strategist",
-      "release-devex"
-    ],
-    "recommendedByRole": [
-      "developer",
-      "qa-strategist",
-      "release-devex"
-    ],
-    "recommendedByStack": [
-      "frontend",
-      "java",
-      "python",
-      "qa",
-      "release",
-      "workflow-automation"
-    ],
-    "overlapGroup": "debugging",
-    "clusterRole": null,
-    "supportWhen": []
-  },
-  {
     "id": "systematic-debugging-sp",
     "title": "systematic-debugging",
     "summary": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes",
@@ -2112,7 +3867,7 @@ export const forgeSkillOptions = [
   {
     "id": "tdd-workflow",
     "title": "tdd-workflow",
-    "summary": "Use this skill when writing new features, fixing bugs, or refactoring code. Enforces test-driven development with 80%+ coverage including unit, integration, and E2E tests.",
+    "summary": "name: tdd-workflow",
     "clients": [
       "claude",
       "codex",
@@ -2141,9 +3896,26 @@ export const forgeSkillOptions = [
     ]
   },
   {
+    "id": "team-builder",
+    "title": "team-builder",
+    "summary": "name: team-builder",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "template-skill",
     "title": "template-skill",
-    "summary": "Replace with description of the skill and when Claude should use it.",
+    "summary": "name: template-skill",
     "clients": [
       "claude",
       "codex",
@@ -2190,7 +3962,24 @@ export const forgeSkillOptions = [
   {
     "id": "theme-factory",
     "title": "theme-factory",
-    "summary": "Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, reportings, HTML landing pages, etc. There are 10 pre-set themes with colors/fonts that you can apply to any artifact that has been creating, or can generate a",
+    "summary": "name: theme-factory",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "token-budget-advisor",
+    "title": "token-budget-advisor",
+    "summary": "name: token-budget-advisor",
     "clients": [
       "claude",
       "codex",
@@ -2207,7 +3996,7 @@ export const forgeSkillOptions = [
   {
     "id": "ui-styling",
     "title": "ui-styling",
-    "summary": "Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, crea",
+    "summary": "name: ui-styling",
     "clients": [
       "claude",
       "codex",
@@ -2243,7 +4032,7 @@ export const forgeSkillOptions = [
   {
     "id": "ui-ux-pro-max",
     "title": "ui-ux-pro-max",
-    "summary": "UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 9 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui). Actions: plan, build, create, design, implement, review, fix, impro",
+    "summary": "name: ui-ux-pro-max",
     "clients": [
       "claude",
       "codex",
@@ -2263,6 +4052,23 @@ export const forgeSkillOptions = [
     "supportWhen": [
       "明确需要大量风格探索、参考枚举或实验性 UI/UX 工作流时。"
     ]
+  },
+  {
+    "id": "universal-learner",
+    "title": "universal-learner",
+    "summary": "name: universal-learner",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
   },
   {
     "id": "using-git-worktrees",
@@ -2301,7 +4107,7 @@ export const forgeSkillOptions = [
   {
     "id": "vercel-react-best-practices",
     "title": "vercel-react-best-practices",
-    "summary": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React co",
+    "summary": "name: vercel-react-best-practices",
     "clients": [
       "claude",
       "codex",
@@ -2335,7 +4141,58 @@ export const forgeSkillOptions = [
   {
     "id": "verification-loop",
     "title": "verification-loop",
-    "summary": "A comprehensive verification system for Claude Code sessions.",
+    "summary": "name: verification-loop",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "video-editing",
+    "title": "video-editing",
+    "summary": "name: video-editing",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "video-master",
+    "title": "video-master",
+    "summary": "name: video-master",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
+    "id": "videodb",
+    "title": "videodb",
+    "summary": "name: videodb",
     "clients": [
       "claude",
       "codex",
@@ -2352,7 +4209,7 @@ export const forgeSkillOptions = [
   {
     "id": "visa-doc-translate",
     "title": "visa-doc-translate",
-    "summary": "Translate visa application documents (images) to English and create a bilingual PDF with original and translation",
+    "summary": "name: visa-doc-translate",
     "clients": [
       "claude",
       "codex",
@@ -2369,7 +4226,7 @@ export const forgeSkillOptions = [
   {
     "id": "web-artifacts-builder",
     "title": "web-artifacts-builder",
-    "summary": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components ",
+    "summary": "name: web-artifacts-builder",
     "clients": [
       "claude",
       "codex",
@@ -2386,7 +4243,7 @@ export const forgeSkillOptions = [
   {
     "id": "web-design-guidelines",
     "title": "web-design-guidelines",
-    "summary": "Review UI code for Web Interface Guidelines compliance. Use when asked to \"review my UI\", \"check accessibility\", \"audit design\", \"review UX\", or \"check my site against best practices\".",
+    "summary": "name: web-design-guidelines",
     "clients": [
       "claude",
       "codex",
@@ -2421,7 +4278,7 @@ export const forgeSkillOptions = [
   {
     "id": "web-frameworks",
     "title": "web-frameworks",
-    "summary": "Build modern full-stack web applications with Next.js (App Router, Server Components, RSC, PPR, SSR, SSG, ISR), Turborepo (monorepo management, task pipelines, remote caching, parallel execution), and RemixIcon (3100+ SVG icons in outlined/",
+    "summary": "name: web-frameworks",
     "clients": [
       "claude",
       "codex",
@@ -2444,7 +4301,7 @@ export const forgeSkillOptions = [
   {
     "id": "webapp-testing",
     "title": "webapp-testing",
-    "summary": "Toolkit for interacting with and testing local web applications using Playwright. Supports verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs.",
+    "summary": "name: webapp-testing",
     "clients": [
       "claude",
       "codex",
@@ -2472,8 +4329,8 @@ export const forgeSkillOptions = [
   },
   {
     "id": "when-stuck",
-    "title": "When Stuck - Problem-Solving Dispatch",
-    "summary": "Dispatch to the right problem-solving technique based on how you're stuck",
+    "title": "when-stuck",
+    "summary": "name: When Stuck - Problem-Solving Dispatch",
     "clients": [
       "claude",
       "codex",
@@ -2544,9 +4401,26 @@ export const forgeSkillOptions = [
     "supportWhen": []
   },
   {
+    "id": "x-api",
+    "title": "x-api",
+    "summary": "name: x-api",
+    "clients": [
+      "claude",
+      "codex",
+      "gemini"
+    ],
+    "layer": "specialized",
+    "primaryFor": [],
+    "recommendedByRole": [],
+    "recommendedByStack": [],
+    "overlapGroup": null,
+    "clusterRole": null,
+    "supportWhen": []
+  },
+  {
     "id": "xlsx",
     "title": "xlsx",
-    "summary": "Use this skill any time a spreadsheet file is the primary input or output. This means any task where the user wants to: open, read, edit, or fix an existing .xlsx, .xlsm, .csv, or .tsv file (e.g., adding columns, computing formulas, formatt",
+    "summary": "name: xlsx",
     "clients": [
       "claude",
       "codex",

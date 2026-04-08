@@ -4,7 +4,7 @@ $RepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 . (Join-Path $RepoRoot "scripts\lib\powershell-utf8.ps1")
 Initialize-ForgeEncoding
 
-$CodexHome = Join-Path $HOME ".codex"
+$CodexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME ".codex" }
 $ForgeHome = Join-Path $CodexHome "forge"
 
 $pass = 0

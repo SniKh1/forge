@@ -1,16 +1,19 @@
 {
-  "name": "forge",
+  "name": "forge-desktop-rebuild",
   "private": true,
-  "version": "0.4.10",
+  "version": "0.4.11",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run sync:forge && vite",
     "dev:tauri": "node ./scripts/run-dev-server.mjs",
-    "build": "node ./scripts/run-tsc.mjs -b && vite build",
+    "build": "npm run sync:forge && node ./scripts/run-tsc.mjs -b && vite build",
     "preview": "vite preview",
-    "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build",
-    "tauri": "tauri"
+    "sync:forge": "node ./scripts/sync-forge-sources.mjs",
+    "test": "npm run sync:forge && vitest run",
+    "tauri:dev": "npm run sync:forge && tauri dev",
+    "tauri:build": "npm run sync:forge && tauri build",
+    "tauri": "tauri",
+    "verify": "npm run sync:forge && node ./scripts/run-tsc.mjs -b && vite build"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.8.0",
@@ -27,6 +30,7 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.2",
-    "vite": "^7.1.3"
+    "vite": "^7.1.3",
+    "vitest": "^3.2.4"
   }
 }

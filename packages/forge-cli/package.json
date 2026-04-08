@@ -1,6 +1,6 @@
 {
   "name": "@forge/cli",
-  "version": "0.4.10",
+  "version": "0.4.11",
   "private": true,
   "bin": {
     "forge": "bin/forge.js"

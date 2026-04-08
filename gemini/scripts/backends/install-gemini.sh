@@ -4,7 +4,7 @@ set -euo pipefail
 BACKEND_DIR="$(cd "$(dirname "$0")" && pwd)"
 SCRIPT_DIR="$(cd "$BACKEND_DIR/../.." && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-GEMINI_HOME="$HOME/.gemini"
+GEMINI_HOME="${GEMINI_HOME:-$HOME/.gemini}"
 FORGE_HOME="$GEMINI_HOME/forge"
 COMPONENTS="${FORGE_COMPONENTS:-mcp,skills,memory}"
 MCP_SERVERS="${FORGE_MCP_SERVERS:-}"
@@ -72,6 +72,10 @@ if has_component "mcp"; then
   if [ -n "$MCP_SERVERS" ]; then
     mcp_args+=(--servers "$MCP_SERVERS")
   fi
-  FORGE_GEMINI_EXA_KEY="${FORGE_GEMINI_EXA_KEY:-}" bash "$SCRIPT_DIR/scripts/configure-gemini-mcp.sh" "${mcp_args[@]}"
+  if [ ${#mcp_args[@]} -gt 0 ]; then
+    FORGE_GEMINI_EXA_KEY="${FORGE_GEMINI_EXA_KEY:-}" bash "$SCRIPT_DIR/scripts/configure-gemini-mcp.sh" "${mcp_args[@]}"
+  else
+    FORGE_GEMINI_EXA_KEY="${FORGE_GEMINI_EXA_KEY:-}" bash "$SCRIPT_DIR/scripts/configure-gemini-mcp.sh"
+  fi
 fi
 bash "$SCRIPT_DIR/scripts/verify-gemini.sh"

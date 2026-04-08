@@ -27,12 +27,12 @@
     "notebooklm": {
       "type": "git-clone",
       "repo": "PleasePrompto/notebooklm-skill",
-      "branch": "main"
+      "branch": "master"
     },
     "planning-with-files": {
       "type": "git-clone",
       "repo": "OthmanAdi/planning-with-files",
-      "branch": "main"
+      "branch": "master"
     },
     "skill-prompt-generator": {
       "type": "git-clone",
@@ -356,22 +356,22 @@
     "notebooklm": {
       "source": "notebooklm",
       "path": ".",
-      "description": "Use this skill to query your Google NotebookLM notebooks directly from Claude Code for source-grounded, citation-backed "
+      "description": "Query NotebookLM notebooks for source-grounded answers, notebook-aware research, and document-backed knowledge workflows."
     },
     "obsidian-skills": {
       "source": "obsidian-skills",
       "path": ".",
-      "description": ""
+      "description": "Wrapper skill for Obsidian vault workflows, routing to bundled Obsidian markdown, bases, canvas, CLI, and ingestion skills."
     },
     "planning-with-files": {
       "source": "planning-with-files",
       "path": ".",
-      "description": ""
+      "description": "Persistent markdown planning files used as working memory for long multi-step tasks."
     },
     "skill-prompt-generator": {
       "source": "skill-prompt-generator",
       "path": ".",
-      "description": ""
+      "description": "Wrapper skill for bundled prompt-generation and prompt-analysis workflows."
     }
   }
 }

@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 
-export type Client = 'claude' | 'codex' | 'gemini';
+export type Client = 'claude' | 'codex' | 'gemini' | 'opencode';
 
 export type DetectionItem = {
   name: Client;
@@ -51,9 +51,12 @@ export type ActionPayload = {
   client: string;
   cwd?: string;
   lang?: string;
+  roleTitle?: string;
+  stackIds?: string[];
   components: string[];
   mcpServers: string[];
   skillNames: string[];
+  skillSyncMode?: 'selected' | 'full-library';
   secretValuesBase64?: string | null;
 };
 

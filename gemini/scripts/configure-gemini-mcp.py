@@ -18,7 +18,7 @@ def load_json(path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--gemini-home", default=os.path.expanduser("~/.gemini"))
+    parser.add_argument("--gemini-home", default=os.environ.get("GEMINI_HOME", os.path.expanduser("~/.gemini")))
     parser.add_argument("--exa-key", default=os.environ.get("FORGE_GEMINI_EXA_KEY", ""))
     parser.add_argument("--secret-values-base64", default=os.environ.get("FORGE_SECRET_VALUES_BASE64", ""))
     parser.add_argument("--install-uv", action="store_true")

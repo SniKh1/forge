@@ -3,17 +3,19 @@ $ScriptDir = Split-Path -Parent (Split-Path -Parent $BackendDir)
 $RootDir = Split-Path -Parent $ScriptDir
 . (Join-Path $RootDir "scripts\lib\powershell-utf8.ps1")
 Initialize-ForgeEncoding
-$GeminiHome = Join-Path $HOME ".gemini"
+$GeminiHome = if ($env:GEMINI_HOME) { $env:GEMINI_HOME } else { Join-Path $HOME ".gemini" }
 $ForgeHome = Join-Path $GeminiHome "forge"
 $Components = if ($env:FORGE_COMPONENTS) { $env:FORGE_COMPONENTS.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ } } else { @("mcp", "skills", "memory") }
 $McpServers = if ($env:FORGE_MCP_SERVERS) { $env:FORGE_MCP_SERVERS.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ } } else { @() }
 $SelectedSkills = if ($env:FORGE_SKILLS) { $env:FORGE_SKILLS.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ } } else { @() }
+$SkillSyncMode = if ($env:FORGE_SKILL_SYNC_MODE) { $env:FORGE_SKILL_SYNC_MODE } else { "selected" }
 
 function Has-Component([string]$name) {
     return $Components -contains $name
 }
 
 function Has-SelectedSkill([string]$name) {
+    if ($SkillSyncMode -eq "full-library") { return $true }
     if ($SelectedSkills.Count -eq 0) { return $true }
     return $SelectedSkills -contains $name
 }
@@ -46,8 +48,8 @@ if (Has-Component "skills") {
     New-Item -ItemType Directory -Path (Join-Path $GeminiHome "skills") -Force | Out-Null
     $syncScript = Join-Path $RootDir "scripts\sync-runtime-skills.cjs"
     if ((Get-Command node -ErrorAction SilentlyContinue) -and (Test-Path $syncScript)) {
-        $syncArgs = @($syncScript, $RootDir, (Join-Path $GeminiHome "skills"), "--mode", "full")
-        if ($env:FORGE_SKILLS) { $syncArgs += @("--selected", $env:FORGE_SKILLS) }
+        $syncArgs = @($syncScript, $RootDir, (Join-Path $GeminiHome "skills"), "--mode", "full", "--selection-mode", $SkillSyncMode)
+        if ($SkillSyncMode -ne "full-library" -and $env:FORGE_SKILLS) { $syncArgs += @("--selected", $env:FORGE_SKILLS) }
         & node @syncArgs | Out-Null
     } else {
         Get-ChildItem -Path (Join-Path $RootDir "skills") -Directory | Where-Object { $_.Name -ne "learned" -and -not $_.Name.StartsWith('.') } | ForEach-Object {

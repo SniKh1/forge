@@ -122,10 +122,11 @@
       ]
     },
     "ai-ml": {
-      "description": "AI multimodal processing and NotebookLM integration",
-      "description_zh": "AI 多模态处理与 NotebookLM 集成",
+      "description": "AI multimodal processing, NotebookLM research, and structured AI workflows",
+      "description_zh": "AI 多模态处理、NotebookLM 研究与结构化 AI 工作流",
       "required": false,
       "skills": [
+        "ai-multimodal",
         "notebooklm"
       ]
     },
@@ -148,7 +149,9 @@
         "slack-gif-creator",
         "skill-creator",
         "configure-ecc",
-        "project-guidelines-example"
+        "project-guidelines-example",
+        "claude-code",
+        "template-skill"
       ]
     }
   },

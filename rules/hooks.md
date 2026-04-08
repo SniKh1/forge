@@ -1,5 +1,13 @@
 # Hooks System
 
+## 当前状态
+
+hooks 系统当前处于**设计阶段**。本文档定义 hooks 的语义和触发时机，实际执行由各客户端运行时层实现。
+
+`hooks/hooks.json.template` 提供配置模板，实际 hook 行为由客户端（Claude、Codex、Gemini）的运行时处理，而非 Forge 核心直接执行。
+
+---
+
 hooks 是自动检查点，不是承载大段业务逻辑的地方。
 
 ## Hook Goals

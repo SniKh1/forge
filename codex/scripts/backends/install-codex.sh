@@ -6,7 +6,7 @@ set -e
 BACKEND_DIR="$(cd "$(dirname "$0")" && pwd)"
 SCRIPT_DIR="$(cd "$BACKEND_DIR/../.." && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-CODEX_HOME="$HOME/.codex"
+CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 FORGE_HOME="$CODEX_HOME/forge"
 BACKUP_DIR="$HOME/.codex-forge-backup-$(date +%Y%m%d-%H%M%S)"
 
@@ -18,6 +18,7 @@ CONFIGURE_MCP="${FORGE_CONFIGURE_CODEX_MCP:-1}"
 COMPONENTS="${FORGE_COMPONENTS:-mcp,skills,memory}"
 MCP_SERVERS="${FORGE_MCP_SERVERS:-}"
 SKILLS_LIST="${FORGE_SKILLS:-}"
+SKILL_SYNC_MODE="${FORGE_SKILL_SYNC_MODE:-selected}"
 
 if [ -n "${FORGE_LANG:-}" ]; then
   LANG="$FORGE_LANG"
@@ -47,6 +48,7 @@ has_component() {
 }
 
 has_selected_skill() {
+  [ "$SKILL_SYNC_MODE" = "full-library" ] && return 0
   [ -z "$SKILLS_LIST" ] && return 0
   case ",$SKILLS_LIST," in
     *",$1,"*) return 0 ;;
@@ -252,8 +254,8 @@ install_assets() {
   local skills=0
   if has_component "skills"; then
     if command -v node >/dev/null 2>&1 && [ -f "$ROOT_DIR/scripts/sync-runtime-skills.cjs" ]; then
-      sync_args=("$ROOT_DIR/scripts/sync-runtime-skills.cjs" "$ROOT_DIR" "$CODEX_HOME/skills" "--mode" "$INSTALL_MODE")
-      if [ -n "$FORGE_SKILLS" ]; then
+      sync_args=("$ROOT_DIR/scripts/sync-runtime-skills.cjs" "$ROOT_DIR" "$CODEX_HOME/skills" "--mode" "$INSTALL_MODE" "--selection-mode" "$SKILL_SYNC_MODE")
+      if [ "$SKILL_SYNC_MODE" != "full-library" ] && [ -n "$FORGE_SKILLS" ]; then
         sync_args+=("--selected" "$FORGE_SKILLS")
       fi
       skills=$(node "${sync_args[@]}" | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8")); process.stdout.write(String(d.installed||0));')

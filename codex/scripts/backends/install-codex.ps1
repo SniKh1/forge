@@ -12,7 +12,7 @@ $ScriptDir = Split-Path -Parent (Split-Path -Parent $BackendDir)
 $RootDir = Split-Path -Parent $ScriptDir
 . (Join-Path $RootDir "scripts\lib\powershell-utf8.ps1")
 Initialize-ForgeEncoding
-$CodexHome = Join-Path $env:USERPROFILE ".codex"
+$CodexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE ".codex" }
 $ForgeHome = Join-Path $CodexHome "forge"
 $BackupDir = Join-Path $env:USERPROFILE (".codex-forge-backup-" + (Get-Date -Format "yyyyMMdd-HHmmss"))
 
@@ -22,6 +22,7 @@ $ConfigureMcp = if ($env:FORGE_CONFIGURE_CODEX_MCP) { $env:FORGE_CONFIGURE_CODEX
 $Components = if ($env:FORGE_COMPONENTS) { $env:FORGE_COMPONENTS.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ } } else { @("mcp", "skills", "memory") }
 $McpServers = if ($env:FORGE_MCP_SERVERS) { $env:FORGE_MCP_SERVERS.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ } } else { @() }
 $SelectedSkills = if ($env:FORGE_SKILLS) { $env:FORGE_SKILLS.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ } } else { @() }
+$SkillSyncMode = if ($env:FORGE_SKILL_SYNC_MODE) { $env:FORGE_SKILL_SYNC_MODE } else { "selected" }
 
 if ($LangOverride) { $Lang = $LangOverride }
 if ($InstallModeOverride) { $InstallMode = $InstallModeOverride }
@@ -64,6 +65,7 @@ function Has-Component([string]$name) {
 }
 
 function Has-SelectedSkill([string]$name) {
+    if ($SkillSyncMode -eq "full-library") { return $true }
     if ($SelectedSkills.Count -eq 0) { return $true }
     return $SelectedSkills -contains $name
 }
@@ -239,8 +241,8 @@ function Install-Assets {
     if (Has-Component "skills") {
         $syncScript = Join-Path $RootDir "scripts\sync-runtime-skills.cjs"
         if ((Get-Command node -ErrorAction SilentlyContinue) -and (Test-Path $syncScript)) {
-            $syncArgs = @($syncScript, $RootDir, (Join-Path $CodexHome "skills"), "--mode", $InstallMode)
-            if ($env:FORGE_SKILLS) { $syncArgs += @("--selected", $env:FORGE_SKILLS) }
+            $syncArgs = @($syncScript, $RootDir, (Join-Path $CodexHome "skills"), "--mode", $InstallMode, "--selection-mode", $SkillSyncMode)
+            if ($SkillSyncMode -ne "full-library" -and $env:FORGE_SKILLS) { $syncArgs += @("--selected", $env:FORGE_SKILLS) }
             $syncJson = & node @syncArgs
             $syncResult = $syncJson | ConvertFrom-Json
             $skillCount = [int]$syncResult.installed
