@@ -1,4 +1,5 @@
 import { forgeSkillOptions } from './generated-catalog';
+import { forgeDeviceContext } from './generated-device-context';
 import { forgeDomainMcpMatrix } from './generated-domain-mcp';
 import { forgeRoleMcpMatrix } from './generated-role-mcp';
 import type {
@@ -66,13 +67,24 @@ export type ActionFeedbackVM = {
   title: string;
   impact: string;
   nextStep: string;
+  installedSummary?: string;
   raw: string;
   details: string[];
   warnings: string[];
 };
 
 export type PlatformActionKind = 'install' | 'repair' | 'verify' | 'bootstrap';
-export type WorkbenchView = 'persona' | 'extensions';
+export type WorkbenchView = 'persona' | 'connections' | 'extensions';
+
+export type McpOptionVM = {
+  id: string;
+  label: string;
+  description: string;
+  selected: boolean;
+  recommended: boolean;
+  builtin: boolean;
+  requiresSecret: boolean;
+};
 
 export type WorkbenchTabVM = {
   id: WorkbenchView;
@@ -555,11 +567,13 @@ export function buildActionFeedback<T>(
   const warningSummary = result.warnings[0];
   const tone = result.ok ? (result.warnings.length > 0 ? 'warn' : 'success') : 'error';
   const impact =
-    missingMcp.length > 0
-      ? `还有 ${missingMcp.length} 个连接未完成：${missingMcp.join(' · ')}`
-      : missingSkills.length > 0
-        ? `还有 ${missingSkills.length} 个能力未完成：${missingSkills.join(' · ')}`
-        : result.summary;
+    missingMcp.length > 0 && missingSkills.length > 0
+      ? `还有 ${missingSkills.length} 个能力、${missingMcp.length} 个连接未完成。`
+      : missingMcp.length > 0
+        ? `还有 ${missingMcp.length} 个连接未完成。`
+        : missingSkills.length > 0
+          ? `还有 ${missingSkills.length} 个能力未完成。`
+          : result.summary;
   const nextStep =
     missingMcp.length > 0 || missingSkills.length > 0
       ? '先补齐缺失项，再重新执行 Verify 确认状态稳定。'
@@ -567,21 +581,58 @@ export function buildActionFeedback<T>(
         ? `先处理提示项：${warningSummary}`
         : action === 'verify'
           ? result.ok
-            ? '可以继续微调角色组合，或返回主区重新验证。'
+            ? '配置已验证，状态稳定。'
             : '先查看 Requirements 和 Advanced Details，再决定是否修复。'
           : result.ok
             ? '建议马上再跑一次 Verify，确认结果已经稳定。'
             : '先打开详情查看原始输出，再修复缺项。';
+
+  const installedSummary = result.ok ? buildInstalledSummary(result.details) : undefined;
 
   return {
     tone,
     title: `${clientLabel(client)} · ${result.ok ? '已完成' : '未完成'}`,
     impact,
     nextStep,
+    installedSummary,
     raw: result.raw,
     details: result.details,
     warnings: result.warnings,
   };
+}
+
+function buildInstalledSummary(details: string[]): string | undefined {
+  // Backend emits: "verified_mcp=server1,server2 actual=server1,server2"
+  // and "verified_skills=skill1,skill2 actual=skill1,skill2"
+  const mcpLine = details.find((d) => d.startsWith('verified_mcp='));
+  const skillsLine = details.find((d) => d.startsWith('verified_skills='));
+
+  if (!mcpLine && !skillsLine) return undefined;
+
+  const parts: string[] = [];
+
+  if (skillsLine) {
+    // Parse "verified_skills=s1,s2 actual=s1,s2" — take the actual= part
+    const actualMatch = skillsLine.match(/actual=([^\s]+)/);
+    const actualSkills = actualMatch
+      ? actualMatch[1].split(',').filter(Boolean)
+      : skillsLine.slice('verified_skills='.length).split(' ')[0].split(',').filter(Boolean);
+    if (actualSkills.length > 0) {
+      parts.push(`${actualSkills.length} 个能力`);
+    }
+  }
+
+  if (mcpLine) {
+    const actualMatch = mcpLine.match(/actual=([^\s]+)/);
+    const actualMcp = actualMatch
+      ? actualMatch[1].split(',').filter(Boolean)
+      : mcpLine.slice('verified_mcp='.length).split(' ')[0].split(',').filter(Boolean);
+    if (actualMcp.length > 0) {
+      parts.push(`${actualMcp.length} 个连接器`);
+    }
+  }
+
+  return parts.length > 0 ? `已写入全局配置：${parts.join(' · ')}` : undefined;
 }
 
 function extractDetailValues(details: string[], key: string) {
@@ -600,11 +651,13 @@ export function buildWorkbenchTabs(args: {
   roleTitle: string;
   stackCount: number;
   skillCount: number;
+  selectedMcpCount: number;
 }): WorkbenchTabVM[] {
-  const { roleTitle, stackCount, skillCount } = args;
+  const { roleTitle, stackCount, skillCount, selectedMcpCount } = args;
   return [
     { id: 'persona', label: '角色与能力', meta: roleTitle },
-    { id: 'extensions', label: '连接与记忆', meta: `${stackCount} 个模块 · ${skillCount} 个能力` },
+    { id: 'connections', label: '连接器', meta: `${selectedMcpCount} 个已选` },
+    { id: 'extensions', label: '记忆层', meta: `${stackCount} 个模块 · ${skillCount} 个能力` },
   ];
 }
 
@@ -637,6 +690,88 @@ export function buildRecommendedMcpIds(roleIds: RoleId[], stackIds: StackId[]) {
 
   return Array.from(recommended);
 }
+
+const mcpLabels: Record<string, string> = {
+  'sequential-thinking': 'Sequential Thinking',
+  'context7': 'Context7',
+  'memory': 'Memory',
+  'fetch': 'Fetch',
+  'playwright': 'Playwright',
+  'deepwiki': 'DeepWiki',
+  'exa': 'Exa Search',
+  'pencil': 'Pencil',
+  'bing-search': 'Bing Search',
+  'firecrawl': 'Firecrawl',
+  'n8n': 'n8n',
+  'trendradar': 'Trend Radar',
+  'drawio': 'Draw.io',
+  'figma': 'Figma',
+};
+
+const mcpDescriptions: Record<string, string> = {
+  'sequential-thinking': '复杂问题分步推理，适合多步骤分析任务。',
+  'context7': '文档与示例检索，快速查阅库文档和 API 参考。',
+  'memory': '跨会话记忆，让 AI 记住项目上下文和偏好。',
+  'fetch': '通用 HTTP 抓取，读取网页内容和 API 数据。',
+  'playwright': '浏览器自动化与网页验证，支持 E2E 测试。',
+  'deepwiki': '开源仓库说明与结构检索，理解代码库架构。',
+  'exa': '联网搜索，获取最新信息（需要 EXA API Key）。',
+  'pencil': '设计画布与视觉编辑（仅 macOS Codex/Gemini）。',
+  'bing-search': 'Bing 搜索（需要 Bing API Key）。',
+  'firecrawl': 'Firecrawl 网页抓取（需要 Firecrawl API Key）。',
+  'n8n': 'n8n 工作流接入（需要 API URL 和 Key）。',
+  'trendradar': '趋势雷达与话题跟踪。',
+  'drawio': 'draw.io 图表与流程图编辑。',
+  'figma': 'Figma 设计文件读取（仅 Codex/Gemini，需要 OAuth Token）。',
+};
+
+const mcpRequiresSecret: Record<string, boolean> = {
+  'exa': true,
+  'bing-search': true,
+  'firecrawl': true,
+  'n8n': true,
+  'figma': true,
+};
+
+export function buildMcpOptions(args: {
+  client: Client;
+  selectedMcpServers: string[];
+  recommendedMcpIds: string[];
+}): McpOptionVM[] {
+  const { client, selectedMcpServers, recommendedMcpIds } = args;
+  const selectedSet = new Set(selectedMcpServers);
+  const recommendedSet = new Set(recommendedMcpIds);
+  const builtinIds = forgeDeviceContext.forge.builtinMcpServerIds;
+
+  // Filter by client compatibility using the known client restrictions
+  const clientExcluded: Record<string, string[]> = {
+    'pencil': ['claude'],
+    'figma': ['claude'],
+  };
+
+  const options: McpOptionVM[] = builtinIds
+    .filter((id) => {
+      const excluded = clientExcluded[id];
+      return !excluded || !excluded.includes(client);
+    })
+    .map((id) => ({
+      id,
+      label: mcpLabels[id] ?? id,
+      description: mcpDescriptions[id] ?? '扩展 AI 客户端能力。',
+      selected: selectedSet.has(id),
+      recommended: recommendedSet.has(id),
+      builtin: true,
+      requiresSecret: mcpRequiresSecret[id] ?? false,
+    }));
+
+  // Sort: selected first, then recommended, then rest (alphabetical within groups)
+  return options.sort((a, b) => {
+    if (a.selected !== b.selected) return a.selected ? -1 : 1;
+    if (a.recommended !== b.recommended) return a.recommended ? -1 : 1;
+    return a.label.localeCompare(b.label, 'zh-CN');
+  });
+}
+
 
 export function buildExtensionMeta(args: {
   selectedMcpServers: string[];

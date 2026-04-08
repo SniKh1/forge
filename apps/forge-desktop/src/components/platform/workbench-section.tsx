@@ -1,10 +1,11 @@
 import { useMemo, useState, useEffect } from 'react';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight, ChevronDown, Check } from 'lucide-react';
 import type { RoleId, StackId } from '../../platform-data';
 import type {
   ActionFeedbackVM,
   ApplyScopeVM,
   ExtensionMetaVM,
+  McpOptionVM,
   RequirementVM,
   RoleOptionVM,
   SkillCompositionVM,
@@ -50,6 +51,8 @@ export function PlatformWorkbenchSection(props: {
   currentExtension: ExtensionMetaVM;
   requiredSecretKeys: string[];
   toggleExtension: (view: 'mcp' | 'memory') => void;
+  mcpOptions: McpOptionVM[];
+  onToggleMcpServer: (id: string) => void;
   requirements: RequirementVM[];
   setDrawerMode: (mode: DrawerMode) => void;
 }) {
@@ -165,6 +168,27 @@ export function PlatformWorkbenchSection(props: {
             {props.latestFeedback.warnings.length > 0 ? (
               <WorkbenchStat label={`${props.latestFeedback.warnings.length} 条警告`} />
             ) : null}
+          </div>
+        </div>
+      ) : props.latestFeedback && props.latestFeedback.tone === 'success' ? (
+        <div className="mt-4 rounded-[20px] border border-emerald-200 bg-emerald-50 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-600/70">安装成功</div>
+              <div className="mt-1.5 text-[15px] font-semibold text-emerald-900">{props.latestFeedback.title}</div>
+              {props.latestFeedback.installedSummary ? (
+                <div className="mt-2 text-[13px] font-medium text-emerald-800">{props.latestFeedback.installedSummary}</div>
+              ) : null}
+              <div className="mt-1 text-[12px] text-emerald-700/80">{props.latestFeedback.nextStep}</div>
+            </div>
+            <button
+              type="button"
+              onClick={props.onDismissFeedback}
+              className="text-emerald-600/50 hover:text-emerald-600/80"
+              aria-label="关闭"
+            >
+              ✕
+            </button>
           </div>
         </div>
       ) : null}
@@ -630,12 +654,85 @@ export function PlatformWorkbenchSection(props: {
 
               <button
                 type="button"
-                onClick={() => props.setWorkbenchView('extensions')}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-[14px] border border-slate-200 bg-white px-4 py-3 text-[13px] font-medium text-slate-700"
+                onClick={() => props.setWorkbenchView('connections')}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-[14px] border border-slate-200 bg-white px-4 py-3 text-[13px] font-medium text-slate-700 cursor-pointer hover:bg-slate-50 transition-colors duration-150"
               >
-                管理连接与记忆
+                管理 MCP 连接器
                 <ArrowRight className="h-4 w-4" />
               </button>
+            </div>
+          </div>
+        ) : null}
+
+        {props.workbenchView === 'connections' ? (
+          <div className="space-y-4">
+            <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">连接器</div>
+                  <div className="mt-1.5 text-[15px] font-semibold text-slate-900">选择要启用的 MCP 服务</div>
+                  <div className="mt-1 text-[12px] leading-5 text-slate-600">
+                    MCP 连接器独立于角色和能力，按需补强。带 <span className="font-medium text-emerald-700">推荐</span> 标签的是当前角色和模块建议的连接。
+                  </div>
+                </div>
+                <WorkbenchStat label={`${props.mcpOptions.filter((o) => o.selected).length} / ${props.mcpOptions.length} 已选`} />
+              </div>
+
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {props.mcpOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => props.onToggleMcpServer(option.id)}
+                    className={`rounded-[14px] border px-3.5 py-3 text-left transition-all duration-150 cursor-pointer ${
+                      option.selected
+                        ? 'border-slate-900 bg-slate-900 text-white shadow-[0_8px_20px_rgba(15,23,42,0.12)]'
+                        : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[12px] font-semibold truncate">{option.label}</span>
+                          {option.recommended && !option.selected ? (
+                            <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">推荐</span>
+                          ) : null}
+                          {option.requiresSecret ? (
+                            <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${option.selected ? 'bg-white/15 text-white/80' : 'bg-amber-50 text-amber-700'}`}>需要密钥</span>
+                          ) : null}
+                        </div>
+                        <div className={`mt-1 text-[11px] leading-4 ${option.selected ? 'text-white/70' : 'text-slate-500'}`}>
+                          {option.description}
+                        </div>
+                      </div>
+                      <div className={`shrink-0 mt-0.5 h-4 w-4 rounded-full border flex items-center justify-center transition-colors duration-150 ${
+                        option.selected
+                          ? 'border-white bg-white'
+                          : 'border-slate-300 bg-transparent'
+                      }`}>
+                        {option.selected ? <Check className="h-2.5 w-2.5 text-slate-900" /> : null}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {props.mcpOptions.some((o) => o.requiresSecret && o.selected) ? (
+                <div className="mt-3 rounded-[14px] border border-amber-200 bg-amber-50 px-3 py-3">
+                  <div className="text-[12px] font-semibold text-amber-800">部分连接需要密钥</div>
+                  <div className="mt-1 text-[11px] leading-5 text-amber-700">
+                    已选中需要 API Key 的连接器，请在高级设置里补齐密钥后再执行安装。
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => props.setDrawerMode('secrets')}
+                    className="mt-2 inline-flex items-center gap-1.5 rounded-[10px] border border-amber-300 bg-white px-3 py-1.5 text-[11px] font-medium text-amber-800 cursor-pointer hover:bg-amber-50 transition-colors duration-150"
+                  >
+                    填写密钥
+                    <ArrowRight className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : null}
             </div>
           </div>
         ) : null}

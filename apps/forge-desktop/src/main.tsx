@@ -50,6 +50,7 @@ import {
   buildClientCards,
   buildExtensionMeta,
   buildHero,
+  buildMcpOptions,
   buildRecommendedMcpIds,
   buildRequirements,
   buildRoleOptions,
@@ -65,6 +66,7 @@ import {
   statusTone,
   supportLabel,
   type ActionFeedbackVM,
+  type McpOptionVM,
   type PlatformActionKind,
   type WorkbenchView,
 } from './platform-vm';
@@ -398,6 +400,7 @@ function App() {
     roleTitle: activeRoleTitle,
     stackCount: activePersona.stackIds.length,
     skillCount: selectedSkills.length,
+    selectedMcpCount: selectedMcpServers.length,
   });
   const localSkillPreview = skillTitles(forgeDeviceContext.device.localSkillIds.slice(0, 12));
   const configuredCodexMcpPreview = forgeDeviceContext.device.configuredCodexMcpServerIds;
@@ -788,6 +791,25 @@ function App() {
     }));
   }
 
+  function toggleMcpServer(serverId: string) {
+    updateActivePersona((current) => {
+      const exists = current.mcpServers.includes(serverId);
+      const nextServers = exists
+        ? current.mcpServers.filter((item) => item !== serverId)
+        : [...current.mcpServers, serverId];
+      const nextLayers = nextServers.length > 0
+        ? Array.from(new Set([...current.enabledLayers, 'mcp' as const]))
+        : current.enabledLayers.filter((item) => item !== 'mcp');
+      return { ...current, mcpServers: nextServers, enabledLayers: nextLayers };
+    });
+  }
+
+  const mcpOptions = buildMcpOptions({
+    client: activeClient,
+    selectedMcpServers,
+    recommendedMcpIds,
+  });
+
   function toggleExtraSkill(skillId: string) {
     updateActivePersona((current) => {
       const exists = current.extraSkillIds.includes(skillId);
@@ -965,6 +987,8 @@ function App() {
               currentExtension={currentExtension}
               requiredSecretKeys={requiredSecretKeys}
               toggleExtension={toggleExtension}
+              mcpOptions={mcpOptions}
+              onToggleMcpServer={toggleMcpServer}
               requirements={requirements}
               setDrawerMode={(mode) => setDrawerMode(mode)}
             />
