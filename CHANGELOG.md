@@ -6,6 +6,15 @@ The format follows a Keep a Changelog style, adapted for Forge.
 
 ## [Unreleased]
 
+## [0.4.11] - 2026-04-08
+
+### Changed
+- Refined the Forge Desktop workbench flow so the Codex platform path reflects the current desktop selection state more clearly during apply and verification.
+
+### Fixed
+- Fixed Unix Codex installs so `full-library` skill sync now forwards the intended selection mode and no longer reports large batches of missing skills after desktop apply.
+- Fixed desktop capability verification messaging and related UI state so follow-up validation better matches the actual installed result.
+
 ## [0.4.10] - 2026-03-23
 
 ### Fixed
