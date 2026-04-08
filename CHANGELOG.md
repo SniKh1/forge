@@ -6,6 +6,12 @@ The format follows a Keep a Changelog style, adapted for Forge.
 
 ## [Unreleased]
 
+## [0.4.12] - 2026-04-08
+
+### Fixed
+- Fixed desktop release builds after the 0.4.11 version cut accidentally rewrote a Rust dependency version in `Cargo.lock`, which broke Tauri packaging on both macOS and Windows.
+- Added a CI guard that runs `cargo metadata --locked` for the desktop Tauri app so invalid Rust lockfile changes fail on normal branch CI before a release tag is cut.
+
 ## [0.4.11] - 2026-04-08
 
 ### Changed
